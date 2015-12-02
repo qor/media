@@ -8,8 +8,8 @@ import (
 
 	"strings"
 
-	"github.com/qor/qor/media_library"
-	"github.com/qor/qor/media_library/aliyun/config"
+	"github.com/qor/media_library"
+	"github.com/qor/media_library/aliyun/config"
 	"github.com/sunfmin/ali-oss"
 )
 

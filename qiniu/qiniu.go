@@ -11,7 +11,7 @@ import (
 	qnconf "github.com/qiniu/api.v6/conf"
 	qnio "github.com/qiniu/api.v6/io"
 	qnrs "github.com/qiniu/api.v6/rs"
-	"github.com/qor/qor/media_library"
+	"github.com/qor/media_library"
 )
 
 var (
