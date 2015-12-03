@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/jinzhu/gorm"
-	"github.com/qor/qor/media_library"
+	"github.com/qor/media_library"
 	"github.com/qor/qor/test/utils"
 )
 
