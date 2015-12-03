@@ -18,7 +18,7 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/jinzhu/gorm"
-	"github.com/qor/inflection"
+	"github.com/jinzhu/inflection"
 	"github.com/qor/qor/admin"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
