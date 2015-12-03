@@ -35,6 +35,7 @@ type User struct {
 
 func init() {
 	db.AutoMigrate(&User{})
+	media_library.RegisterCallbacks(db)
 }
 
 func TestURLWithoutFile(t *testing.T) {
