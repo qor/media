@@ -65,7 +65,7 @@ func SaveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 			if value, ok := scope.Value.(serializable_meta.SerializableMetaInterface); ok {
 				for _, field := range scope.New(value.GetSerializableArgument(value)).Fields() {
 					if cropField(field, scope) && isCreate {
-						updateColumns[field.DBName] = field.Field.Interface()
+						updateColumns["value"] = field.Field.Interface()
 					}
 				}
 			}
