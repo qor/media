@@ -63,8 +63,12 @@ func (s S3) GetURLTemplate(option *media_library.Option) (path string) {
 }
 
 func (s S3) Store(url string, option *media_library.Option, reader io.Reader) error {
-	var buffer = []byte{}
-	reader.Read(buffer)
+	buffer, err := ioutil.ReadAll(reader)
+
+	if err != nil {
+		return err
+	}
+
 	fileBytes := bytes.NewReader(buffer)
 
 	path := strings.Replace(url, "//"+getEndpoint(option), "", -1)
@@ -82,7 +86,7 @@ func (s S3) Store(url string, option *media_library.Option, reader io.Reader) er
 		},
 	}
 
-	_, err := S3Client.PutObject(params)
+	_, err = S3Client.PutObject(params)
 	return err
 }
 
