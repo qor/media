@@ -19,7 +19,7 @@ func (f FileSystem) GetFullPath(url string, option *Option) (path string, err er
 
 	dir := filepath.Dir(path)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
+		err = os.MkdirAll(dir, os.ModePerm)
 	}
 
 	return
