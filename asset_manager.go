@@ -20,7 +20,7 @@ type AssetManager struct {
 func (*AssetManager) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		router := res.GetAdmin().GetRouter()
-		router.Post(fmt.Sprintf("^/%v/upload", res.ToParam()), func(context *admin.Context) {
+		router.Post(fmt.Sprintf("/%v/upload", res.ToParam()), func(context *admin.Context) {
 			result := AssetManager{}
 			result.File.Scan(context.Request.MultipartForm.File["file"])
 			context.GetDB().Save(&result)
@@ -29,7 +29,7 @@ func (*AssetManager) ConfigureQorResource(res resource.Resourcer) {
 		})
 
 		assetURL := regexp.MustCompile(`^/system/assets/(\d+)/`)
-		router.Post(fmt.Sprintf("^/%v/crop", res.ToParam()), func(context *admin.Context) {
+		router.Post(fmt.Sprintf("/%v/crop", res.ToParam()), func(context *admin.Context) {
 			var err error
 			var url struct{ Url string }
 			defer context.Request.Body.Close()
