@@ -19,6 +19,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/jinzhu/gorm"
 	"github.com/jinzhu/inflection"
+	"github.com/qor/qor"
 	"github.com/qor/qor/admin"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
@@ -182,6 +183,14 @@ func (b Base) GetSizes() map[string]Size {
 func (b Base) IsImage() bool {
 	_, err := getImageFormat(b.URL())
 	return err == nil
+}
+
+func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
+	if meta, ok := meta.(*admin.Meta); ok {
+		meta.SetFormattedValuer(func(value interface{}, context *qor.Context) interface{} {
+			return utils.Stringify(meta.GetValuer()(value, context))
+		})
+	}
 }
 
 func (Base) ConfigureQorMeta(meta resource.Metaor) {
