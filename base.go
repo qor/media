@@ -187,15 +187,17 @@ func (b Base) IsImage() bool {
 
 func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 	if meta, ok := meta.(*admin.Meta); ok {
-		meta.SetFormattedValuer(func(value interface{}, context *qor.Context) interface{} {
-			return utils.Stringify(meta.GetValuer()(value, context))
-		})
-	}
-}
-
-func (Base) ConfigureQorMeta(meta resource.Metaor) {
-	if meta, ok := meta.(*admin.Meta); ok {
 		meta.Type = "file"
+
+		if meta.GetFormattedValuer() == nil {
+			meta.SetFormattedValuer(func(value interface{}, context *qor.Context) interface{} {
+				return utils.Stringify(meta.GetValuer()(value, context))
+			})
+		}
+
+		for _, gopath := range strings.Split(os.Getenv("GOPATH"), ":") {
+			admin.RegisterViewPath(path.Join(gopath, "src/github.com/qor/media_library/views"))
+		}
 	}
 }
 
