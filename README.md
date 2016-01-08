@@ -1,12 +1,12 @@
-## Introduction
+## Media Library
 
-Media Library is a [Golang](http://golang.org/) library based on [GORM](https://github.com/jinzhu/gorm), it will add uploading files to cloud or other destinations with support for image cropping and resizing features to any structs.
+Media Library is a [Golang](http://golang.org/) library based on [GORM](https://github.com/jinzhu/gorm), used to add uploading files to cloud or other destinations with support for image cropping and resizing features to any structs.
 
-It is easy to be extend to support any cloud storages, rightnow, it has filesystem, s3, aliyun, qiniu support.
+It is easy to be extend to support any cloud storages, right now, it provide filesystem, s3, aliyun, qiniu support.
 
 ## Usage
 
-Media library is using [GORM](https://github.com/jinzhu/gorm)'s callbacks to process files, so you needs to register callbacks to gorm DB first, do it like:
+Media library is using [GORM](https://github.com/jinzhu/gorm)'s callbacks to process files, so you need to register callbacks to gorm DB first, do it like:
 
 ```go
 import "github.com/jinzhu/gorm"
@@ -17,7 +17,7 @@ DB, err = gorm.Open("sqlite3", "demo_db") // [gorm](https://github.com/jinzhu/go
 media_library.RegisterCallbacks(&DB)
 ```
 
-Add supprots to structs
+Add supports to structs
 
 ```go
 // upload file to FileSystem
@@ -76,4 +76,14 @@ func (ProductIconImageStorage) GetSizes() map[string]media_library.Size {
 
 ## [Qor Support](https://github.com/qor/qor)
 
-Media library could be used alone, and it could works nicely with qor, it you want a admin with CURD support, please check [it](https://github.com/qor/qor) out!
+[QOR](http://getqor.com) is architected from the ground up to accelerate development and deployment of Content Management Systems, E-commerce Systems, and Business Applications, and comprised of modules that abstract common features for such system.
+
+Media library could be used alone, and it works nicely with QOR, if you have requirements to manage your application's data, be sure to check QOR out!
+
+[QOR Demo:  http://demo.getqor.com/admin](http://demo.getqor.com/admin)
+
+[Media Library Demo with QOR](http://demo.getqor.com/admin/products/1)
+
+## License
+
+Released under the [MIT License](http://opensource.org/licenses/MIT).
