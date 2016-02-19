@@ -195,9 +195,7 @@ func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 			})
 		}
 
-		for _, gopath := range strings.Split(os.Getenv("GOPATH"), ":") {
-			admin.RegisterViewPath(path.Join(gopath, "src/github.com/qor/media_library/views"))
-		}
+		admin.RegisterViewPath("github.com/qor/media_library/views")
 	}
 }
 
