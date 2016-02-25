@@ -5,7 +5,7 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/qor/qor/media_library"
+	"github.com/qor/media_library"
 
 	"gopkg.in/h2non/bimg.v0"
 )
@@ -16,9 +16,9 @@ func (bimgImageHandler) CouldHandle(media media_library.MediaLibrary) bool {
 	return media.IsImage()
 }
 
-func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.File, option *media_library.Option) error {
+func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.File, option *media_library.Option) (err error) {
 	// Save Original Image
-	if err := media.Store(media.URL("original"), option, file); err == nil {
+	if err = media.Store(media.URL("original"), option, file); err == nil {
 		file.Seek(0, 0)
 
 		// Crop & Resize
@@ -84,9 +84,9 @@ func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.
 			}
 		}
 		return nil
-	} else {
-		return err
 	}
+
+	return err
 }
 
 func init() {

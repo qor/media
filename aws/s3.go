@@ -22,13 +22,13 @@ type S3 struct {
 
 var client *s3.S3
 var awsRegion = os.Getenv("QOR_AWS_REGION")
-var awsAccessKeyId = os.Getenv("QOR_AWS_ACCESS_KEY_ID")
+var awsAccessKeyID = os.Getenv("QOR_AWS_ACCESS_KEY_ID")
 var awsSecretAccessKey = os.Getenv("QOR_AWS_SECRET_ACCESS_KEY")
 var awsSessionToken = os.Getenv("QOR_AWS_SESSION_TOKEN")
 
 func s3client() *s3.S3 {
 	if client == nil {
-		creds := credentials.NewStaticCredentials(awsAccessKeyId, awsSecretAccessKey, awsSessionToken)
+		creds := credentials.NewStaticCredentials(awsAccessKeyID, awsSecretAccessKey, awsSessionToken)
 
 		if _, err := creds.Get(); err == nil {
 			client = s3.New(session.New(), &aws.Config{
@@ -94,17 +94,16 @@ func (s S3) Store(url string, option *media_library.Option, reader io.Reader) er
 }
 
 // Retrieve retrieve file content with url
-func (s S3) Retrieve(url string) (*os.File, error) {
+func (s S3) Retrieve(url string) (file *os.File, err error) {
 	response, err := http.Get("http:" + url)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
 
-	if file, err := ioutil.TempFile("/tmp", "s3"); err == nil {
+	if file, err = ioutil.TempFile("/tmp", "s3"); err == nil {
 		_, err := io.Copy(file, response.Body)
 		return file, err
-	} else {
-		return nil, err
 	}
+	return nil, err
 }

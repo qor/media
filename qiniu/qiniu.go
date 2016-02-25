@@ -96,17 +96,16 @@ func (q Qiniu) Store(url string, option *media_library.Option, reader io.Reader)
 }
 
 // Retrieve retrieve file content with url
-func (q Qiniu) Retrieve(url string) (*os.File, error) {
+func (q Qiniu) Retrieve(url string) (file *os.File, err error) {
 	response, err := http.Get("http:" + url)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
 
-	if file, err := ioutil.TempFile("/tmp", "qiniu"); err == nil {
+	if file, err = ioutil.TempFile("/tmp", "qiniu"); err == nil {
 		_, err := io.Copy(file, response.Body)
 		return file, err
-	} else {
-		return nil, err
 	}
+	return nil, err
 }
