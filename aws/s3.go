@@ -15,28 +15,29 @@ import (
 	"github.com/qor/media_library"
 )
 
+// S3 a struct used to upload files to S3
 type S3 struct {
 	media_library.Base
 }
 
-var S3Client *s3.S3
-var AwsRegion = os.Getenv("QOR_AWS_REGION")
-var AwsAccessKeyId = os.Getenv("QOR_AWS_ACCESS_KEY_ID")
-var AwsSecretAccessKey = os.Getenv("QOR_AWS_SECRET_ACCESS_KEY")
-var AwsSessionToken = os.Getenv("QOR_AWS_SESSION_TOKEN")
+var client *s3.S3
+var awsRegion = os.Getenv("QOR_AWS_REGION")
+var awsAccessKeyId = os.Getenv("QOR_AWS_ACCESS_KEY_ID")
+var awsSecretAccessKey = os.Getenv("QOR_AWS_SECRET_ACCESS_KEY")
+var awsSessionToken = os.Getenv("QOR_AWS_SESSION_TOKEN")
 
 func s3client() *s3.S3 {
-	if S3Client == nil {
-		creds := credentials.NewStaticCredentials(AwsAccessKeyId, AwsSecretAccessKey, AwsSessionToken)
+	if client == nil {
+		creds := credentials.NewStaticCredentials(awsAccessKeyId, awsSecretAccessKey, awsSessionToken)
 
 		if _, err := creds.Get(); err == nil {
-			S3Client = s3.New(session.New(), &aws.Config{
-				Region:      &AwsRegion,
+			client = s3.New(session.New(), &aws.Config{
+				Region:      &awsRegion,
 				Credentials: creds,
 			})
 		}
 	}
-	return S3Client
+	return client
 }
 
 func getBucket(option *media_library.Option) string {
@@ -51,7 +52,7 @@ func getEndpoint(option *media_library.Option) string {
 		return endpoint
 	}
 
-	return getBucket(option) + "." + *S3Client.Config.Endpoint
+	return getBucket(option) + "." + *s3client().Config.Endpoint
 }
 
 func (s S3) GetURLTemplate(option *media_library.Option) (path string) {
@@ -86,7 +87,7 @@ func (s S3) Store(url string, option *media_library.Option, reader io.Reader) er
 		},
 	}
 
-	_, err = S3Client.PutObject(params)
+	_, err = s3client().PutObject(params)
 	return err
 }
 
