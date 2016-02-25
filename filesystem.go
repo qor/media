@@ -6,10 +6,12 @@ import (
 	"path/filepath"
 )
 
+// FileSystem defined a media library storage using file system
 type FileSystem struct {
 	Base
 }
 
+// GetFullPath return full file path from a relative file path
 func (f FileSystem) GetFullPath(url string, option *Option) (path string, err error) {
 	if option != nil && option.Get("path") != "" {
 		path = filepath.Join(option.Get("path"), url)
@@ -25,23 +27,20 @@ func (f FileSystem) GetFullPath(url string, option *Option) (path string, err er
 	return
 }
 
-func (f FileSystem) Store(url string, option *Option, reader io.Reader) error {
-	if fullpath, err := f.GetFullPath(url, option); err == nil {
+// Store save reader's context with name
+func (f FileSystem) Store(name string, option *Option, reader io.Reader) (err error) {
+	if fullpath, err := f.GetFullPath(name, option); err == nil {
 		if dst, err := os.Create(fullpath); err == nil {
-			_, err := io.Copy(dst, reader)
-			return err
-		} else {
-			return err
+			_, err = io.Copy(dst, reader)
 		}
-	} else {
-		return err
 	}
+	return err
 }
 
+// Retrieve retrieve file content with url
 func (f FileSystem) Retrieve(url string) (*os.File, error) {
 	if fullpath, err := f.GetFullPath(url, nil); err == nil {
 		return os.Open(fullpath)
-	} else {
-		return nil, os.ErrNotExist
 	}
+	return nil, os.ErrNotExist
 }

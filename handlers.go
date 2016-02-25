@@ -9,24 +9,26 @@ import (
 
 var mediaLibraryHandlers = make(map[string]MediaLibraryHandler)
 
+// MediaLibraryHandler media library handler interface, defined which files could be handled, and the handler
 type MediaLibraryHandler interface {
 	CouldHandle(media MediaLibrary) bool
 	Handle(media MediaLibrary, file multipart.File, option *Option) error
 }
 
+// RegisterMediaLibraryHandler register Media library handler
 func RegisterMediaLibraryHandler(name string, handler MediaLibraryHandler) {
 	mediaLibraryHandlers[name] = handler
 }
 
-// Register default image handler
+// imageHandler default image handler
 type imageHandler struct{}
 
 func (imageHandler) CouldHandle(media MediaLibrary) bool {
 	return media.IsImage()
 }
 
-func (imageHandler) Handle(media MediaLibrary, file multipart.File, option *Option) error {
-	if err := media.Store(media.URL("original"), option, file); err == nil {
+func (imageHandler) Handle(media MediaLibrary, file multipart.File, option *Option) (err error) {
+	if err = media.Store(media.URL("original"), option, file); err == nil {
 		file.Seek(0, 0)
 
 		if img, err := imaging.Decode(file); err == nil {
@@ -51,16 +53,11 @@ func (imageHandler) Handle(media MediaLibrary, file multipart.File, option *Opti
 					imaging.Encode(&buffer, dst, *format)
 					media.Store(media.URL(key), option, &buffer)
 				}
-				return nil
-			} else {
-				return err
 			}
-		} else {
-			return err
 		}
-	} else {
-		return err
 	}
+
+	return err
 }
 
 func init() {

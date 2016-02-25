@@ -59,7 +59,7 @@ func cropField(field *gorm.Field, scope *gorm.Scope) (cropped bool) {
 	return false
 }
 
-func SaveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
+func saveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 	return func(scope *gorm.Scope) {
 		if !scope.HasError() {
 			var updateColumns = map[string]interface{}{}
@@ -86,7 +86,8 @@ func SaveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 	}
 }
 
+// RegisterCallbacks register callback into GORM DB
 func RegisterCallbacks(db *gorm.DB) {
-	db.Callback().Update().Before("gorm:before_update").Register("media_library:save_and_crop", SaveAndCropImage(false))
-	db.Callback().Create().After("gorm:after_create").Register("media_library:save_and_crop", SaveAndCropImage(true))
+	db.Callback().Update().Before("gorm:before_update").Register("media_library:save_and_crop", saveAndCropImage(false))
+	db.Callback().Create().After("gorm:after_create").Register("media_library:save_and_crop", saveAndCropImage(true))
 }

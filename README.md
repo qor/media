@@ -1,12 +1,12 @@
 ## Media Library
 
-Media Library is a [Golang](http://golang.org/) library based on [GORM](https://github.com/jinzhu/gorm), used to add uploading files to cloud or other destinations with support for image cropping and resizing features to any structs.
+Media Library is a [Golang](http://golang.org/) library that support upload files/images to filesystem or cloud storages, with croping, resizing features for images.
 
-It is easy to be extend to support any cloud storages, right now, it provide filesystem, s3, aliyun, qiniu support.
+[![GoDoc](https://godoc.org/github.com/qor/media_library?status.svg)](https://godoc.org/github.com/qor/media_library)
 
 ## Usage
 
-Media library is using [GORM](https://github.com/jinzhu/gorm)'s callbacks to process files, so you need to register callbacks to gorm DB first, do it like:
+Media library could only be used for [GORM-backend](https://github.com/jinzhu/gorm) models as it is using GORM's callbacks to handle file processing, so you need to register callbacks first:
 
 ```go
 import "github.com/jinzhu/gorm"
