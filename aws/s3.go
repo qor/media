@@ -55,6 +55,7 @@ func getEndpoint(option *media_library.Option) string {
 	return getBucket(option) + "." + *s3client().Config.Endpoint
 }
 
+// GetURLTemplate get url template
 func (s S3) GetURLTemplate(option *media_library.Option) (path string) {
 	if path = option.Get("URL"); path == "" {
 		path = "/{{class}}/{{primary_key}}/{{column}}/{{filename_with_hash}}"
@@ -63,6 +64,7 @@ func (s S3) GetURLTemplate(option *media_library.Option) (path string) {
 	return "//" + getEndpoint(option) + path
 }
 
+// Store store reader's content with url
 func (s S3) Store(url string, option *media_library.Option, reader io.Reader) error {
 	buffer, err := ioutil.ReadAll(reader)
 
@@ -91,6 +93,7 @@ func (s S3) Store(url string, option *media_library.Option, reader io.Reader) er
 	return err
 }
 
+// Retrieve retrieve file content with url
 func (s S3) Retrieve(url string) (*os.File, error) {
 	response, err := http.Get("http:" + url)
 	if err != nil {

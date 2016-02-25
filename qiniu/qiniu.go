@@ -21,6 +21,7 @@ var (
 	EndPoint      = ""
 )
 
+// Qiniu a struct used to upload files to Qiniu
 type Qiniu struct {
 	media_library.Base
 }
@@ -62,6 +63,7 @@ func getEndpoint(option *media_library.Option) string {
 	return EndPoint + "/@"
 }
 
+// GetURLTemplate get url template
 func (q Qiniu) GetURLTemplate(option *media_library.Option) (path string) {
 	if path = option.Get("URL"); path == "" {
 		path = "/{{class}}/{{primary_key}}/{{column}}/{{filename_with_hash}}"
@@ -71,6 +73,7 @@ func (q Qiniu) GetURLTemplate(option *media_library.Option) (path string) {
 	return
 }
 
+// Store store reader's content with url
 func (q Qiniu) Store(url string, option *media_library.Option, reader io.Reader) (err error) {
 
 	var ret qnio.PutRet
@@ -92,6 +95,7 @@ func (q Qiniu) Store(url string, option *media_library.Option, reader io.Reader)
 	return
 }
 
+// Retrieve retrieve file content with url
 func (q Qiniu) Retrieve(url string) (*os.File, error) {
 	response, err := http.Get("http:" + url)
 	if err != nil {
