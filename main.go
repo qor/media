@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"image"
 	"io"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/qor/qor/utils"
@@ -52,7 +53,7 @@ type Option map[string]string
 
 // Get used to get option with name
 func (option Option) Get(key string) string {
-	return option[key]
+	return option[strings.ToUpper(key)]
 }
 
 func parseTagOption(str string) *Option {
