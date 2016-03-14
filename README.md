@@ -1,12 +1,12 @@
 ## Media Library
 
-Media Library is a [Golang](http://golang.org/) library that support upload files/images to filesystem or cloud storages, with croping, resizing features for images.
+Media Library is a [Golang](http://golang.org/) library that supports the upload of files/images to a filesystem or cloud storage. The Plugin includes cropping and resizing features for images.
 
 [![GoDoc](https://godoc.org/github.com/qor/media_library?status.svg)](https://godoc.org/github.com/qor/media_library)
 
 ## Usage
 
-Media library could only be used for [GORM-backend](https://github.com/jinzhu/gorm) models as it is using GORM's callbacks to handle file processing, so you need to register callbacks first:
+Media Library is dependant on [GORM-backend](https://github.com/jinzhu/gorm) models as it is using GORM's callbacks to handle file processing, so you will need to register callbacks first:
 
 ```go
 import "github.com/jinzhu/gorm"
@@ -17,7 +17,7 @@ DB, err = gorm.Open("sqlite3", "demo_db") // [gorm](https://github.com/jinzhu/go
 media_library.RegisterCallbacks(&DB)
 ```
 
-Add supports to structs
+Add Media Library support to structs:
 
 ```go
 // upload file to FileSystem
@@ -37,7 +37,7 @@ type Product struct {
 }
 ```
 
-And you're done! you could use it like this:
+And you're done setting up! You could the use it like this:
 
 ```go
 var product Product
@@ -76,9 +76,9 @@ func (ProductIconImageStorage) GetSizes() map[string]media_library.Size {
 
 ## [Qor Support](https://github.com/qor/qor)
 
-[QOR](http://getqor.com) is architected from the ground up to accelerate development and deployment of Content Management Systems, E-commerce Systems, and Business Applications, and comprised of modules that abstract common features for such system.
+[QOR](http://getqor.com) is architected from the ground up to accelerate development and deployment of Content Management Systems, E-commerce Systems, and Business Applications and as such is comprised of modules that abstract common features for such systems.
 
-Media library could be used alone, and it works nicely with QOR, if you have requirements to manage your application's data, be sure to check QOR out!
+Media Library could be used alone, but it works very nicely with QOR (as a QOR Plugin), if you have requirements to manage your application's data, be sure to check QOR out!
 
 [QOR Demo:  http://demo.getqor.com/admin](http://demo.getqor.com/admin)
 
