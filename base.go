@@ -19,8 +19,8 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/jinzhu/gorm"
 	"github.com/jinzhu/inflection"
-	"github.com/qor/qor"
 	"github.com/qor/admin"
+	"github.com/qor/qor"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
 )
@@ -49,7 +49,6 @@ type Base struct {
 	Url         string
 	CropOptions map[string]*CropOption `json:",omitempty"`
 	Crop        bool                   `json:"-"`
-	Valid       bool                   `json:"-"`
 	FileHeader  FileHeader             `json:"-"`
 	Reader      io.Reader              `json:"-"`
 	cropped     bool
@@ -61,19 +60,17 @@ func (b *Base) Scan(data interface{}) (err error) {
 	case *os.File:
 		b.FileHeader = &fileWrapper{values}
 		b.FileName = path.Base(values.Name())
-		b.Valid = true
 	case []*multipart.FileHeader:
 		if len(values) > 0 {
 			file := values[0]
-			b.FileHeader, b.FileName, b.Valid = file, file.Filename, true
+			b.FileHeader, b.FileName = file, file.Filename
 		}
 	case []byte:
 		if err = json.Unmarshal(values, b); err == nil {
-			b.Valid = true
-		}
-		var doCrop struct{ Crop bool }
-		if err = json.Unmarshal(values, &doCrop); err == nil && doCrop.Crop {
-			b.Crop = true
+			var doCrop struct{ Crop bool }
+			if err = json.Unmarshal(values, &doCrop); err == nil && doCrop.Crop {
+				b.Crop = true
+			}
 		}
 	case string:
 		b.Scan([]byte(values))
@@ -89,11 +86,7 @@ func (b *Base) Scan(data interface{}) (err error) {
 
 // Value return struct's Value
 func (b Base) Value() (driver.Value, error) {
-	if b.Valid {
-		result, err := json.Marshal(b)
-		return string(result), err
-	}
-	return nil, nil
+	return json.Marshal(b)
 }
 
 // URL return file's url with given style
