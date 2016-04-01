@@ -49,6 +49,7 @@ type Base struct {
 	Url         string
 	CropOptions map[string]*CropOption `json:",omitempty"`
 	Crop        bool                   `json:"-"`
+	Delete      bool                   `json:"-"`
 	FileHeader  FileHeader             `json:"-"`
 	Reader      io.Reader              `json:"-"`
 	cropped     bool
@@ -86,6 +87,9 @@ func (b *Base) Scan(data interface{}) (err error) {
 
 // Value return struct's Value
 func (b Base) Value() (driver.Value, error) {
+	if b.Delete {
+		return nil, nil
+	}
 	return json.Marshal(b)
 }
 
