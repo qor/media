@@ -90,7 +90,9 @@ func (b Base) Value() (driver.Value, error) {
 	if b.Delete {
 		return nil, nil
 	}
-	return json.Marshal(b)
+
+	results, err := json.Marshal(b)
+	return string(results), err
 }
 
 // URL return file's url with given style
