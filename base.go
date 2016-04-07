@@ -48,8 +48,8 @@ type Base struct {
 	FileName    string
 	Url         string
 	CropOptions map[string]*CropOption `json:",omitempty"`
+	Delete      bool                   `json:",omitempty"`
 	Crop        bool                   `json:"-"`
-	Delete      bool                   `json:"-"`
 	FileHeader  FileHeader             `json:"-"`
 	Reader      io.Reader              `json:"-"`
 	cropped     bool
