@@ -82,6 +82,13 @@ func (b *Base) Scan(data interface{}) (err error) {
 	default:
 		err = errors.New("unsupported driver -> Scan pair for MediaLibrary")
 	}
+
+	// If image is deleted, then clean up all values, for serialized fields
+	if b.Delete {
+		b.Url = ""
+		b.FileName = ""
+		b.CropOptions = nil
+	}
 	return
 }
 
