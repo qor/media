@@ -216,7 +216,7 @@ func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 			})
 		}
 
-		admin.RegisterViewPath("github.com/qor/media_library/views")
+		meta.GetBaseResource().(*admin.Resource).GetAdmin().RegisterViewPath("github.com/qor/media_library/views")
 	}
 }
 
