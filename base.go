@@ -205,6 +205,10 @@ func (b Base) IsImage() bool {
 	return err == nil
 }
 
+func init() {
+	admin.RegisterViewPath("github.com/qor/media_library/views")
+}
+
 // ConfigureQorMetaBeforeInitialize configure this field for Qor Admin
 func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 	if meta, ok := meta.(*admin.Meta); ok {
@@ -215,8 +219,6 @@ func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 				return utils.Stringify(meta.GetValuer()(value, context))
 			})
 		}
-
-		meta.GetBaseResource().(*admin.Resource).GetAdmin().RegisterViewPath("github.com/qor/media_library/views")
 	}
 }
 
