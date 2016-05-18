@@ -52,7 +52,12 @@ func getEndpoint(option *media_library.Option) string {
 		return endpoint
 	}
 
-	return getBucket(option) + "." + *s3client().Config.Endpoint
+	endpoint := s3client().Endpoint
+	for _, prefix := range []string{"https://", "http://"} {
+		endpoint = strings.TrimPrefix(endpoint, prefix)
+	}
+
+	return getBucket(option) + "." + endpoint
 }
 
 // GetURLTemplate get url template
