@@ -21,9 +21,20 @@ type S3 struct {
 }
 
 var client *s3.S3
+
+// required
 var awsRegion = os.Getenv("QOR_AWS_REGION")
+
+// required
 var awsAccessKeyID = os.Getenv("QOR_AWS_ACCESS_KEY_ID")
+
+// required
 var awsSecretAccessKey = os.Getenv("QOR_AWS_SECRET_ACCESS_KEY")
+
+// required
+// S3Bucket
+
+// option
 var awsSessionToken = os.Getenv("QOR_AWS_SESSION_TOKEN")
 
 func s3client() *s3.S3 {
