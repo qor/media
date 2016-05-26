@@ -61,6 +61,8 @@ func (b *Base) Scan(data interface{}) (err error) {
 	case *os.File:
 		b.FileHeader = &fileWrapper{values}
 		b.FileName = path.Base(values.Name())
+	case *multipart.FileHeader:
+		b.FileHeader, b.FileName = values, values.Filename
 	case []*multipart.FileHeader:
 		if len(values) > 0 {
 			file := values[0]
