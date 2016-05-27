@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"mime/multipart"
+	"reflect"
 
 	"github.com/jinzhu/gorm"
 	"github.com/qor/serializable_meta"
@@ -65,11 +66,35 @@ func saveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 			var updateColumns = map[string]interface{}{}
 
 			if value, ok := scope.Value.(serializable_meta.SerializableMetaInterface); ok {
-				newScope := scope.New(value.GetSerializableArgument(value))
-				for _, field := range newScope.Fields() {
-					if cropField(field, scope) && isCreate {
-						updateColumns["value"], _ = json.Marshal(newScope.Value)
+				var (
+					isCropped        bool
+					handleNestedCrop func(record interface{})
+				)
+
+				handleNestedCrop = func(record interface{}) {
+					newScope := scope.New(record)
+					for _, field := range newScope.Fields() {
+						if cropField(field, scope) {
+							isCropped = true
+							continue
+						}
+
+						if reflect.Indirect(field.Field).Kind() == reflect.Struct {
+							handleNestedCrop(field.Field.Addr().Interface())
+						}
+
+						if reflect.Indirect(field.Field).Kind() == reflect.Slice {
+							for i := 0; i < reflect.Indirect(field.Field).Len(); i++ {
+								handleNestedCrop(reflect.Indirect(field.Field).Index(i).Addr().Interface())
+							}
+						}
 					}
+				}
+
+				record := value.GetSerializableArgument(value)
+				handleNestedCrop(record)
+				if isCreate && isCropped {
+					updateColumns["value"], _ = json.Marshal(record)
 				}
 			}
 
