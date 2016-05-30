@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -89,17 +91,21 @@ func (s S3) Store(url string, option *media_library.Option, reader io.Reader) er
 	}
 
 	fileBytes := bytes.NewReader(buffer)
-
-	path := strings.Replace(url, "//"+getEndpoint(option), "", -1)
 	fileBytesLen := int64(fileBytes.Len())
+
+	filePath := strings.Replace(url, "//"+getEndpoint(option), "", -1)
+	fileType := mime.TypeByExtension(path.Ext(filePath))
+	if fileType == "" {
+		fileType = http.DetectContentType(buffer)
+	}
 
 	params := &s3.PutObjectInput{
 		Bucket:        aws.String(getBucket(option)), // required
-		Key:           aws.String(path),              // required
+		Key:           aws.String(filePath),          // required
 		ACL:           aws.String("public-read"),
 		Body:          fileBytes,
 		ContentLength: &fileBytesLen,
-		ContentType:   aws.String(http.DetectContentType(buffer)),
+		ContentType:   aws.String(fileType),
 		Metadata: map[string]*string{
 			"Key": aws.String("MetadataValue"), //required
 		},
