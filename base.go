@@ -196,7 +196,7 @@ func (b Base) Retrieve(url string) (*os.File, error) {
 	return nil, errors.New("not implemented")
 }
 
-// GetSizes get configed sizes
+// GetSizes get configured sizes, it will be used to crop images accordingly
 func (b Base) GetSizes() map[string]Size {
 	return map[string]Size{}
 }

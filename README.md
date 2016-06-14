@@ -72,6 +72,10 @@ func (ProductIconImageStorage) GetSizes() map[string]media_library.Size {
 		"big@ld": {Width: 144, Height: 144},
 	}
 }
+
+// Get image's url with style
+product.Image.URL("small")
+product.Image.URL("big@ld")
 ```
 
 ## [Qor Support](https://github.com/qor/qor)
