@@ -5,8 +5,8 @@
 
   <div class="qor-field__block qor-file">
     <div class="qor-fieldset">
-      <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect" title="{{t "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}>
-        <input class="visuallyhidden qor-file__input" id="{{.InputId}}" data-text="{&quot;title&quot;: &quot;{{t "Crop the image"}}&quot;, &quot;ok&quot;: &quot;{{t "OK"}}&quot;, &quot;cancel&quot;: &quot;{{t "Cancel"}}&quot;}" name="{{.InputName}}" type="file">
+      <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect" title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}>
+        <input class="visuallyhidden qor-file__input" id="{{.InputId}}" name="{{.InputName}}" type="file">
         <i class="material-icons">file_upload</i>
       </label>
 
@@ -24,7 +24,6 @@
             {{end}}
           </ul>
         {{else if $value.IsImage}}
-
           <ul>
             <li><img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}"></li>
           </ul>
