@@ -93,7 +93,18 @@ func (s S3) Store(url string, option *media_library.Option, reader io.Reader) er
 	fileBytes := bytes.NewReader(buffer)
 	fileBytesLen := int64(fileBytes.Len())
 
-	filePath := strings.Replace(url, "//"+getEndpoint(option), "", -1)
+	// Retrieve the file path from the file URL.
+	//
+	// As the `url` is the result of media_library.Base.URL(),
+	// it may contains HTTP scheme, we should try to trim all
+	// possible schemes in order to get actual file path.
+	//
+	// For example `https://www.google.com/images/file.png` to `/images/file.png`.
+	filePath := url
+	for _, scheme := range []string{"https://", "http://", "//"} {
+		filePath = strings.TrimPrefix(filePath, scheme+getEndpoint(option))
+	}
+
 	fileType := mime.TypeByExtension(path.Ext(filePath))
 	if fileType == "" {
 		fileType = http.DetectContentType(buffer)
