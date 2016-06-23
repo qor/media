@@ -42,6 +42,7 @@ func cropField(field *gorm.Field, scope *gorm.Scope) (cropped bool) {
 					var handled = false
 					for _, handler := range mediaLibraryHandlers {
 						if handler.CouldHandle(media) {
+							file.Seek(0, 0)
 							if scope.Err(handler.Handle(media, file, option)) == nil {
 								handled = true
 							}
