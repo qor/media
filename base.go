@@ -104,6 +104,10 @@ func (b Base) Value() (driver.Value, error) {
 	return string(results), err
 }
 
+func (b Base) Ext() string {
+	return strings.ToLower(path.Ext(b.Url))
+}
+
 // URL return file's url with given style
 func (b Base) URL(styles ...string) string {
 	if b.Url != "" && len(styles) > 0 {

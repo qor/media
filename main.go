@@ -45,6 +45,7 @@ type MediaLibrary interface {
 	IsImage() bool
 
 	URL(style ...string) string
+	Ext() string
 	String() string
 }
 

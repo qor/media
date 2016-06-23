@@ -2,6 +2,8 @@
 {{if $value}}
   {{if $value.IsImage}}
     <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
+  {{else if (eq $value.Ext ".svg")}}
+    <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
   {{else}}
     <a href="{{$value.URL}}">{{$value.GetFileName}}</a>
   {{end}}
