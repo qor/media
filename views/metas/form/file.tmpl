@@ -33,7 +33,7 @@
               {{if (eq $value.Ext ".svg")}}
                 <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
               {{else}}
-                {{$value.GetFileName}}
+                <span>{{$value.GetFileName}}</span>
               {{end}}
             </span>
             <div class="qor-file__action">
