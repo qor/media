@@ -69,11 +69,12 @@ func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.
 			// Process & Save size image
 			if _, err := img.Process(bimgOption); err == nil {
 				if buf, err := img.Process(bimg.Options{
-					Width:   size.Width,
-					Height:  size.Height,
-					Crop:    true,
-					Enlarge: true,
-					Force:   true,
+					Interlace: true,
+					Width:     size.Width,
+					Height:    size.Height,
+					Crop:      true,
+					Enlarge:   true,
+					Force:     true,
 				}); err == nil {
 					media.Store(media.URL(key), option, bytes.NewReader(buf))
 				} else {
