@@ -10,6 +10,7 @@ import (
 	"image"
 	"io"
 	"mime/multipart"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -150,7 +151,7 @@ func getFuncMap(scope *gorm.Scope, field *gorm.Field, filename string) template.
 		"basename":    func() string { return strings.TrimSuffix(path.Base(filename), path.Ext(filename)) },
 		"hash":        hash,
 		"filename_with_hash": func() string {
-			return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(filename, path.Ext(filename)), hash(), path.Ext(filename))
+			return url.QueryEscape(fmt.Sprintf("%v.%v%v", strings.TrimSuffix(filename, path.Ext(filename)), hash(), path.Ext(filename)))
 		},
 		"extension": func() string { return strings.TrimPrefix(path.Ext(filename), ".") },
 	}
