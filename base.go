@@ -9,10 +9,10 @@ import (
 	"image"
 	"io"
 	"mime/multipart"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -141,6 +141,8 @@ func (b Base) GetURLTemplate(option *Option) (path string) {
 	return
 }
 
+var urlReplacer = regexp.MustCompile("(\\s|\\+)+")
+
 func getFuncMap(scope *gorm.Scope, field *gorm.Field, filename string) template.FuncMap {
 	hash := func() string { return strings.Replace(time.Now().Format("20060102150506.000000000"), ".", "", -1) }
 	return template.FuncMap{
@@ -151,7 +153,7 @@ func getFuncMap(scope *gorm.Scope, field *gorm.Field, filename string) template.
 		"basename":    func() string { return strings.TrimSuffix(path.Base(filename), path.Ext(filename)) },
 		"hash":        hash,
 		"filename_with_hash": func() string {
-			return url.QueryEscape(fmt.Sprintf("%v.%v%v", strings.TrimSuffix(filename, path.Ext(filename)), hash(), path.Ext(filename)))
+			return urlReplacer.ReplaceAllString(fmt.Sprintf("%v.%v%v", strings.TrimSuffix(filename, path.Ext(filename)), hash(), path.Ext(filename)), "-")
 		},
 		"extension": func() string { return strings.TrimPrefix(path.Ext(filename), ".") },
 	}
