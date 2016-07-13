@@ -82,7 +82,7 @@ func (q Qiniu) Store(url string, option *media_library.Option, reader io.Reader)
 	// uptoken   为业务服务器端生成的上传口令
 	// r         为io.Reader类型，用于从其读取数据
 	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
-	err = qnio.Put(nil, &ret, Uptoken, path, reader, nil)
+	err = qnio.Put(nil, &ret, uptoken(Bucket), path, reader, nil)
 
 	if err != nil {
 		//上传产生错误
