@@ -34,6 +34,9 @@ type User struct {
 }
 
 func init() {
+	if err := db.DropTableIfExists(&User{}).Error; err != nil {
+		panic(err)
+	}
 	db.AutoMigrate(&User{})
 	media_library.RegisterCallbacks(db)
 }
