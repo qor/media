@@ -7,7 +7,7 @@ import (
 
 	"github.com/qor/media_library"
 
-	"gopkg.in/h2non/bimg.v0"
+	"gopkg.in/h2non/bimg.v1"
 )
 
 type bimgImageHandler struct{}
