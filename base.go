@@ -77,10 +77,12 @@ func (b *Base) Scan(data interface{}) (err error) {
 			}
 		}
 	case string:
-		b.Scan([]byte(values))
+		return b.Scan([]byte(values))
 	case []string:
 		for _, str := range values {
-			b.Scan(str)
+			if err := b.Scan(str); err != nil {
+				return err
+			}
 		}
 	default:
 		err = errors.New("unsupported driver -> Scan pair for MediaLibrary")
