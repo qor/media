@@ -7,27 +7,27 @@ import (
 	"github.com/disintegration/imaging"
 )
 
-var mediaLibraryHandlers = make(map[string]MediaLibraryHandler)
+var mediaHandlers = make(map[string]MediaHandler)
 
-// MediaLibraryHandler media library handler interface, defined which files could be handled, and the handler
-type MediaLibraryHandler interface {
-	CouldHandle(media MediaLibrary) bool
-	Handle(media MediaLibrary, file multipart.File, option *Option) error
+// MediaHandler media library handler interface, defined which files could be handled, and the handler
+type MediaHandler interface {
+	CouldHandle(media Media) bool
+	Handle(media Media, file multipart.File, option *Option) error
 }
 
-// RegisterMediaLibraryHandler register Media library handler
-func RegisterMediaLibraryHandler(name string, handler MediaLibraryHandler) {
-	mediaLibraryHandlers[name] = handler
+// RegisterMediaHandler register Media library handler
+func RegisterMediaHandler(name string, handler MediaHandler) {
+	mediaHandlers[name] = handler
 }
 
 // imageHandler default image handler
 type imageHandler struct{}
 
-func (imageHandler) CouldHandle(media MediaLibrary) bool {
+func (imageHandler) CouldHandle(media Media) bool {
 	return media.IsImage()
 }
 
-func (imageHandler) Handle(media MediaLibrary, file multipart.File, option *Option) (err error) {
+func (imageHandler) Handle(media Media, file multipart.File, option *Option) (err error) {
 	if err = media.Store(media.URL("original"), option, file); err == nil {
 		file.Seek(0, 0)
 
@@ -61,5 +61,5 @@ func (imageHandler) Handle(media MediaLibrary, file multipart.File, option *Opti
 }
 
 func init() {
-	RegisterMediaLibraryHandler("image_handler", imageHandler{})
+	RegisterMediaHandler("image_handler", imageHandler{})
 }

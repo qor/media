@@ -91,5 +91,5 @@ func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.
 }
 
 func init() {
-	media_library.RegisterMediaLibraryHandler("image_handler", bimgImageHandler{})
+	media_library.RegisterMediaHandler("image_handler", bimgImageHandler{})
 }

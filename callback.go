@@ -12,7 +12,7 @@ import (
 
 func cropField(field *gorm.Field, scope *gorm.Scope) (cropped bool) {
 	if field.Field.CanAddr() {
-		if media, ok := field.Field.Addr().Interface().(MediaLibrary); ok && !media.Cropped() {
+		if media, ok := field.Field.Addr().Interface().(Media); ok && !media.Cropped() {
 			option := parseTagOption(field.Tag.Get("media_library"))
 			if media.GetFileHeader() != nil || media.NeedCrop() {
 				var file multipart.File
@@ -40,7 +40,7 @@ func cropField(field *gorm.Field, scope *gorm.Scope) (cropped bool) {
 				if file != nil {
 					defer file.Close()
 					var handled = false
-					for _, handler := range mediaLibraryHandlers {
+					for _, handler := range mediaHandlers {
 						if handler.CouldHandle(media) {
 							file.Seek(0, 0)
 							if scope.Err(handler.Handle(media, file, option)) == nil {
