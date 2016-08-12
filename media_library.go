@@ -105,8 +105,13 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 		}
 
 		if config, ok := meta.Config.(*MediaBoxConfig); ok {
+			Admin := meta.GetBaseResource().(*admin.Resource).GetAdmin()
 			if config.RemoteDataResource == nil {
-				config.RemoteDataResource = meta.GetBaseResource().(*admin.Resource).GetAdmin().NewResource(&MediaLibrary{})
+				mediaLibraryResource := Admin.GetResource("MediaLibrary")
+				if mediaLibraryResource == nil {
+					mediaLibraryResource = Admin.NewResource(&MediaLibrary{})
+				}
+				config.RemoteDataResource = mediaLibraryResource
 			}
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
 			config.SelectManyConfig.ConfigureQorMeta(meta)
