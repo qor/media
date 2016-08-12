@@ -20,17 +20,11 @@ type MediaBox struct {
 	Files  []File
 }
 
-type File struct {
-	ID  string
-	Url string
-}
-
-func (file File) URL(styles ...string) string {
-	if file.Url != "" && len(styles) > 0 {
-		ext := path.Ext(file.Url)
-		return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file.Url, ext), styles[0], ext)
+func (mediaBox *MediaBox) URL(styles ...string) string {
+	for _, file := range mediaBox.Files {
+		return file.URL(styles...)
 	}
-	return file.Url
+	return ""
 }
 
 func (mediaBox *MediaBox) Scan(data interface{}) (err error) {
@@ -55,4 +49,17 @@ func (mediaBox *MediaBox) Value() (driver.Value, error) {
 		return json.Marshal(mediaBox.Files)
 	}
 	return mediaBox.Values, nil
+}
+
+type File struct {
+	ID  string
+	Url string
+}
+
+func (file File) URL(styles ...string) string {
+	if file.Url != "" && len(styles) > 0 {
+		ext := path.Ext(file.Url)
+		return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file.Url, ext), styles[0], ext)
+	}
+	return file.Url
 }
