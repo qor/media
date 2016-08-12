@@ -19,6 +19,13 @@ type MediaLibrary struct {
 	File FileSystem
 }
 
+func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
+	if res, ok := res.(*admin.Resource); ok {
+		res.UseTheme("grid")
+		res.IndexAttrs("File")
+	}
+}
+
 type MediaBox struct {
 	Values string
 	Files  []File
@@ -46,8 +53,9 @@ func (mediaBox MediaBox) URL(styles ...string) string {
 func (mediaBox *MediaBox) Scan(data interface{}) (err error) {
 	switch values := data.(type) {
 	case []byte:
-		mediaBox.Values = string(values)
-		return json.Unmarshal(values, &mediaBox.Files)
+		if mediaBox.Values = string(values); mediaBox.Values != "" {
+			return json.Unmarshal(values, &mediaBox.Files)
+		}
 	case string:
 		return mediaBox.Scan([]byte(values))
 	case []string:
