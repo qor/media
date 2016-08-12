@@ -3,11 +3,15 @@ package media_library
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path"
 	"strings"
 
 	"github.com/jinzhu/gorm"
+	"github.com/qor/admin"
+	"github.com/qor/qor"
+	"github.com/qor/qor/resource"
 )
 
 type MediaLibrary struct {
@@ -20,7 +24,19 @@ type MediaBox struct {
 	Files  []File
 }
 
-func (mediaBox *MediaBox) URL(styles ...string) string {
+type MediaBoxConfig struct {
+	RemoteDataResource *admin.Resource
+	admin.SelectManyConfig
+}
+
+func (*MediaBoxConfig) ConfigureQorMeta(resource.Metaor) {
+}
+
+func (*MediaBoxConfig) GetTemplate(context *admin.Context, metaType string) ([]byte, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (mediaBox MediaBox) URL(styles ...string) string {
 	for _, file := range mediaBox.Files {
 		return file.URL(styles...)
 	}
@@ -44,7 +60,7 @@ func (mediaBox *MediaBox) Scan(data interface{}) (err error) {
 	return nil
 }
 
-func (mediaBox *MediaBox) Value() (driver.Value, error) {
+func (mediaBox MediaBox) Value() (driver.Value, error) {
 	if len(mediaBox.Files) > 0 {
 		return json.Marshal(mediaBox.Files)
 	}
@@ -62,4 +78,32 @@ func (file File) URL(styles ...string) string {
 		return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file.Url, ext), styles[0], ext)
 	}
 	return file.Url
+}
+
+func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
+	if meta, ok := metaor.(*admin.Meta); ok {
+		if meta.Config == nil {
+			meta.Config = &MediaBoxConfig{}
+		}
+
+		if meta.FormattedValuer == nil {
+			meta.FormattedValuer = func(record interface{}, context *qor.Context) interface{} {
+				if mediaBox, ok := meta.GetValuer()(record, context).(*MediaBox); ok {
+					return mediaBox.URL()
+				}
+				return ""
+			}
+			meta.SetFormattedValuer(meta.FormattedValuer)
+		}
+
+		if config, ok := meta.Config.(*MediaBoxConfig); ok {
+			if config.RemoteDataResource == nil {
+				config.RemoteDataResource = meta.GetBaseResource().(*admin.Resource).GetAdmin().NewResource(&MediaLibrary{})
+			}
+			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
+			config.SelectManyConfig.ConfigureQorMeta(meta)
+		}
+
+		meta.Type = "media_box"
+	}
 }

@@ -1,0 +1,23 @@
+<div class="qor-field">
+  <label class="qor-field__label" for="{{.InputId}}">
+    {{meta_label .Meta}}
+  </label>
+
+  <div class="qor-field__block qor-file">
+    {{$value := (raw_value_of .ResourceValue .Meta)}}
+    <div class="qor-field__show">
+    </div>
+
+    <div class="qor-field__edit">
+      {{if $value.Files}}
+        {{range $file := $value.Files}}
+          {{$file.URL}}
+        {{end}}
+      {{else}}
+        <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect" data-url="{{.Context.Admin.GetRouter.Prefix}}/{{.Meta.Config.RemoteDataURL}}" title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}>
+          <i class="material-icons">file_upload</i>
+        </label>
+      {{end}}
+    </div>
+  </div>
+</div>

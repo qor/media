@@ -1,7 +1,9 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 
 <div class="qor-field">
-  <label class="qor-field__label" for="{{.InputId}}">{{t (printf "%v.attributes.%v" .BaseResource.ToParam .Label) .Label}}</label>
+  <label class="qor-field__label" for="{{.InputId}}">
+    {{meta_label .Meta}}
+  </label>
 
   <div class="qor-field__block qor-file">
     <div class="qor-fieldset">
