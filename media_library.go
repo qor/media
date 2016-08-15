@@ -16,7 +16,44 @@ import (
 
 type MediaLibrary struct {
 	gorm.Model
-	File FileSystem
+	File    FileSystem
+	Options MediaLibraryOption `sql:"size:4294967295;"`
+}
+
+type MediaLibraryOption struct {
+	Options     string                 `json:"-"`
+	CropOptions map[string]*CropOption `json:",omitempty"`
+	Sizes       map[string]*Size       `json:",omitempty"`
+}
+
+func (mediaLibraryOption *MediaLibraryOption) Scan(data interface{}) (err error) {
+	switch values := data.(type) {
+	case []byte:
+		var newOption MediaLibraryOption
+		if err = json.Unmarshal(values, &newOption); err == nil {
+			for key, value := range newOption.CropOptions {
+				mediaLibraryOption.CropOptions[key] = value
+			}
+
+			for key, value := range newOption.Sizes {
+				mediaLibraryOption.Sizes[key] = value
+			}
+		}
+	case string:
+		err = mediaLibraryOption.Scan([]byte(values))
+	case []string:
+		for _, str := range values {
+			if err = mediaLibraryOption.Scan(str); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (mediaLibraryOption MediaLibraryOption) Value() (driver.Value, error) {
+	results, err := json.Marshal(mediaLibraryOption)
+	return string(results), err
 }
 
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
@@ -33,6 +70,8 @@ type MediaBox struct {
 
 type MediaBoxConfig struct {
 	RemoteDataResource *admin.Resource
+	Sizes              map[string]Size
+	Max                uint
 	admin.SelectManyConfig
 }
 
