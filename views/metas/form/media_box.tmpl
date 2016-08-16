@@ -14,7 +14,7 @@
       <div class="qor-file__list">
         {{if $value.Files}}
           {{range $file := $value.Files}}
-            <ul>
+            <ul data-media-library-url="{{printf "%s/%v" (url_for $metaConfig.RemoteDataResource) $file.ID}}">
               {{if $metaConfig.Sizes}}
                 {{range $key, $size := $value.GetSizes}}
                   {{if not (is_included $key "@")}}
