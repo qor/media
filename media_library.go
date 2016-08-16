@@ -16,34 +16,42 @@ import (
 
 type MediaLibrary struct {
 	gorm.Model
-	File    FileSystem
-	Options MediaLibraryOption `sql:"size:4294967295;"`
+	File MediaLibraryStorage `sql:"size:4294967295;"`
 }
 
-type MediaLibraryOption struct {
-	Options     string                 `json:"-"`
-	CropOptions map[string]*CropOption `json:",omitempty"`
-	Sizes       map[string]*Size       `json:",omitempty"`
+type MediaLibraryStorage struct {
+	FileSystem
+	Sizes map[string]Size `json:",omitempty"`
 }
 
-func (mediaLibraryOption *MediaLibraryOption) Scan(data interface{}) (err error) {
+func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]Size {
+	return mediaLibraryStorage.Sizes
+}
+
+func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err error) {
 	switch values := data.(type) {
 	case []byte:
-		var newOption MediaLibraryOption
-		if err = json.Unmarshal(values, &newOption); err == nil {
-			for key, value := range newOption.CropOptions {
-				mediaLibraryOption.CropOptions[key] = value
+		cropOptions := mediaLibraryStorage.CropOptions
+		sizeOptions := mediaLibraryStorage.Sizes
+
+		if err = json.Unmarshal(values, mediaLibraryStorage); err == nil {
+			for key, value := range cropOptions {
+				if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
+					mediaLibraryStorage.CropOptions[key] = value
+				}
 			}
 
-			for key, value := range newOption.Sizes {
-				mediaLibraryOption.Sizes[key] = value
+			for key, value := range sizeOptions {
+				if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
+					mediaLibraryStorage.Sizes[key] = value
+				}
 			}
 		}
 	case string:
-		err = mediaLibraryOption.Scan([]byte(values))
+		err = mediaLibraryStorage.Scan([]byte(values))
 	case []string:
 		for _, str := range values {
-			if err = mediaLibraryOption.Scan(str); err != nil {
+			if err = mediaLibraryStorage.Scan(str); err != nil {
 				return err
 			}
 		}
@@ -51,8 +59,8 @@ func (mediaLibraryOption *MediaLibraryOption) Scan(data interface{}) (err error)
 	return nil
 }
 
-func (mediaLibraryOption MediaLibraryOption) Value() (driver.Value, error) {
-	results, err := json.Marshal(mediaLibraryOption)
+func (mediaLibraryStorage *MediaLibraryStorage) Value() (driver.Value, error) {
+	results, err := json.Marshal(mediaLibraryStorage)
 	return string(results), err
 }
 
