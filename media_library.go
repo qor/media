@@ -60,6 +60,8 @@ func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		res.UseTheme("grid")
 		res.IndexAttrs("File")
+		res.NewAttrs("-Options")
+		res.EditAttrs("-Options")
 	}
 }
 
