@@ -17,10 +17,12 @@
             <ul>
               {{if $metaConfig.Sizes}}
                 {{range $key, $size := $value.GetSizes}}
-                  <li>
-                    <img src="{{$file.URL $key}}" data-original-url="{{$file.URL "original"}}" data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}">
-                    <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
-                  </li>
+                  {{if not (is_included $key "@")}}
+                    <li>
+                      <img src="{{$file.URL $key}}" data-original-url="{{$file.URL "original"}}" data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}">
+                      <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
+                    </li>
+                  {{end}}
                 {{end}}
               {{else}}
                 <li><img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}"></li>
@@ -33,7 +35,7 @@
                data-url="{{.Context.Admin.GetRouter.Prefix}}/{{.Meta.Config.RemoteDataURL}}"
                title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}
                {{if $metaConfig.Max}}data-max="{{$metaConfig.Max}}"{{end}}>
-          <i class="material-icons">file_upload</i>
+            <i class="material-icons">file_upload</i>
         </label>
       </div>
     </div>

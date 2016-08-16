@@ -13,4 +13,9 @@
 
   'use strict';
 
+  function QorMediaBox() {
+  }
+
+  return QorMediaBox;
+
 });
