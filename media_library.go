@@ -162,6 +162,7 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 			}
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
 			config.SelectManyConfig.ConfigureQorMeta(meta)
+			config.RemoteDataResource = config.SelectManyConfig.RemoteDataResource
 		}
 
 		meta.Type = "media_box"
