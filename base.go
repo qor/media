@@ -77,7 +77,9 @@ func (b *Base) Scan(data interface{}) (err error) {
 			}
 		}
 	case string:
-		return b.Scan([]byte(values))
+		if values != "" {
+			return b.Scan([]byte(values))
+		}
 	case []string:
 		for _, str := range values {
 			if err := b.Scan(str); err != nil {
