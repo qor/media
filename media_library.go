@@ -19,6 +19,13 @@ type MediaLibrary struct {
 	File MediaLibraryStorage `sql:"size:4294967295;"`
 }
 
+func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
+	if res, ok := res.(*admin.Resource); ok {
+		res.UseTheme("grid")
+		res.IndexAttrs("File")
+	}
+}
+
 type MediaLibraryStorage struct {
 	FileSystem
 	Sizes map[string]Size `json:",omitempty"`
@@ -64,30 +71,17 @@ func (mediaLibraryStorage MediaLibraryStorage) Value() (driver.Value, error) {
 	return string(results), err
 }
 
-func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
-	if res, ok := res.(*admin.Resource); ok {
-		res.UseTheme("grid")
-		res.IndexAttrs("File")
+func (mediaLibraryStorage MediaLibraryStorage) ConfigureQorMeta(metaor resource.Metaor) {
+	if meta, ok := metaor.(*admin.Meta); ok {
+		meta.SetFormattedValuer(func(record interface{}, context *qor.Context) interface{} {
+			return meta.GetValuer()(record, context)
+		})
 	}
 }
 
 type MediaBox struct {
 	Values string
 	Files  []File
-}
-
-type MediaBoxConfig struct {
-	RemoteDataResource *admin.Resource
-	Sizes              map[string]Size
-	Max                uint
-	admin.SelectManyConfig
-}
-
-func (*MediaBoxConfig) ConfigureQorMeta(resource.Metaor) {
-}
-
-func (*MediaBoxConfig) GetTemplate(context *admin.Context, metaType string) ([]byte, error) {
-	return nil, errors.New("not implemented")
 }
 
 func (mediaBox MediaBox) URL(styles ...string) string {
@@ -122,19 +116,6 @@ func (mediaBox MediaBox) Value() (driver.Value, error) {
 	return mediaBox.Values, nil
 }
 
-type File struct {
-	ID  string
-	Url string
-}
-
-func (file File) URL(styles ...string) string {
-	if file.Url != "" && len(styles) > 0 {
-		ext := path.Ext(file.Url)
-		return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file.Url, ext), styles[0], ext)
-	}
-	return file.Url
-}
-
 func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 	if meta, ok := metaor.(*admin.Meta); ok {
 		if meta.Config == nil {
@@ -167,4 +148,31 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 
 		meta.Type = "media_box"
 	}
+}
+
+type File struct {
+	ID  string
+	Url string
+}
+
+func (file File) URL(styles ...string) string {
+	if file.Url != "" && len(styles) > 0 {
+		ext := path.Ext(file.Url)
+		return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file.Url, ext), styles[0], ext)
+	}
+	return file.Url
+}
+
+type MediaBoxConfig struct {
+	RemoteDataResource *admin.Resource
+	Sizes              map[string]Size
+	Max                uint
+	admin.SelectManyConfig
+}
+
+func (*MediaBoxConfig) ConfigureQorMeta(resource.Metaor) {
+}
+
+func (*MediaBoxConfig) GetTemplate(context *admin.Context, metaType string) ([]byte, error) {
+	return nil, errors.New("not implemented")
 }
