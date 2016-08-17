@@ -59,7 +59,7 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 	return nil
 }
 
-func (mediaLibraryStorage *MediaLibraryStorage) Value() (driver.Value, error) {
+func (mediaLibraryStorage MediaLibraryStorage) Value() (driver.Value, error) {
 	results, err := json.Marshal(mediaLibraryStorage)
 	return string(results), err
 }
