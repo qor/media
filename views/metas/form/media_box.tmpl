@@ -16,7 +16,7 @@
           {{range $file := $value.Files}}
             <ul data-media-library-url="{{printf "%s/%v" (url_for $metaConfig.RemoteDataResource) $file.ID}}">
               {{if $metaConfig.Sizes}}
-                {{range $key, $size := $value.GetSizes}}
+                {{range $key, $size := $metaConfig.Sizes}}
                   {{if not (is_included $key "@")}}
                     <li>
                       <img src="{{$file.URL $key}}" data-original-url="{{$file.URL "original"}}" data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}">
@@ -25,11 +25,24 @@
                   {{end}}
                 {{end}}
               {{else}}
-                <li><img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}"></li>
+                <li>
+                  <img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}">
+                </li>
               {{end}}
             </ul>
           {{end}}
         {{end}}
+
+        <ul class="media-box-choosen-template">
+          {{if $metaConfig.Sizes}}
+            {{range $key, $size := $metaConfig.Sizes}}
+              <li {{if (is_included $key "@")}}style="display:none"{{end}}>
+                <img data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}">
+                <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
+              </li>
+            {{end}}
+          {{end}}
+        </ul>
 
         <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect"
                data-url="{{url_for $metaConfig.RemoteDataResource}}"
