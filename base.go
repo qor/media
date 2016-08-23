@@ -70,16 +70,16 @@ func (b *Base) Scan(data interface{}) (err error) {
 			b.FileHeader, b.FileName = file, file.Filename
 		}
 	case []byte:
-		if err = json.Unmarshal(values, b); err == nil {
-			var doCrop struct{ Crop bool }
-			if err = json.Unmarshal(values, &doCrop); err == nil && doCrop.Crop {
-				b.Crop = true
+		if string(values) != "" {
+			if err = json.Unmarshal(values, b); err == nil {
+				var doCrop struct{ Crop bool }
+				if err = json.Unmarshal(values, &doCrop); err == nil && doCrop.Crop {
+					b.Crop = true
+				}
 			}
 		}
 	case string:
-		if values != "" {
-			return b.Scan([]byte(values))
-		}
+		return b.Scan([]byte(values))
 	case []string:
 		for _, str := range values {
 			if err := b.Scan(str); err != nil {

@@ -41,16 +41,20 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 		cropOptions := mediaLibraryStorage.CropOptions
 		sizeOptions := mediaLibraryStorage.Sizes
 
-		if err = json.Unmarshal(values, mediaLibraryStorage); err == nil {
-			for key, value := range cropOptions {
-				if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
-					mediaLibraryStorage.CropOptions[key] = value
-				}
-			}
+		if string(values) != "" {
+			mediaLibraryStorage.Base.Scan(values)
 
-			for key, value := range sizeOptions {
-				if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
-					mediaLibraryStorage.Sizes[key] = value
+			if err = json.Unmarshal(values, mediaLibraryStorage); err == nil {
+				for key, value := range cropOptions {
+					if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
+						mediaLibraryStorage.CropOptions[key] = value
+					}
+				}
+
+				for key, value := range sizeOptions {
+					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
+						mediaLibraryStorage.Sizes[key] = value
+					}
 				}
 			}
 		}
