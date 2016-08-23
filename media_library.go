@@ -62,6 +62,8 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 				return err
 			}
 		}
+	default:
+		return mediaLibraryStorage.Base.Scan(data)
 	}
 	return nil
 }
