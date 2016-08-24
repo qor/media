@@ -1,0 +1,46 @@
+.media-box-choosen-template {
+  display: none;
+}
+
+.qor-bottomsheets__body{
+	.qor-table--medialibrary{
+		margin-left: -48px;
+		width: 344px;
+		img{
+			max-height: 160px;
+			max-width: 100%;
+		}
+		.mdl-card__supporting-text{
+			padding: 0;
+			text-align: center;
+			>p{
+				margin-bottom: 0;
+				line-height: 162px;
+			}
+		}
+		thead{
+			display: none;
+		}
+		tbody tr td{
+			padding: 0 8px 8px 0;
+			.qor-table--medialibrary-item{
+				position: relative;
+			}
+			.qor-select__select-icon{
+				left: 0;
+				z-index: 2;
+			}
+		}
+		.mdl-card{
+			width: auto;
+			min-height: 162px;
+			max-height: 162px;
+			.qor-table__actions{
+				display: none;
+			}
+		}
+		.mdl-shadow--2dp{
+			box-shadow: none;
+		}
+	}
+}
