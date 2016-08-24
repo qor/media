@@ -101,7 +101,7 @@ func (mediaBox *MediaBox) Scan(data interface{}) (err error) {
 	switch values := data.(type) {
 	case []byte:
 		if mediaBox.Values = string(values); mediaBox.Values != "" {
-			return json.Unmarshal(values, mediaBox)
+			return json.Unmarshal(values, &mediaBox.Files)
 		}
 	case string:
 		return mediaBox.Scan([]byte(values))
@@ -117,7 +117,7 @@ func (mediaBox *MediaBox) Scan(data interface{}) (err error) {
 
 func (mediaBox MediaBox) Value() (driver.Value, error) {
 	if len(mediaBox.Files) > 0 {
-		return json.Marshal(mediaBox)
+		return json.Marshal(mediaBox.Files)
 	}
 	return mediaBox.Values, nil
 }
