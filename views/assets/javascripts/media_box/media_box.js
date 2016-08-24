@@ -25,6 +25,8 @@
   var CLASS_SELECT_ICON = '.qor-select__select-icon';
   var CLASS_SELECT_HINT = '.qor-selectmany__hint';
   var CLASS_PARENT = '.qor-field__mediabox';
+  var CLASS_LISTS = '.qor-field__mediabox-list';
+  var CLASS_LISTS_DATA = '.qor-field__mediabox-data';
   var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
   var CLASS_SELECTED = 'is_selected';
 
@@ -69,13 +71,16 @@
 
     openBottomSheets: function (e) {
       var $ele = $(e.target).closest('[data-mediabox-url]'),
-          data = $ele.data();
+          data = $ele.data(),
+          $parent;
 
       this.BottomSheets = $body.data('qor.bottomsheets');
       this.bottomsheetsData = data;
 
-      this.$selector = $(data.selectId);
-      this.$selectFeild = $ele.closest(CLASS_PARENT);
+      this.$parent = $parent = $ele.closest(CLASS_PARENT);
+
+      this.$selectFeild = $parent.find(CLASS_LISTS);
+      this.$mediaLrbraryData = $parent.find(CLASS_LISTS_DATA);
 
       // select many templates
       this.SELECT_MANY_SELECTED_ICON = $('[name="select-many-selected-icon"]').html();
@@ -114,17 +119,21 @@
       $(CLASS_BOTTOMSHEETS).find('.qor-bottomsheets__body').prepend(template);
     },
 
-    updateSelectInputData: function ($selectFeild) {
-      var $selectList = $selectFeild ?  $selectFeild : this.$selectFeild,
-          $selectedItems = $selectList.find('[data-primary-key]').not('.' + CLASS_DELETED_ITEM),
-          $selector = $selectFeild ? $selectFeild.find('select') : this.$selector,
-          options = $selector.find('option');
+    updateSelectInputData: function (data) {
+      var $dataInput = this.$mediaLrbraryData,
+          dataArr = $dataInput.val() ? JSON.parse($dataInput.val()) : [],
+          data = {
+            'ID': data.primaryKey, 
+            'Url': data.File.Url
+          };
 
-      options.prop('selected', false);
+        console.log(dataArr);
 
-      $selectedItems.each(function () {
-        options.filter('[value="' + $(this).data().primaryKey + '"]').prop('selected', true);
-      });
+        dataArr.push(data);
+        $dataInput.val(JSON.stringify(dataArr));
+
+        console.log(dataArr);
+        console.log($dataInput.val());
     },
 
     changeIcon: function ($ele, isAdd) {
@@ -151,13 +160,12 @@
 
       $template.appendTo(this.$selectFeild.find('ul'));
 
-      this.$element.find('.qor-file__options').val(JSON.stringify(data.File));
-
-      $template.trigger('enable');
+      // TODO:
+      // this.$element.find('.qor-file__options').val(JSON.stringify(data.File));
+      // this.$element.trigger('enable');
 
       if (isNewData) {
         $option = $(Mustache.render(QorMediaBox.SELECT_MANY_OPTION_TEMPLATE, data));
-        this.$selector.append($option);
         $option.prop('selected', true);
         this.BottomSheets.hide();
         return;
@@ -174,7 +182,8 @@
           };
 
       $bottomsheets.qorSelectCore(options);
-      // this.$selectFeild.append('');
+      // TODO:
+      this.$selectFeild.append('<input type="file" class="qor-file__input visuallyhidden" />');
     },
 
     formatSelectResults: function (data) {
@@ -223,7 +232,7 @@
       }
 
       this.updateHint(this.getSelectedItemData());
-      this.updateSelectInputData();
+      this.updateSelectInputData(data);
 
     }
 
