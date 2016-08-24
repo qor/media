@@ -121,15 +121,15 @@
 
     updateSelectInputData: function (data) {
       var $dataInput = this.$mediaLrbraryData,
-          dataArr = $dataInput.val() ? JSON.parse($dataInput.val()) : [],
-          data = {
-            'ID': data.primaryKey, 
+          dataArr = JSON.parse($dataInput.val()) || [],
+          item = {
+            'ID': data.primaryKey,
             'Url': data.File.Url
           };
 
         console.log(dataArr);
 
-        dataArr.push(data);
+        dataArr.push(item);
         $dataInput.val(JSON.stringify(dataArr));
 
         console.log(dataArr);
@@ -154,8 +154,7 @@
 
     addItem: function (data, isNewData) {
       var $template = $(this.renderSelectMany(data)),
-          $option,
-          $list = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]');
+          $option;
 
 
       $template.appendTo(this.$selectFeild.find('ul'));

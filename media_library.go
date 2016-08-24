@@ -157,7 +157,7 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 }
 
 type File struct {
-	ID  string
+	ID  json.Number
 	Url string
 }
 
