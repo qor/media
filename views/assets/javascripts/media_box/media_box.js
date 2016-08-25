@@ -16,7 +16,7 @@
   var $body = $('body');
   var $document = $(document);
   var Mustache = window.Mustache;
-  var NAMESPACE = 'qor.selectone';
+  var NAMESPACE = 'qor.medialibrary';
   var EVENT_CLICK = 'click.' + NAMESPACE;
   var EVENT_ENABLE = 'enable.' + NAMESPACE;
   var EVENT_DISABLE = 'disable.' + NAMESPACE;
@@ -29,6 +29,7 @@
   var CLASS_LISTS_DATA = '.qor-field__mediabox-data';
   var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
   var CLASS_SELECTED = 'is_selected';
+  var CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options';
 
 
   function QorMediaBox(element, options) {
@@ -46,7 +47,9 @@
 
     bind: function () {
       $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this));
-      this.$element.on(EVENT_CLICK, CLASS_CLEAR_SELECT, this.clearSelect.bind(this));
+      this.$element
+        .on(EVENT_CLICK, CLASS_CLEAR_SELECT, this.clearSelect.bind(this))
+        .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.syncImageCrop.bind(this));
     },
 
     clearSelect: function (e) {
@@ -57,6 +60,27 @@
       this.updateMediaLibraryData($selectFeild);
 
       return false;
+    },
+
+    syncImageCrop: function (e) {
+      var $parent = $(e.target).closest(CLASS_ITEM),
+          primaryKey = $parent.data().primaryKey,
+          data = $parent.find(CLASS_CROPPER_OPTIONS).val(),
+          url = '/admin/media_libraries/' + primaryKey;
+
+      $.ajax({
+        type: 'PUT',
+        url: url,
+        data: data,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function (data) {
+          console.log(data);
+        }
+        
+      });
+
     },
 
     openBottomSheets: function (e) {
