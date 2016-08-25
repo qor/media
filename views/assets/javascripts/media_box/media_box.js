@@ -127,13 +127,8 @@
             'Url': data.File.Url
           };
 
-        console.log(dataArr);
-
         dataArr.push(item);
         $dataInput.val(JSON.stringify(dataArr));
-
-        console.log(dataArr);
-        console.log($dataInput.val());
     },
 
     changeIcon: function ($ele, isAdd) {
@@ -155,13 +150,15 @@
     addItem: function (data, isNewData) {
       var $template = $(this.renderSelectMany(data)),
           $option;
+          // $list = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]');
 
 
-      $template.appendTo(this.$selectFeild.find('ul'));
 
-      // TODO:
-      // this.$element.find('.qor-file__options').val(JSON.stringify(data.File));
-      // this.$element.trigger('enable');
+      $template.appendTo(this.$selectFeild);
+
+      // trigger cropper function for new item
+      $template.find('.qor-file__options').val(JSON.stringify(data.File));
+      $template.trigger('enable');
 
       if (isNewData) {
         $option = $(Mustache.render(QorMediaBox.SELECT_MANY_OPTION_TEMPLATE, data));
@@ -182,7 +179,7 @@
 
       $bottomsheets.qorSelectCore(options);
       // TODO:
-      this.$selectFeild.append('<input type="file" class="qor-file__input visuallyhidden" />');
+      // this.$selectFeild.append('<input type="file" class="qor-file__input visuallyhidden" />');
     },
 
     formatSelectResults: function (data) {

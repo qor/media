@@ -4,14 +4,23 @@
 
 <script name="media-box-template" type="x-tmpl-mustache">
   [[#File]]
-    <li data-primary-key=[[primaryKey]]>
-      <img src="[[File.Url]]" alt="[[Title]]" data-original-url="[[File.Url]]" data-size-name="original" />
-    </li>
+    <div class="qor-file" data-primary-key=[[primaryKey]]>
+      <div class="qor-file__list">
+        <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true"></textarea>
+        <ul>
+          <li>
+            <img src="[[File.Url]]" alt="[[Title]]" data-original-url="[[File.Url]]" data-size-name="original" />
+          </li>
+        </ul>
+        <span class="qor-file__input visuallyhidden"></span>
+      </div>
+    </div>
   [[/File]]
 </script>
 
 <script name="select-many-selected-icon" type="x-tmpl-mustache">
   <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
+  
 </script>
 
 
@@ -20,16 +29,14 @@
     {{meta_label .Meta}}
   </label>
 
-  <div class="qor-field__block qor-file">
+  <div class="qor-field__block">
     {{$value := (raw_value_of .ResourceValue .Meta)}}
 
     <div class="qor-field__edit">
 
-      <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true"></textarea>
-
       <textarea class="hidden qor-field__mediabox-data" name="{{.InputName}}" aria-hidden="true">{{marshal $value.Files}}</textarea>
 
-      <div class="qor-file__list qor-field__mediabox-list">
+      <div class="qor-field__mediabox-list">
         <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect"
                data-mediabox-url="{{url_for $metaConfig.RemoteDataResource}}"
                data-select-modal=true
@@ -39,28 +46,39 @@
             <i class="material-icons">file_upload</i>
         </label>
 
-        <ul class="">
+
+
         {{if $value.Files}}
 
           {{range $file := $value.Files}}
-            {{if $metaConfig.Sizes}}
-              {{range $key, $size := $metaConfig.Sizes}}
-                {{if not (is_included $key "@")}}
-                  <li>
-                    <img src="{{$file.URL $key}}" data-original-url="{{$file.URL "original"}}" data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}" />
-                    <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
-                  </li>
-                {{end}}
-              {{end}}
-            {{else}}
-              <li>
-                <img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}">
-              </li>
-            {{end}}
+            <div class="qor-file">
+              <div class="qor-file__list">
+                <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true">{{$file}}</textarea>
+                <ul>
+                  {{if $metaConfig.Sizes}}
+                    {{range $key, $size := $metaConfig.Sizes}}
+                      {{if not (is_included $key "@")}}
+                        <li>
+                          <img src="{{$file.URL $key}}" data-original-url="{{$file.URL "original"}}" data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}" />
+                          <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
+                        </li>
+                      {{end}}
+                    {{end}}
+                  {{else}}
+                    <li>
+                      <img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}">
+                    </li>
+                  {{end}}
+
+                </ul>
+                <input type="file" class="qor-file__input visuallyhidden" />
+              </div>
+            </div>
+
           {{end}}
 
         {{end}}
-        </ul>
+        
       </div>
     </div>
   </div>
