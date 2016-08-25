@@ -38,6 +38,12 @@ func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]Size {
 func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err error) {
 	switch values := data.(type) {
 	case []byte:
+		if mediaLibraryStorage.Sizes == nil {
+			mediaLibraryStorage.Sizes = map[string]Size{}
+		}
+		if mediaLibraryStorage.CropOptions == nil {
+			mediaLibraryStorage.CropOptions = map[string]*CropOption{}
+		}
 		cropOptions := mediaLibraryStorage.CropOptions
 		sizeOptions := mediaLibraryStorage.Sizes
 
@@ -48,6 +54,12 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 				for key, value := range cropOptions {
 					if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
 						mediaLibraryStorage.CropOptions[key] = value
+					}
+				}
+
+				for key, value := range mediaLibraryStorage.CropOptions {
+					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
+						mediaLibraryStorage.Sizes[key] = Size{Width: value.Width, Height: value.Height}
 					}
 				}
 
