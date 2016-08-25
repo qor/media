@@ -1,29 +1,5 @@
 {{$metaConfig := .Meta.Config}}
 
-
-
-<script name="media-box-template" type="x-tmpl-mustache">
-  [[#File]]
-    <div class="qor-file" data-primary-key=[[primaryKey]]>
-      <div class="qor-file__list">
-        <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true"></textarea>
-        <ul>
-          <li>
-            <img src="[[File.Url]]" alt="[[Title]]" data-original-url="[[File.Url]]" data-size-name="original" />
-          </li>
-        </ul>
-        <span class="qor-file__input visuallyhidden"></span>
-      </div>
-    </div>
-  [[/File]]
-</script>
-
-<script name="select-many-selected-icon" type="x-tmpl-mustache">
-  <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
-  
-</script>
-
-
 <div class="qor-field qor-field__mediabox" data-toggle="qor.mediabox">
   <label class="qor-field__label" for="{{.InputId}}">
     {{meta_label .Meta}}
@@ -51,9 +27,9 @@
         {{if $value.Files}}
 
           {{range $file := $value.Files}}
-            <div class="qor-file">
+            <div class="qor-file qor-field__mediabox-item" data-primary-key={{$file.ID}} data-original-url="{{$file.URL "original"}}">
               <div class="qor-file__list">
-                <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true">{{$file}}</textarea>
+                <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true">{{marshal $file}}</textarea>
                 <ul>
                   {{if $metaConfig.Sizes}}
                     {{range $key, $size := $metaConfig.Sizes}}
@@ -83,6 +59,26 @@
     </div>
   </div>
 </div>
+
+<script name="media-box-template" type="x-tmpl-mustache">
+  [[#File]]
+    <div class="qor-file qor-field__mediabox-item" data-primary-key=[[primaryKey]] data-original-url=[[File.Url]]>
+      <div class="qor-file__list">
+        <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true"></textarea>
+        <ul>
+          <li>
+            <img src="[[File.Url]]" alt="[[Title]]" data-original-url="[[File.Url]]" data-size-name="original" />
+          </li>
+        </ul>
+        <span class="qor-file__input visuallyhidden"></span>
+      </div>
+    </div>
+  [[/File]]
+</script>
+
+<script name="select-many-selected-icon" type="x-tmpl-mustache">
+  <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
+</script>
 
 {{javascript_tag "media_box"}}
 {{stylesheet_tag "media_box"}}

@@ -21,11 +21,11 @@
   var EVENT_ENABLE = 'enable.' + NAMESPACE;
   var EVENT_DISABLE = 'disable.' + NAMESPACE;
   var CLASS_CLEAR_SELECT = '.qor-selected-many__remove';
-  var CLASS_DELETED_ITEM = 'qor-selected-many__deleted';
   var CLASS_SELECT_ICON = '.qor-select__select-icon';
   var CLASS_SELECT_HINT = '.qor-selectmany__hint';
   var CLASS_PARENT = '.qor-field__mediabox';
   var CLASS_LISTS = '.qor-field__mediabox-list';
+  var CLASS_ITEM = '.qor-field__mediabox-item';
   var CLASS_LISTS_DATA = '.qor-field__mediabox-data';
   var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
   var CLASS_SELECTED = 'is_selected';
@@ -51,20 +51,10 @@
 
     clearSelect: function (e) {
       var $target = $(e.target),
-          $selectFeild = $target.closest(CLASS_PARENT);
+          $selectFeild = $target.closest(CLASS_LISTS);
 
-      $target.closest('[data-primary-key]').addClass(CLASS_DELETED_ITEM);
-      this.updateSelectInputData($selectFeild);
-
-      return false;
-    },
-
-    undoDelete: function (e) {
-      var $target = $(e.target),
-          $selectFeild = $target.closest(CLASS_PARENT);
-
-      $target.closest('[data-primary-key]').removeClass(CLASS_DELETED_ITEM);
-      this.updateSelectInputData($selectFeild);
+      $target.closest('[data-primary-key]').remove();
+      this.updateMediaLibraryData($selectFeild);
 
       return false;
     },
@@ -94,6 +84,21 @@
 
     },
 
+    initItems: function () {
+      var $selectFeild = this.$selectFeild,
+          $items = $selectFeild.find(CLASS_ITEM),
+          $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
+          _this = this,
+          $tr,
+          key;
+
+      $items.each(function() {
+        key = $(this).data().primaryKey;
+        $tr = $trs.filter('[data-primary-key="' + key + '"]').addClass(CLASS_SELECTED);
+        _this.changeIcon($tr,true);
+      });
+    },
+
     renderSelectMany: function (data) {
       return Mustache.render(this.SELECT_MEDIABOX_TEMPLATE, data);
     },
@@ -102,10 +107,26 @@
       return Mustache.render(this.SELECT_MANY_HINT, data);
     },
 
-    getSelectedItemData: function() {
-      var selecedItems = $(CLASS_BOTTOMSHEETS).find('.is_selected');
+    getSelectedItemData: function($ele) {
+      var $selectFeild = $ele ? $ele : this.$selectFeild,
+          $items = $selectFeild.find(CLASS_ITEM),
+          files = [],
+          item;
+
+      if ($items.size()) {
+        $items.each(function() {
+          item = $(this).data();
+
+          files.push({
+            ID: item.primaryKey,
+            Url: item.originalUrl
+          });
+        });
+      }
+        
       return {
-        selectedNum: selecedItems.size()
+        files: files,
+        selectedNum: files.length
       };
     },
 
@@ -119,16 +140,11 @@
       $(CLASS_BOTTOMSHEETS).find('.qor-bottomsheets__body').prepend(template);
     },
 
-    updateSelectInputData: function (data) {
+    updateMediaLibraryData: function () {
       var $dataInput = this.$mediaLrbraryData,
-          dataArr = JSON.parse($dataInput.val()) || [],
-          item = {
-            'ID': data.primaryKey,
-            'Url': data.File.Url
-          };
+          data = this.getSelectedItemData();
 
-        dataArr.push(item);
-        $dataInput.val(JSON.stringify(dataArr));
+      $dataInput.val(JSON.stringify(data.files));
     },
 
     changeIcon: function ($ele, isAdd) {
@@ -148,11 +164,7 @@
     },
 
     addItem: function (data, isNewData) {
-      var $template = $(this.renderSelectMany(data)),
-          $option;
-          // $list = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]');
-
-
+      var $template = $(this.renderSelectMany(data));
 
       $template.appendTo(this.$selectFeild);
 
@@ -161,8 +173,6 @@
       $template.trigger('enable');
 
       if (isNewData) {
-        $option = $(Mustache.render(QorMediaBox.SELECT_MANY_OPTION_TEMPLATE, data));
-        $option.prop('selected', true);
         this.BottomSheets.hide();
         return;
       }
@@ -178,8 +188,7 @@
           };
 
       $bottomsheets.qorSelectCore(options);
-      // TODO:
-      // this.$selectFeild.append('<input type="file" class="qor-file__input visuallyhidden" />');
+      this.initItems();
     },
 
     formatSelectResults: function (data) {
@@ -228,13 +237,12 @@
       }
 
       this.updateHint(this.getSelectedItemData());
-      this.updateSelectInputData(data);
+      this.updateMediaLibraryData();
 
     }
 
   };
 
-  QorMediaBox.SELECT_MANY_OPTION_TEMPLATE = '<option value="[[ primaryKey ]]" >[[ Name ]]</option>';
 
   QorMediaBox.plugin = function (options) {
     return this.each(function () {
