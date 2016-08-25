@@ -86,7 +86,7 @@ func (mediaLibraryStorage MediaLibraryStorage) ConfigureQorMeta(metaor resource.
 }
 
 type MediaBox struct {
-	Values string `json:"-"`
+	Values string `json:"-" gorm:"size:4294967295;"`
 	Files  []File `json:",omitempty"`
 }
 
