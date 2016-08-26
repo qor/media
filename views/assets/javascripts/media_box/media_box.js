@@ -62,27 +62,26 @@
       return false;
     },
 
-    syncImageCrop: function (e) {
-      var $parent = $(e.target).closest(CLASS_ITEM),
+    syncImageCrop: function ($ele, e) {
+      var $parent = $ele ? $ele : $(e.target).closest(CLASS_ITEM),
           primaryKey = $parent.data().primaryKey,
           item = JSON.parse($parent.find(CLASS_CROPPER_OPTIONS).val()),
           url = '/admin/media_libraries/' + primaryKey,
-          data = {};
+          syncData = {};
 
       delete item.ID;
       delete item.Url;
 
-      data.File = JSON.stringify(item);
+      syncData.File = JSON.stringify(item);
 
-      console.log(data);
       $.ajax({
         type: 'PUT',
         url: url,
-        data: JSON.stringify(data),
+        data: JSON.stringify(syncData),
         contentType: "application/json",
         dataType: 'json',
         success: function (data) {
-          console.log(data);
+          // TODO: add loading and remove it
         }
       });
     },
@@ -192,13 +191,22 @@
     },
 
     addItem: function (data, isNewData) {
-      var $template = $(this.renderSelectMany(data));
+      var $template = $(this.renderSelectMany(data)),
+          $input = $template.find('.qor-file__input'),
+          _this = this;
 
       $template.appendTo(this.$selectFeild);
 
       // trigger cropper function for new item
-      $template.find('.qor-file__options').val(JSON.stringify(data.File));
+      $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.File));
       $template.trigger('enable');
+
+      if (!data.File.crop) {
+        $input.data('qor.cropper').load(data.File.Url, function () {
+          _this.syncImageCrop($input.closest(CLASS_ITEM));
+        });
+      }
+
 
       if (isNewData) {
         this.BottomSheets.hide();
@@ -233,16 +241,12 @@
           _this = this,
           formatData = data;
 
-      if (!data.File) {
-        $.getJSON(url,function(data){
-          data.File = JSON.parse(data.File);
-          $element.data(data);
-          $.extend(formatData, data);
-          _this.handleFormat(formatData, isNewData);
-        });
-      } else {
+      $.getJSON(url,function(data){
+        data.File = JSON.parse(data.File);
+        $element.data(data);
+        $.extend(formatData, data);
         _this.handleFormat(formatData, isNewData);
-      }
+      });
 
     },
 

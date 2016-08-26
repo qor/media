@@ -54,19 +54,6 @@
           {{end}}
 
         {{end}}
-
-
-        <ul class="media-box-choosen-template">
-          {{if $metaConfig.Sizes}}
-            {{range $key, $size := $metaConfig.Sizes}}
-              <li {{if (is_included $key "@")}}style="display:none"{{end}}>
-                <img data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}">
-                <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
-              </li>
-            {{end}}
-          {{end}}
-        </ul>
-        
       </div>
     </div>
   </div>
@@ -78,9 +65,18 @@
       <div class="qor-file__list">
         <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" aria-hidden="true"></textarea>
         <ul>
+          {{if $metaConfig.Sizes}}
+            {{range $key, $size := $metaConfig.Sizes}}
+              <li {{if (is_included $key "@")}}style="display:none"{{end}}>
+                <img data-size-name="{{$key}}" data-size-resolution="true" data-size-resolution-width="{{$size.Width}}" data-size-resolution-height="{{$size.Height}}">
+                <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
+              </li>
+            {{end}}
+          {{else}}
           <li>
             <img src="[[File.Url]]" alt="[[Title]]" data-original-url="[[File.Url]]" data-size-name="original" />
           </li>
+          {{end}}
         </ul>
         <span class="qor-file__input visuallyhidden"></span>
       </div>
