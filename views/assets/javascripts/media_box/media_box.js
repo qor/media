@@ -65,8 +65,18 @@
     syncImageCrop: function (e) {
       var $parent = $(e.target).closest(CLASS_ITEM),
           primaryKey = $parent.data().primaryKey,
-          data = $parent.find(CLASS_CROPPER_OPTIONS).val(),
-          url = '/admin/media_libraries/' + primaryKey;
+          item = JSON.parse($parent.find(CLASS_CROPPER_OPTIONS).val()),
+          url = '/admin/media_libraries/' + primaryKey,
+          data = {};
+
+      
+      delete item.ID;
+      delete item.Url;
+
+
+      data.File = item;
+
+      console.log(data)
 
       $.ajax({
         type: 'PUT',

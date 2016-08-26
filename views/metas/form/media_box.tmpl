@@ -54,6 +54,18 @@
           {{end}}
 
         {{end}}
+
+
+        <ul class="media-box-choosen-template">
+          {{if $metaConfig.Sizes}}
+            {{range $key, $size := $metaConfig.Sizes}}
+              <li {{if (is_included $key "@")}}style="display:none"{{end}}>
+                <img data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}">
+                <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
+              </li>
+            {{end}}
+          {{end}}
+        </ul>
         
       </div>
     </div>
