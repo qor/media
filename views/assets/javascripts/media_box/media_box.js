@@ -30,6 +30,7 @@
   var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
   var CLASS_SELECTED = 'is_selected';
   var CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options';
+  var CLASS_CROP = '.qor-cropper__toggle--crop';
 
 
   function QorMediaBox(element, options) {
@@ -49,7 +50,7 @@
       $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this));
       this.$element
         .on(EVENT_CLICK, CLASS_CLEAR_SELECT, this.clearSelect.bind(this))
-        .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.syncImageCrop.bind(this));
+        .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.imageCrop.bind(this));
     },
 
     clearSelect: function (e) {
@@ -62,11 +63,9 @@
       return false;
     },
 
-    syncImageCrop: function ($ele, e) {
-      var $parent = $ele ? $ele : $(e.target).closest(CLASS_ITEM),
-          primaryKey = $parent.data().primaryKey,
-          item = JSON.parse($parent.find(CLASS_CROPPER_OPTIONS).val()),
-          url = $parent.data().mediaLibraryUrl,
+    syncImageCrop: function ($ele) {
+      var item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
+          url = $ele.data().mediaLibraryUrl,
           syncData = {};
 
       delete item.ID;
@@ -84,6 +83,11 @@
           // TODO: add loading and remove it
         }
       });
+    },
+
+    imageCrop: function (e) {
+      var $parent = $(e.target).closest(CLASS_ITEM);
+      this.syncImageCrop($parent);
     },
 
     openBottomSheets: function (e) {
@@ -201,7 +205,7 @@
       $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.File));
       $template.trigger('enable');
 
-      if (!data.File.crop) {
+      if (!data.File.CropOptions) {
         $input.data('qor.cropper').load(data.File.Url, function () {
           _this.syncImageCrop($input.closest(CLASS_ITEM));
         });
