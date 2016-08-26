@@ -66,7 +66,7 @@
       var $parent = $ele ? $ele : $(e.target).closest(CLASS_ITEM),
           primaryKey = $parent.data().primaryKey,
           item = JSON.parse($parent.find(CLASS_CROPPER_OPTIONS).val()),
-          url = '/admin/media_libraries/' + primaryKey,
+          url = $parent.data().mediaLibraryUrl,
           syncData = {};
 
       delete item.ID;
@@ -236,7 +236,7 @@
     },
 
     formatResults: function (data, isNewData) {
-      var url = '/admin/media_libraries/' + data.primaryKey,
+      var url = data.url,
           $element = data.$clickElement,
           _this = this,
           formatData = data;
