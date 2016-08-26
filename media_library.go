@@ -14,9 +14,28 @@ import (
 	"github.com/qor/qor/resource"
 )
 
+type MediaLibraryInterface interface {
+	ScanCropOptions(MediaCropOption) error
+}
+
 type MediaLibrary struct {
 	gorm.Model
 	File MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
+}
+
+type MediaCropOption struct {
+	CropOptions map[string]*CropOption `json:",omitempty"`
+	Sizes       map[string]Size        `json:",omitempty"`
+	Crop        bool
+}
+
+func (mediaLibrary *MediaLibrary) ScanCropOptions(cropOption MediaCropOption) error {
+	cropOption.Crop = true
+	if bytes, err := json.Marshal(cropOption); err == nil {
+		return mediaLibrary.File.Scan(bytes)
+	} else {
+		return err
+	}
 }
 
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
@@ -179,6 +198,26 @@ func (file File) URL(styles ...string) string {
 		return fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file.Url, ext), styles[0], ext)
 	}
 	return file.Url
+}
+
+func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, cropOption MediaCropOption) (err error) {
+	for _, file := range mediaBox.Files {
+		context := &qor.Context{ResourceID: string(file.ID), DB: db}
+		record := res.NewStruct()
+		if err = res.CallFindOne(record, nil, context); err == nil {
+			if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+				if err = mediaLibrary.ScanCropOptions(cropOption); err == nil {
+					err = res.CallSave(record, context)
+				}
+			} else {
+				err = errors.New("invalid media library resource")
+			}
+		}
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 type MediaBoxConfig struct {
