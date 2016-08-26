@@ -69,28 +69,22 @@
           url = '/admin/media_libraries/' + primaryKey,
           data = {};
 
-      
       delete item.ID;
       delete item.Url;
 
+      data.File = JSON.stringify(item);
 
-      data.File = item;
-
-      console.log(data)
-
+      console.log(data);
       $.ajax({
         type: 'PUT',
         url: url,
-        data: data,
-        processData: false,
-        contentType: false,
+        data: JSON.stringify(data),
+        contentType: "application/json",
         dataType: 'json',
         success: function (data) {
           console.log(data);
         }
-        
       });
-
     },
 
     openBottomSheets: function (e) {

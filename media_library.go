@@ -16,7 +16,7 @@ import (
 
 type MediaLibrary struct {
 	gorm.Model
-	File MediaLibraryStorage `sql:"size:4294967295;"`
+	File MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
 }
 
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
