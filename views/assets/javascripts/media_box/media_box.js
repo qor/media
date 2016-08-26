@@ -207,7 +207,7 @@
       $template.trigger('enable');
 
       if (!data.MediaOption.CropOptions) {
-        $input.data('qor.cropper').load(data.MediaOption.Url, function () {
+        $input.data('qor.cropper').load(data.MediaOption.URL, function () {
           _this.syncImageCrop($input.closest(CLASS_ITEM));
         });
       }
@@ -252,7 +252,6 @@
         $.extend(formatData, data);
         _this.handleFormat(formatData, isNewData);
       });
-
     },
 
     handleFormat: function (data, isNewData) {
