@@ -30,7 +30,7 @@
   var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
   var CLASS_SELECTED = 'is_selected';
   var CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options';
-  var CLASS_CROP = '.qor-cropper__toggle--crop';
+  // var CLASS_CROP = '.qor-cropper__toggle--crop';
 
 
   function QorMediaBox(element, options) {
@@ -71,7 +71,7 @@
       delete item.ID;
       delete item.Url;
 
-      syncData.File = JSON.stringify(item);
+      syncData.MediaCropOption = JSON.stringify(item);
 
       $.ajax({
         type: 'PUT',
@@ -81,6 +81,7 @@
         dataType: 'json',
         success: function (data) {
           // TODO: add loading and remove it
+          console.log(data);
         }
       });
     },
@@ -202,11 +203,11 @@
       $template.appendTo(this.$selectFeild);
 
       // trigger cropper function for new item
-      $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.File));
+      $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.MediaCropOption));
       $template.trigger('enable');
 
-      if (!data.File.CropOptions) {
-        $input.data('qor.cropper').load(data.File.Url, function () {
+      if (!data.MediaCropOption.CropOptions) {
+        $input.data('qor.cropper').load(data.MediaCropOption.Url, function () {
           _this.syncImageCrop($input.closest(CLASS_ITEM));
         });
       }
@@ -246,7 +247,7 @@
           formatData = data;
 
       $.getJSON(url,function(data){
-        data.File = JSON.parse(data.File);
+        data.MediaCropOption = JSON.parse(data.MediaCropOption);
         $element.data(data);
         $.extend(formatData, data);
         _this.handleFormat(formatData, isNewData);

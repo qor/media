@@ -12,10 +12,12 @@ import (
 	"github.com/qor/admin"
 	"github.com/qor/qor"
 	"github.com/qor/qor/resource"
+	"github.com/qor/qor/utils"
 )
 
 type MediaLibraryInterface interface {
 	ScanCropOptions(MediaCropOption) error
+	GetCropOption() MediaCropOption
 }
 
 type MediaLibrary struct {
@@ -36,6 +38,12 @@ func (mediaLibrary *MediaLibrary) ScanCropOptions(cropOption MediaCropOption) er
 	} else {
 		return err
 	}
+}
+
+func (mediaLibrary *MediaLibrary) GetCropOption() (mediaCropOption MediaCropOption) {
+	mediaCropOption.CropOptions = mediaLibrary.File.CropOptions
+	mediaCropOption.Sizes = mediaLibrary.File.GetSizes()
+	return
 }
 
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
@@ -76,15 +84,15 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 					}
 				}
 
-				for key, value := range mediaLibraryStorage.CropOptions {
-					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
-						mediaLibraryStorage.Sizes[key] = Size{Width: value.Width, Height: value.Height}
-					}
-				}
-
 				for key, value := range sizeOptions {
 					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
 						mediaLibraryStorage.Sizes[key] = value
+					}
+				}
+
+				for key, value := range mediaLibraryStorage.CropOptions {
+					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
+						mediaLibraryStorage.Sizes[key] = Size{Width: value.Width, Height: value.Height}
 					}
 				}
 			}
@@ -178,6 +186,34 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				}
 				config.RemoteDataResource = mediaLibraryResource
 			}
+
+			if meta := config.RemoteDataResource.GetMeta("MediaCropOption"); meta == nil {
+				config.RemoteDataResource.Meta(&admin.Meta{
+					Name: "MediaCropOption",
+					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
+						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+							var cropOption MediaCropOption
+							if err := json.Unmarshal([]byte(utils.ToString(metaValue.Value)), &cropOption); err == nil {
+								mediaLibrary.ScanCropOptions(cropOption)
+							}
+						}
+					},
+					Valuer: func(record interface{}, context *qor.Context) interface{} {
+						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+							if value, err := json.Marshal(mediaLibrary.GetCropOption()); err == nil {
+								return string(value)
+							}
+						}
+						return ""
+					},
+				})
+			}
+
+			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaCropOption")
+			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "-MediaCropOption")
+			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "-MediaCropOption")
+			config.RemoteDataResource.ShowAttrs(config.RemoteDataResource.ShowAttrs(), "MediaCropOption")
+
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
 			config.SelectManyConfig.ConfigureQorMeta(meta)
 			config.RemoteDataResource = config.SelectManyConfig.RemoteDataResource
