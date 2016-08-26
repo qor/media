@@ -2,6 +2,7 @@ package media_library
 
 import (
 	"bytes"
+	"io/ioutil"
 	"mime/multipart"
 
 	"github.com/disintegration/imaging"
@@ -28,30 +29,35 @@ func (imageHandler) CouldHandle(media Media) bool {
 }
 
 func (imageHandler) Handle(media Media, file multipart.File, option *Option) (err error) {
-	if err = media.Store(media.URL("original"), option, file); err == nil {
-		file.Seek(0, 0)
+	var fileBuffer bytes.Buffer
+	if fileBytes, err := ioutil.ReadAll(file); err == nil {
+		fileBuffer.Write(fileBytes)
 
-		if img, err := imaging.Decode(file); err == nil {
-			if format, err := getImageFormat(media.URL()); err == nil {
-				if cropOption := media.GetCropOption("original"); cropOption != nil {
-					img = imaging.Crop(img, *cropOption)
-				}
+		if err = media.Store(media.URL("original"), option, &fileBuffer); err == nil {
+			file.Seek(0, 0)
 
-				// Save default image
-				var buffer bytes.Buffer
-				imaging.Encode(&buffer, img, *format)
-				media.Store(media.URL(), option, &buffer)
-
-				for key, size := range media.GetSizes() {
-					newImage := img
-					if cropOption := media.GetCropOption(key); cropOption != nil {
-						newImage = imaging.Crop(newImage, *cropOption)
+			if img, err := imaging.Decode(file); err == nil {
+				if format, err := getImageFormat(media.URL()); err == nil {
+					if cropOption := media.GetCropOption("original"); cropOption != nil {
+						img = imaging.Crop(img, *cropOption)
 					}
 
-					dst := imaging.Thumbnail(newImage, size.Width, size.Height, imaging.Lanczos)
+					// Save default image
 					var buffer bytes.Buffer
-					imaging.Encode(&buffer, dst, *format)
-					media.Store(media.URL(key), option, &buffer)
+					imaging.Encode(&buffer, img, *format)
+					media.Store(media.URL(), option, &buffer)
+
+					for key, size := range media.GetSizes() {
+						newImage := img
+						if cropOption := media.GetCropOption(key); cropOption != nil {
+							newImage = imaging.Crop(newImage, *cropOption)
+						}
+
+						dst := imaging.Thumbnail(newImage, size.Width, size.Height, imaging.Lanczos)
+						var buffer bytes.Buffer
+						imaging.Encode(&buffer, dst, *format)
+						media.Store(media.URL(key), option, &buffer)
+					}
 				}
 			}
 		}
