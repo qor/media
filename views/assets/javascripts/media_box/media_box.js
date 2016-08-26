@@ -150,7 +150,7 @@
           });
         });
       }
-        
+
       return {
         files: files,
         selectedNum: files.length

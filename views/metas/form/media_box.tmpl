@@ -22,10 +22,7 @@
             <i class="material-icons">file_upload</i>
         </label>
 
-
-
         {{if $value.Files}}
-
           {{range $file := $value.Files}}
             <div class="qor-file qor-field__mediabox-item" data-media-library-url="{{printf "%s/%v" (url_for $metaConfig.RemoteDataResource) $file.ID}}" data-primary-key={{$file.ID}}>
               <div class="qor-file__list">
@@ -42,7 +39,7 @@
                     {{end}}
                   {{else}}
                     <li>
-                      <img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}">
+                      <img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original">
                     </li>
                   {{end}}
 
