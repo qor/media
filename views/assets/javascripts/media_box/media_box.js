@@ -151,7 +151,7 @@
 
           files.push({
             ID: item.primaryKey,
-            Url: item.originalUrl
+            Url: item.originalUrl.replace(/.original.(\w+)$/, ".$1")
           });
         });
       }

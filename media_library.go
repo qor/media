@@ -26,15 +26,15 @@ type MediaLibrary struct {
 }
 
 type MediaOption struct {
-	FileName    string
-	URL         string
-	OriginalURL string
+	FileName    string                 `json:",omitempty"`
+	URL         string                 `json:",omitempty"`
+	OriginalURL string                 `json:",omitempty"`
 	CropOptions map[string]*CropOption `json:",omitempty"`
 	Sizes       map[string]Size        `json:",omitempty"`
 }
 
-func (mediaLibrary *MediaLibrary) ScanMediaOptions(cropOption MediaOption) error {
-	if bytes, err := json.Marshal(cropOption); err == nil {
+func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) error {
+	if bytes, err := json.Marshal(mediaOption); err == nil {
 		mediaLibrary.File.Crop = true
 		return mediaLibrary.File.Scan(bytes)
 	} else {
@@ -197,9 +197,12 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 					Name: "MediaOption",
 					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
 						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							var cropOption MediaOption
-							if err := json.Unmarshal([]byte(utils.ToString(metaValue.Value)), &cropOption); err == nil {
-								mediaLibrary.ScanMediaOptions(cropOption)
+							var mediaOption MediaOption
+							if err := json.Unmarshal([]byte(utils.ToString(metaValue.Value)), &mediaOption); err == nil {
+								mediaOption.FileName = ""
+								mediaOption.URL = ""
+								mediaOption.OriginalURL = ""
+								mediaLibrary.ScanMediaOptions(mediaOption)
 							}
 						}
 					},
