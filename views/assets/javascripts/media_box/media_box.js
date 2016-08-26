@@ -71,7 +71,7 @@
       delete item.ID;
       delete item.Url;
 
-      syncData.MediaCropOption = JSON.stringify(item);
+      syncData.MediaOption = JSON.stringify(item);
 
       $.ajax({
         type: 'PUT',
@@ -203,11 +203,11 @@
       $template.appendTo(this.$selectFeild);
 
       // trigger cropper function for new item
-      $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.MediaCropOption));
+      $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.MediaOption));
       $template.trigger('enable');
 
-      if (!data.MediaCropOption.CropOptions) {
-        $input.data('qor.cropper').load(data.MediaCropOption.Url, function () {
+      if (!data.MediaOption.CropOptions) {
+        $input.data('qor.cropper').load(data.MediaOption.Url, function () {
           _this.syncImageCrop($input.closest(CLASS_ITEM));
         });
       }
@@ -247,7 +247,7 @@
           formatData = data;
 
       $.getJSON(url,function(data){
-        data.MediaCropOption = JSON.parse(data.MediaCropOption);
+        data.MediaOption = JSON.parse(data.MediaOption);
         $element.data(data);
         $.extend(formatData, data);
         _this.handleFormat(formatData, isNewData);

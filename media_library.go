@@ -16,8 +16,8 @@ import (
 )
 
 type MediaLibraryInterface interface {
-	ScanCropOptions(MediaCropOption) error
-	GetCropOption() MediaCropOption
+	ScanMediaOptions(MediaOption) error
+	GetMediaOption() MediaOption
 }
 
 type MediaLibrary struct {
@@ -25,24 +25,29 @@ type MediaLibrary struct {
 	File MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
 }
 
-type MediaCropOption struct {
+type MediaOption struct {
+	FileName    string
+	URL         string
+	OriginalURL string
 	CropOptions map[string]*CropOption `json:",omitempty"`
 	Sizes       map[string]Size        `json:",omitempty"`
-	Crop        bool
 }
 
-func (mediaLibrary *MediaLibrary) ScanCropOptions(cropOption MediaCropOption) error {
-	cropOption.Crop = true
+func (mediaLibrary *MediaLibrary) ScanMediaOptions(cropOption MediaOption) error {
 	if bytes, err := json.Marshal(cropOption); err == nil {
+		mediaLibrary.File.Crop = true
 		return mediaLibrary.File.Scan(bytes)
 	} else {
 		return err
 	}
 }
 
-func (mediaLibrary *MediaLibrary) GetCropOption() (mediaCropOption MediaCropOption) {
-	mediaCropOption.CropOptions = mediaLibrary.File.CropOptions
-	mediaCropOption.Sizes = mediaLibrary.File.GetSizes()
+func (mediaLibrary *MediaLibrary) GetMediaOption() (mediaOption MediaOption) {
+	mediaOption.FileName = mediaLibrary.File.FileName
+	mediaOption.URL = mediaLibrary.File.URL()
+	mediaOption.OriginalURL = mediaLibrary.File.URL("original")
+	mediaOption.CropOptions = mediaLibrary.File.CropOptions
+	mediaOption.Sizes = mediaLibrary.File.GetSizes()
 	return
 }
 
@@ -187,20 +192,20 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				config.RemoteDataResource = mediaLibraryResource
 			}
 
-			if meta := config.RemoteDataResource.GetMeta("MediaCropOption"); meta == nil {
+			if meta := config.RemoteDataResource.GetMeta("MediaOption"); meta == nil {
 				config.RemoteDataResource.Meta(&admin.Meta{
-					Name: "MediaCropOption",
+					Name: "MediaOption",
 					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
 						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							var cropOption MediaCropOption
+							var cropOption MediaOption
 							if err := json.Unmarshal([]byte(utils.ToString(metaValue.Value)), &cropOption); err == nil {
-								mediaLibrary.ScanCropOptions(cropOption)
+								mediaLibrary.ScanMediaOptions(cropOption)
 							}
 						}
 					},
 					Valuer: func(record interface{}, context *qor.Context) interface{} {
 						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							if value, err := json.Marshal(mediaLibrary.GetCropOption()); err == nil {
+							if value, err := json.Marshal(mediaLibrary.GetMediaOption()); err == nil {
 								return string(value)
 							}
 						}
@@ -209,10 +214,10 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				})
 			}
 
-			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaCropOption")
-			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "-MediaCropOption")
-			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "-MediaCropOption")
-			config.RemoteDataResource.ShowAttrs(config.RemoteDataResource.ShowAttrs(), "MediaCropOption")
+			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
+			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "-MediaOption")
+			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "-MediaOption")
+			config.RemoteDataResource.ShowAttrs(config.RemoteDataResource.ShowAttrs(), "MediaOption")
 
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
 			config.SelectManyConfig.ConfigureQorMeta(meta)
@@ -236,13 +241,13 @@ func (file File) URL(styles ...string) string {
 	return file.Url
 }
 
-func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, cropOption MediaCropOption) (err error) {
+func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption MediaOption) (err error) {
 	for _, file := range mediaBox.Files {
 		context := &qor.Context{ResourceID: string(file.ID), DB: db}
 		record := res.NewStruct()
 		if err = res.CallFindOne(record, nil, context); err == nil {
 			if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-				if err = mediaLibrary.ScanCropOptions(cropOption); err == nil {
+				if err = mediaLibrary.ScanMediaOptions(mediaOption); err == nil {
 					err = res.CallSave(record, context)
 				}
 			} else {
