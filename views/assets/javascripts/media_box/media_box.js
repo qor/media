@@ -63,29 +63,6 @@
       return false;
     },
 
-    syncImageCrop: function ($ele) {
-      var item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
-          url = $ele.data().mediaLibraryUrl,
-          syncData = {};
-
-      delete item.ID;
-      delete item.Url;
-
-      syncData.MediaOption = JSON.stringify(item);
-
-      $.ajax({
-        type: 'PUT',
-        url: url,
-        data: JSON.stringify(syncData),
-        contentType: "application/json",
-        dataType: 'json',
-        success: function (data) {
-          // TODO: add loading and remove it
-          console.log(data);
-        }
-      });
-    },
-
     imageCrop: function (e) {
       var $parent = $(e.target).closest(CLASS_ITEM);
       this.syncImageCrop($parent);
@@ -151,7 +128,7 @@
 
           files.push({
             ID: item.primaryKey,
-            Url: item.originalUrl.replace(/.original.(\w+)$/, ".$1")
+            Url: item.originalUrl.replace(/.original.(\w+)$/, '.$1')
           });
         });
       }
@@ -188,6 +165,32 @@
 
     },
 
+    syncImageCrop: function ($ele, callback) {
+      var item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
+          url = $ele.data().mediaLibraryUrl,
+          syncData = {};
+
+      delete item.ID;
+      delete item.Url;
+
+      syncData.MediaOption = JSON.stringify(item);
+
+      $.ajax({
+        type: 'PUT',
+        url: url,
+        data: JSON.stringify(syncData),
+        contentType: "application/json",
+        dataType: 'json',
+        success: function (data) {
+          syncData.MediaOption = JSON.parse(data.MediaOption);
+          
+          if (callback && $.isFunction(callback)) {
+            callback(syncData, $ele);
+          }
+        }
+      });
+    },
+
     removeItem: function (data) {
       var primaryKey = data.primaryKey;
 
@@ -198,9 +201,16 @@
     addItem: function (data, isNewData) {
       var $template = $(this.renderSelectMany(data)),
           $input = $template.find('.qor-file__input'),
+          $item = $input.closest(CLASS_ITEM),
           _this = this;
 
       $template.appendTo(this.$selectFeild);
+
+
+      // if image alread have CropOptions, replace original images as [big,middle, small] images.
+      if (data.MediaOption.CropOptions) {
+        this.resetImages(data, $template);
+      }
 
       // trigger cropper function for new item
       $template.find(CLASS_CROPPER_OPTIONS).val(JSON.stringify(data.MediaOption));
@@ -208,7 +218,7 @@
 
       if (!data.MediaOption.CropOptions) {
         $input.data('qor.cropper').load(data.MediaOption.URL, function () {
-          _this.syncImageCrop($input.closest(CLASS_ITEM));
+          _this.syncImageCrop($item, _this.resetImages);
         });
       }
 
@@ -219,6 +229,26 @@
       }
 
       this.changeIcon(data.$clickElement, true);
+    },
+
+    resetImages: function (data, $template) {
+        var cropOptions = data.MediaOption.CropOptions,
+            keys = Object.keys(cropOptions),
+            url = data.MediaOption.OriginalURL;
+
+
+        for (var i = keys.length - 1; i >= 0; i--) {
+          cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
+        }
+
+        $template.find('img').each(function () {
+          var $this = $(this),
+              sizeName = $this.data().sizeName;
+
+          if (sizeName && sizeName != 'original') {
+            $this.prop('src', cropOptions[sizeName]['URL']);
+          }
+        });
     },
 
     handleSelectMany: function () {
@@ -242,13 +272,11 @@
 
     formatResults: function (data, isNewData) {
       var url = data.url,
-          $element = data.$clickElement,
           _this = this,
           formatData = data;
 
       $.getJSON(url,function(data){
         data.MediaOption = JSON.parse(data.MediaOption);
-        $element.data(data);
         $.extend(formatData, data);
         _this.handleFormat(formatData, isNewData);
       });
