@@ -20,7 +20,6 @@
   var EVENT_CLICK = 'click.' + NAMESPACE;
   var EVENT_ENABLE = 'enable.' + NAMESPACE;
   var EVENT_DISABLE = 'disable.' + NAMESPACE;
-  var CLASS_CLEAR_SELECT = '.qor-selected-many__remove';
   var CLASS_SELECT_ICON = '.qor-select__select-icon';
   var CLASS_SELECT_HINT = '.qor-selectmany__hint';
   var CLASS_PARENT = '.qor-field__mediabox';
@@ -29,8 +28,10 @@
   var CLASS_LISTS_DATA = '.qor-field__mediabox-data';
   var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
   var CLASS_SELECTED = 'is_selected';
+  var CLASS_DELETE = 'is_deleted';
   var CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options';
-  // var CLASS_CROP = '.qor-cropper__toggle--crop';
+  var CLASS_CROPPER_DELETE = '.qor-cropper__toggle--delete';
+  var CLASS_CROPPER_UNDO = '.qor-cropper__toggle--undo';
 
 
   function QorMediaBox(element, options) {
@@ -44,21 +45,39 @@
 
     init: function () {
       this.bind();
+      // select many templates
+      this.SELECT_MANY_SELECTED_ICON = $('[name="select-many-selected-icon"]').html();
+      this.SELECT_MANY_UNSELECTED_ICON = $('[name="select-many-unselected-icon"]').html();
+      this.SELECT_MANY_HINT = $('[name="select-many-hint"]').html();
+      this.SELECT_MEDIABOX_TEMPLATE = $('[name="media-box-template"]').html();
+      this.SELECT_MEDIABOX_UNDO_TEMPLATE = $('[name="media-box-undo-delete"]').html();
     },
 
     bind: function () {
       $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this));
       this.$element
-        .on(EVENT_CLICK, CLASS_CLEAR_SELECT, this.clearSelect.bind(this))
+        .on(EVENT_CLICK, CLASS_CROPPER_DELETE, this.deleteSelected.bind(this))
+        .on(EVENT_CLICK, CLASS_CROPPER_UNDO, this.undoDeleteSelected.bind(this))
         .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.imageCrop.bind(this));
     },
 
-    clearSelect: function (e) {
+    deleteSelected: function (e) {
       var $target = $(e.target),
-          $selectFeild = $target.closest(CLASS_LISTS);
+          $selectFeild = $target.closest(CLASS_ITEM);
 
-      $target.closest('[data-primary-key]').remove();
-      this.updateMediaLibraryData($selectFeild);
+      $selectFeild.addClass(CLASS_DELETE).append(this.SELECT_MEDIABOX_UNDO_TEMPLATE).find('.qor-file__list').hide();
+      this.updateMediaLibraryData($target.closest(CLASS_LISTS));
+
+      return false;
+    },
+
+    undoDeleteSelected: function (e) {
+      var $target = $(e.target),
+          $selectFeild = $target.closest(CLASS_ITEM);
+
+      $selectFeild.removeClass(CLASS_DELETE).find('.qor-file__list').show();
+      this.updateMediaLibraryData($target.closest(CLASS_LISTS));
+      $target.closest('.qor-fieldset__alert').remove();
 
       return false;
     },
@@ -79,13 +98,6 @@
       this.$parent = $parent = $ele.closest(CLASS_PARENT);
 
       this.$selectFeild = $parent.find(CLASS_LISTS);
-      this.$mediaLrbraryData = $parent.find(CLASS_LISTS_DATA);
-
-      // select many templates
-      this.SELECT_MANY_SELECTED_ICON = $('[name="select-many-selected-icon"]').html();
-      this.SELECT_MANY_UNSELECTED_ICON = $('[name="select-many-unselected-icon"]').html();
-      this.SELECT_MANY_HINT = $('[name="select-many-hint"]').html();
-      this.SELECT_MEDIABOX_TEMPLATE = $('[name="media-box-template"]').html();
 
       data.url = data.mediaboxUrl;
 
@@ -95,7 +107,7 @@
 
     initItems: function () {
       var $selectFeild = this.$selectFeild,
-          $items = $selectFeild.find(CLASS_ITEM),
+          $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
           $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
           _this = this,
           $tr,
@@ -106,6 +118,8 @@
         $tr = $trs.filter('[data-primary-key="' + key + '"]').addClass(CLASS_SELECTED);
         _this.changeIcon($tr,true);
       });
+
+      this.updateHint(this.getSelectedItemData());
     },
 
     renderSelectMany: function (data) {
@@ -118,7 +132,7 @@
 
     getSelectedItemData: function($ele) {
       var $selectFeild = $ele ? $ele : this.$selectFeild,
-          $items = $selectFeild.find(CLASS_ITEM),
+          $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
           files = [],
           item;
 
@@ -149,18 +163,22 @@
       $(CLASS_BOTTOMSHEETS).find('.qor-bottomsheets__body').prepend(template);
     },
 
-    updateMediaLibraryData: function () {
-      var $dataInput = this.$mediaLrbraryData,
-          data = this.getSelectedItemData();
+    updateMediaLibraryData: function ($ele) {
+      var $dataInput = $ele ? $ele.find(CLASS_LISTS_DATA) : this.$selectFeild.find(CLASS_LISTS_DATA),
+          data = this.getSelectedItemData($ele);
 
       $dataInput.val(JSON.stringify(data.files));
     },
 
     changeIcon: function ($ele, isAdd) {
+      
+      var $item = $ele.find('.qor-table--medialibrary-item'),
+          $target = $item.size() ? $item : $ele.find('td:first');
+
       $ele.find(CLASS_SELECT_ICON).remove();
 
       if (isAdd) {
-        $ele.find('.qor-table--medialibrary-item').prepend(this.SELECT_MANY_SELECTED_ICON);
+        $target.prepend(this.SELECT_MANY_SELECTED_ICON);
       }
 
     },
@@ -183,7 +201,7 @@
         dataType: 'json',
         success: function (data) {
           syncData.MediaOption = JSON.parse(data.MediaOption);
-          
+
           if (callback && $.isFunction(callback)) {
             callback(syncData, $ele);
           }
@@ -202,8 +220,15 @@
       var $template = $(this.renderSelectMany(data)),
           $input = $template.find('.qor-file__input'),
           $item = $input.closest(CLASS_ITEM),
+          $hiddenItem = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]'),
           _this = this;
 
+
+      if ($hiddenItem.size()) {
+        $hiddenItem.removeClass(CLASS_DELETE).find('.qor-file__list').show();
+        $hiddenItem.find('.qor-fieldset__alert').remove();
+        return;
+      }
       $template.appendTo(this.$selectFeild);
 
 
@@ -236,6 +261,9 @@
             keys = Object.keys(cropOptions),
             url = data.MediaOption.OriginalURL;
 
+        if (!/original/.test(url)) {
+          return;
+        }
 
         for (var i = keys.length - 1; i >= 0; i--) {
           cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
@@ -286,10 +314,10 @@
       var $element = data.$clickElement,
           isSelected;
 
-      if (isNewData) {
-        this.addItem(data, true);
-        return;
-      }
+      // if (isNewData) {
+      //   this.addItem(data, true);
+      //   return;
+      // }
 
       $element.toggleClass(CLASS_SELECTED);
       isSelected = $element.hasClass(CLASS_SELECTED);

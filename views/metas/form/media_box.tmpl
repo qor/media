@@ -10,9 +10,9 @@
 
     <div class="qor-field__edit">
 
-      <textarea class="hidden qor-field__mediabox-data" name="{{.InputName}}" aria-hidden="true">{{marshal $value.Files}}</textarea>
-
       <div class="qor-field__mediabox-list">
+        <textarea class="hidden qor-field__mediabox-data" name="{{.InputName}}" aria-hidden="true">{{marshal $value.Files}}</textarea>
+        
         <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect"
                data-mediabox-url="{{url_for $metaConfig.RemoteDataResource}}"
                data-select-modal=true
@@ -82,6 +82,11 @@
   [[/MediaOption]]
 </script>
 
+<script name="media-box-undo-delete" type="x-tmpl-mustache">
+  <div class="qor-fieldset__alert">
+    <button class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect qor-cropper__toggle--undo" type="button">{{t "qor_media_library.form.crop_image.undo_delete" "Undo delete"}}</button>
+  </div>
+</script>
 <script name="select-many-selected-icon" type="x-tmpl-mustache">
   <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
 </script>
