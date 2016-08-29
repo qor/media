@@ -3,6 +3,19 @@
 }
 
 .qor-bottomsheets__body{
+	table:not(.qor-table--medialibrary){
+		img{
+			height: 48px !important;
+		}
+		tbody tr{
+			height: 60px;
+			.qor-table__content{
+				overflow: inherit;
+				max-height: none;
+			}
+		}
+	}
+	
 	.qor-table--medialibrary{
 		margin-left: -48px;
 		width: 344px;
