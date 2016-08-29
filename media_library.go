@@ -64,7 +64,14 @@ type MediaLibraryStorage struct {
 }
 
 func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]Size {
-	return mediaLibraryStorage.Sizes
+	var sizes = map[string]Size{
+		"@qor_preview": Size{Width: 200, Height: 200},
+	}
+
+	for key, value := range mediaLibraryStorage.Sizes {
+		sizes[key] = value
+	}
+	return sizes
 }
 
 func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err error) {
@@ -195,6 +202,7 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 			if meta := config.RemoteDataResource.GetMeta("MediaOption"); meta == nil {
 				config.RemoteDataResource.Meta(&admin.Meta{
 					Name: "MediaOption",
+					Type: "hidden",
 					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
 						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
 							var mediaOption MediaOption
@@ -217,10 +225,10 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				})
 			}
 
+			config.RemoteDataResource.UseTheme("grid")
 			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
 			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "-MediaOption")
-			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "-MediaOption")
-			config.RemoteDataResource.ShowAttrs(config.RemoteDataResource.ShowAttrs(), "MediaOption")
+			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "MediaOption")
 
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
 			config.SelectManyConfig.ConfigureQorMeta(meta)

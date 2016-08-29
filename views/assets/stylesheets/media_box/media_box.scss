@@ -15,14 +15,17 @@
 			text-align: center;
 			>p{
 				margin-bottom: 0;
-				line-height: 162px;
+				img {
+					line-height: 162px;
+        }
 			}
 		}
+
 		thead{
 			display: none;
 		}
 		tbody tr td{
-			padding: 0 8px 8px 0;
+			padding: 0 8px 16px 0;
 			.qor-table--medialibrary-item{
 				position: relative;
 			}
