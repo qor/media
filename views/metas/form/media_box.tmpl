@@ -55,41 +55,42 @@
       </div>
     </div>
   </div>
-</div>
 
-<script name="media-box-template" type="x-tmpl-mustache">
-  [[#MediaOption]]
-    <div class="qor-file qor-field__mediabox-item" data-primary-key=[[primaryKey]] data-media-library-url=[[url]] data-original-url=[[MediaOption.URL]]>
-      <div class="qor-file__list">
-        <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" data-fetch-sizedata=[[url]] aria-hidden="true"></textarea>
-        <ul>
-          {{if $metaConfig.Sizes}}
-            {{range $key, $size := $metaConfig.Sizes}}
-              <li {{if (is_included $key "@")}}style="display:none"{{end}}>
-                <img src="[[MediaOption.URL]]" data-original-url=[[MediaOption.OriginalURL]] data-size-name="{{$key}}" data-size-resolution="true" data-size-resolution-width="{{$size.Width}}" data-size-resolution-height="{{$size.Height}}">
-                <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
-              </li>
+
+  <script name="media-box-template" type="x-tmpl-mustache">
+    [[#MediaOption]]
+      <div class="qor-file qor-field__mediabox-item" data-primary-key=[[primaryKey]] data-media-library-url=[[mediaLibraryUrl]] data-original-url=[[MediaOption.URL]]>
+        <div class="qor-file__list">
+          <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.save" "SAVE"}}" data-fetch-sizedata=[[mediaLibraryUrl]] aria-hidden="true"></textarea>
+          <ul>
+            {{if $metaConfig.Sizes}}
+              {{range $key, $size := $metaConfig.Sizes}}
+                <li {{if (is_included $key "@")}}style="display:none"{{end}}>
+                  <img src="[[MediaOption.URL]]" data-original-url=[[MediaOption.OriginalURL]] data-size-name="{{$key}}" data-size-resolution="true" data-size-resolution-width="{{$size.Width}}" data-size-resolution-height="{{$size.Height}}">
+                  <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
+                </li>
+              {{end}}
+            {{else}}
+            <li>
+              <img src="[[MediaOption.URL]]" alt="[[MediaOption.FileName]]" data-original-url="[[MediaOption.OriginalURL]]" data-size-name="original" />
+            </li>
             {{end}}
-          {{else}}
-          <li>
-            <img src="[[MediaOption.URL]]" alt="[[MediaOption.FileName]]" data-original-url="[[MediaOption.OriginalURL]]" data-size-name="original" />
-          </li>
-          {{end}}
-        </ul>
-        <span class="qor-file__input visuallyhidden"></span>
+          </ul>
+          <span class="qor-file__input visuallyhidden"></span>
+        </div>
       </div>
+    [[/MediaOption]]
+  </script>
+
+  <script name="media-box-undo-delete" type="x-tmpl-mustache">
+    <div class="qor-fieldset__alert">
+      <button class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect qor-cropper__toggle--undo" type="button">{{marshal (t "qor_media_library.form.crop_image.undo_delete" "Undo delete")}}</button>
     </div>
-  [[/MediaOption]]
-</script>
+  </script>
+  <script name="select-many-selected-icon" type="x-tmpl-mustache">
+    <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
+  </script>
 
-<script name="media-box-undo-delete" type="x-tmpl-mustache">
-  <div class="qor-fieldset__alert">
-    <button class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect qor-cropper__toggle--undo" type="button">{{marshal (t "qor_media_library.form.crop_image.undo_delete" "Undo delete")}}</button>
-  </div>
-</script>
-<script name="select-many-selected-icon" type="x-tmpl-mustache">
-  <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
-</script>
-
+</div>
 {{javascript_tag "media_box"}}
 {{stylesheet_tag "media_box"}}

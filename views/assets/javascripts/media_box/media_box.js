@@ -44,13 +44,9 @@
     constructor: QorMediaBox,
 
     init: function () {
+      var $element = this.$element;
+      this.SELECT_MEDIABOX_UNDO_TEMPLATE = $element.find('[name="media-box-undo-delete"]').html();
       this.bind();
-      // select many templates
-      this.SELECT_MANY_SELECTED_ICON = $('[name="select-many-selected-icon"]').html();
-      this.SELECT_MANY_UNSELECTED_ICON = $('[name="select-many-unselected-icon"]').html();
-      this.SELECT_MANY_HINT = $('[name="select-many-hint"]').html();
-      this.SELECT_MEDIABOX_TEMPLATE = $('[name="media-box-template"]').html();
-      this.SELECT_MEDIABOX_UNDO_TEMPLATE = $('[name="media-box-undo-delete"]').html();
     },
 
     bind: function () {
@@ -100,6 +96,13 @@
       this.$selectFeild = $parent.find(CLASS_LISTS);
 
       data.url = data.mediaboxUrl;
+
+      // select many templates
+      this.SELECT_MANY_SELECTED_ICON = $('[name="select-many-selected-icon"]').html();
+      this.SELECT_MANY_HINT = $('[name="select-many-hint"]').html();
+
+      this.SELECT_MEDIABOX_TEMPLATE = $parent.find('[name="media-box-template"]').html();
+      this.SELECT_MEDIABOX_UNDO_TEMPLATE = $parent.find('[name="media-box-undo-delete"]').html();
 
       this.BottomSheets.open(data, this.handleSelectMany.bind(this));
 
@@ -223,7 +226,6 @@
           $hiddenItem = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]'),
           _this = this;
 
-
       if ($hiddenItem.size()) {
         $hiddenItem.removeClass(CLASS_DELETE).find('.qor-file__list').show();
         $hiddenItem.find('.qor-fieldset__alert').remove();
@@ -273,7 +275,8 @@
           var $this = $(this),
               sizeName = $this.data().sizeName;
 
-          if (sizeName && sizeName != 'original') {
+          if (sizeName && sizeName != 'original' && cropOptions[sizeName]) {
+            console.log(cropOptions[sizeName]['URL']);
             $this.prop('src', cropOptions[sizeName]['URL']);
           }
         });
@@ -299,7 +302,7 @@
     },
 
     formatResults: function (data, isNewData) {
-      var url = data.url,
+      var url = data.url || data.mediaLibraryUrl,
           _this = this,
           formatData = data;
 
@@ -313,6 +316,10 @@
     handleFormat: function (data, isNewData) {
       var $element = data.$clickElement,
           isSelected;
+
+      if (!data.mediaLibraryUrl) {
+        data.mediaLibraryUrl = data.url;
+      }
 
       // if (isNewData) {
       //   this.addItem(data, true);
