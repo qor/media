@@ -18,7 +18,10 @@
                data-select-modal=true
                data-select-id={{.InputId}}
                title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}
-               {{if $metaConfig.Max}}data-max="{{$metaConfig.Max}}"{{end}}>
+               {{if $metaConfig.Max}}
+               data-max-item="{{$metaConfig.Max}}" 
+               data-max-item-hint="{{t "qor_media_library.form.choose_file.max_hint" "Choose up to {{$1}} item(s)" $metaConfig.Max}}" 
+               {{end}}>
             <i class="material-icons">file_upload</i>
         </label>
 

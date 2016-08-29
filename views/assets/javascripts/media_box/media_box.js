@@ -90,9 +90,7 @@
 
       this.BottomSheets = $body.data('qor.bottomsheets');
       this.bottomsheetsData = data;
-
       this.$parent = $parent = $ele.closest(CLASS_PARENT);
-
       this.$selectFeild = $parent.find(CLASS_LISTS);
 
       data.url = data.mediaboxUrl;
@@ -212,6 +210,11 @@
       });
     },
 
+    showHiddenItem: function ($hiddenItem) {
+      $hiddenItem.removeClass(CLASS_DELETE).find('.qor-file__list').show();
+      $hiddenItem.find('.qor-fieldset__alert').remove();
+    },
+
     removeItem: function (data) {
       var primaryKey = data.primaryKey;
 
@@ -224,15 +227,28 @@
           $input = $template.find('.qor-file__input'),
           $item = $input.closest(CLASS_ITEM),
           $hiddenItem = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]'),
+          maxItem = this.bottomsheetsData.maxItem,
+          selectedItem = this.getSelectedItemData().selectedNum,
           _this = this;
 
+      if (maxItem && selectedItem >= maxItem) {
+        if (maxItem == 1) {
+          this.$selectFeild.find(CLASS_ITEM).remove();
+        } else {
+          window.alert(this.bottomsheetsData.maxItemHint);
+          return;
+        }
+      }
+
       if ($hiddenItem.size()) {
-        $hiddenItem.removeClass(CLASS_DELETE).find('.qor-file__list').show();
-        $hiddenItem.find('.qor-fieldset__alert').remove();
+        this.showHiddenItem($hiddenItem);
+        this.changeIcon(data.$clickElement, true);
+        if (maxItem == 1) {
+          this.BottomSheets.hide();
+        }
         return;
       }
       $template.appendTo(this.$selectFeild);
-
 
       // if image alread have CropOptions, replace original images as [big,middle, small] images.
       if (data.MediaOption.CropOptions) {
@@ -250,7 +266,7 @@
       }
 
 
-      if (isNewData) {
+      if (isNewData || maxItem == 1) {
         this.BottomSheets.hide();
         return;
       }
@@ -276,7 +292,6 @@
               sizeName = $this.data().sizeName;
 
           if (sizeName && sizeName != 'original' && cropOptions[sizeName]) {
-            console.log(cropOptions[sizeName]['URL']);
             $this.prop('src', cropOptions[sizeName]['URL']);
           }
         });
