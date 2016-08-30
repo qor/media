@@ -248,6 +248,7 @@
         }
         return;
       }
+
       $template.appendTo(this.$selectFeild);
 
       // if image alread have CropOptions, replace original images as [big,middle, small] images.
@@ -321,25 +322,32 @@
           _this = this,
           formatData = data;
 
-      $.getJSON(url,function(data){
-        data.MediaOption = JSON.parse(data.MediaOption);
-        $.extend(formatData, data);
-        _this.handleFormat(formatData, isNewData);
-      });
+      if (isNewData) {
+        formatData.MediaOption = JSON.parse(data.MediaOption);
+        this.handleFormat(formatData, isNewData);
+      } else {
+        $.getJSON(url,function(data){
+          data.MediaOption = JSON.parse(data.MediaOption);
+          $.extend(formatData, data);
+          _this.handleFormat(formatData);
+        });
+      }
     },
 
     handleFormat: function (data, isNewData) {
       var $element = data.$clickElement,
           isSelected;
 
-      if (!data.mediaLibraryUrl) {
+      if (!data.mediaLibraryUrl && !isNewData) {
         data.mediaLibraryUrl = data.url;
       }
 
-      // if (isNewData) {
-      //   this.addItem(data, true);
-      //   return;
-      // }
+      if (isNewData) {
+        data.mediaLibraryUrl = this.bottomsheetsData.mediaboxUrl + '/' + data.primaryKey;
+        this.addItem(data, isNewData);
+        this.updateDatas();
+        return;
+      }
 
       $element.toggleClass(CLASS_SELECTED);
       isSelected = $element.hasClass(CLASS_SELECTED);
@@ -349,10 +357,12 @@
       } else {
         this.removeItem(data);
       }
+      this.updateDatas();
+    },
 
+    updateDatas: function () {
       this.updateHint(this.getSelectedItemData());
       this.updateMediaLibraryData();
-
     }
 
   };
