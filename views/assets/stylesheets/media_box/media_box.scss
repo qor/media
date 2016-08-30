@@ -15,7 +15,7 @@
 			}
 		}
 	}
-	
+
 	.qor-table--medialibrary{
 		margin-left: -48px;
 		width: 344px;
@@ -59,4 +59,8 @@
 			box-shadow: none;
 		}
 	}
+}
+
+.qor-field__mediabox-item.is_deleted {
+	border: 1px solid rgba(0,0,0,.12);
 }
