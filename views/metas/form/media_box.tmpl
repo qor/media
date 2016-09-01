@@ -15,8 +15,8 @@
         
         <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect"
                data-mediabox-url="{{url_for $metaConfig.RemoteDataResource}}"
-               data-select-modal=true
-               data-select-id={{.InputId}}
+               data-select-modal="mediabox" 
+               data-select-id={{.InputId}} 
                title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}
                {{if $metaConfig.Max}}
                data-max-item="{{$metaConfig.Max}}" 

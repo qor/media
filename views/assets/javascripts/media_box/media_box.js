@@ -17,9 +17,11 @@
   var $document = $(document);
   var Mustache = window.Mustache;
   var NAMESPACE = 'qor.medialibrary';
+  var PARENT_NAMESPACE = 'qor.bottomsheets';
   var EVENT_CLICK = 'click.' + NAMESPACE;
   var EVENT_ENABLE = 'enable.' + NAMESPACE;
   var EVENT_DISABLE = 'disable.' + NAMESPACE;
+  var EVENT_RELOAD = 'reload.' + PARENT_NAMESPACE;
   var CLASS_SELECT_ICON = '.qor-select__select-icon';
   var CLASS_SELECT_HINT = '.qor-selectmany__hint';
   var CLASS_PARENT = '.qor-field__mediabox';
@@ -32,6 +34,7 @@
   var CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options';
   var CLASS_CROPPER_DELETE = '.qor-cropper__toggle--delete';
   var CLASS_CROPPER_UNDO = '.qor-cropper__toggle--undo';
+  var CLASS_MEDIABOX = 'qor-bottomsheets__mediabox';
 
 
   function QorMediaBox(element, options) {
@@ -50,7 +53,9 @@
     },
 
     bind: function () {
-      $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this));
+      $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this)).
+                on(EVENT_RELOAD, '.' + CLASS_MEDIABOX, this.reloadData.bind(this));
+      
       this.$element
         .on(EVENT_CLICK, CLASS_CROPPER_DELETE, this.deleteSelected.bind(this))
         .on(EVENT_CLICK, CLASS_CROPPER_UNDO, this.undoDeleteSelected.bind(this))
@@ -106,7 +111,7 @@
 
     },
 
-    initItems: function () {
+    initItem: function () {
       var $selectFeild = this.$selectFeild,
           $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
           $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
@@ -121,6 +126,10 @@
       });
 
       this.updateHint(this.getSelectedItemData());
+    },
+
+    reloadData: function () {
+      this.initItem();
     },
 
     renderSelectMany: function (data) {
@@ -161,7 +170,7 @@
       template = this.renderHint(data);
 
       $(CLASS_SELECT_HINT).remove();
-      $(CLASS_BOTTOMSHEETS).find('.qor-bottomsheets__body').prepend(template);
+      $(CLASS_BOTTOMSHEETS).find('.qor-page__body').before(template);
     },
 
     updateMediaLibraryData: function ($ele) {
@@ -305,8 +314,8 @@
             formatOnSubmit: this.formatSubmitResults.bind(this)   // render new items after new item form submitted
           };
 
-      $bottomsheets.qorSelectCore(options);
-      this.initItems();
+      $bottomsheets.qorSelectCore(options).addClass(CLASS_MEDIABOX);
+      this.initItem();
     },
 
     formatSelectResults: function (data) {
