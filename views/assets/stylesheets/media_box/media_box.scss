@@ -4,6 +4,9 @@
 
 .qor-bottomsheets__mediabox{
 	max-height: 700px !important;
+	.mdl-card__supporting-text,.qor-table--medialibrary-item{
+		border-radius: 0 !important;
+	}
 	.qor-bottomsheets__body{
 		table:not(.qor-table--medialibrary){
 			img{
@@ -25,28 +28,39 @@
 				max-height: 160px;
 				max-width: 100%;
 			}
+			tr.is_selected{
+				img{
+					border: 4px solid #03a9f4;
+					max-height: 152px;
+				}
+				
+			}
 			.mdl-card__supporting-text{
 				padding: 0;
 				text-align: center;
 				>p{
 					margin-bottom: 0;
-					img {
-						line-height: 162px;
-	        }
 				}
 			}
 
 			thead{
 				display: none;
 			}
-			tbody tr td{
-				padding: 0 8px 16px 0;
-				.qor-table--medialibrary-item{
-					position: relative;
-				}
-				.qor-select__select-icon{
-					left: 0;
-					z-index: 2;
+			tbody tr{
+				td{
+					padding: 0 8px 8px 0;
+					.qor-table--medialibrary-item{
+						position: relative;
+					}
+					.qor-select__select-icon{
+						left: 10px;
+						top:  20px;
+						z-index: 2;
+						i{
+							background-color: #fff;
+	  						border-radius: 100%;
+						}
+					}
 				}
 			}
 			.mdl-card{

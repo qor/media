@@ -93,6 +93,10 @@
           data = $ele.data(),
           $parent;
 
+      if (data.isDisabled) {
+        return;
+      }
+
       this.BottomSheets = $body.data('qor.bottomsheets');
       this.bottomsheetsData = data;
       this.$parent = $parent = $ele.closest(CLASS_PARENT);
@@ -180,14 +184,17 @@
       $dataInput.val(JSON.stringify(data.files));
     },
 
-    changeIcon: function ($ele, isAdd) {
+    changeIcon: function ($ele, isNew) {
       
       var $item = $ele.find('.qor-table--medialibrary-item'),
           $target = $item.size() ? $item : $ele.find('td:first');
 
       $ele.find(CLASS_SELECT_ICON).remove();
 
-      if (isAdd) {
+      if (isNew) {
+        if (isNew == 'one') {
+          $('.' + CLASS_MEDIABOX).find(CLASS_SELECT_ICON).remove();
+        }
         $target.prepend(this.SELECT_MANY_SELECTED_ICON);
       }
 
@@ -240,6 +247,14 @@
           selectedItem = this.getSelectedItemData().selectedNum,
           _this = this;
 
+
+      if (maxItem == 1) {
+        this.changeIcon(data.$clickElement, 'one');
+      } else {
+        this.changeIcon(data.$clickElement, true);
+      }
+      
+
       if (maxItem && selectedItem >= maxItem) {
         if (maxItem == 1) {
           this.$selectFeild.find(CLASS_ITEM).remove();
@@ -251,9 +266,10 @@
 
       if ($hiddenItem.size()) {
         this.showHiddenItem($hiddenItem);
-        this.changeIcon(data.$clickElement, true);
         if (maxItem == 1) {
-          this.BottomSheets.hide();
+          setTimeout(function () {
+            _this.BottomSheets.hide();
+          }, 1000);
         }
         return;
       }
@@ -277,11 +293,11 @@
 
 
       if (isNewData || maxItem == 1) {
-        this.BottomSheets.hide();
-        return;
+        setTimeout(function () {
+          _this.BottomSheets.hide();
+        }, 150);
       }
 
-      this.changeIcon(data.$clickElement, true);
     },
 
     resetImages: function (data, $template) {
