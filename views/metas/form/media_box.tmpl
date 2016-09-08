@@ -12,19 +12,19 @@
 
       <div class="qor-field__mediabox-list">
         <textarea class="hidden qor-field__mediabox-data" name="{{.InputName}}" aria-hidden="true">{{marshal $value.Files}}</textarea>
-        
+
         <label class="mdl-button mdl-button--fab mdl-button--mini-fab mdl-button--primary mdl-js-button mdl-js-ripple-effect"
                data-mediabox-url="{{url_for $metaConfig.RemoteDataResource}}"
-               data-select-modal="mediabox" 
-               data-select-id={{.InputId}} 
-               title="{{t "qor_media_library.form.choose_file" "Choose File"}}" 
+               data-select-modal="mediabox"
+               data-select-id={{.InputId}}
+               title="{{t "qor_media_library.form.choose_file" "Choose File"}}"
                {{if not (has_update_permission .Meta)}}
-               disabled 
-               data-is-disabled="true" 
+               disabled
+               data-is-disabled="true"
                {{end}}
                {{if $metaConfig.Max}}
-               data-max-item="{{$metaConfig.Max}}" 
-               data-max-item-hint="{{t "qor_media_library.form.choose_file.max_hint" "Choose up to {{$1}} item(s)" $metaConfig.Max}}" 
+               data-max-item="{{$metaConfig.Max}}"
+               data-max-item-hint="{{t "qor_media_library.form.choose_file.max_hint" "Choose up to {{$1}} item(s)" $metaConfig.Max}}"
                {{end}}>
             <i class="material-icons">file_upload</i>
         </label>
@@ -96,6 +96,12 @@
   </script>
   <script name="select-many-selected-icon" type="x-tmpl-mustache">
     <span class="qor-select__select-icon"><i class="material-icons">check_circle</i></span>
+  </script>
+  <script name="select-many-hint" type="x-tmpl-mustache">
+    <div class="qor-selectmany__hint clearfix">
+      <span>[[ selectedNum ]] {{marshal (t "qor_admin.form.select_many_hint" "item(s) selected")}}</span>
+      <a href="#" data-dismiss="bottomsheets">{{t "qor_admin.form.select_many_hint_button" "DONE"}}</a>
+    </div>
   </script>
 
 </div>
