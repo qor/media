@@ -55,7 +55,7 @@
     bind: function () {
       $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this)).
                 on(EVENT_RELOAD, '.' + CLASS_MEDIABOX, this.reloadData.bind(this));
-      
+
       this.$element
         .on(EVENT_CLICK, CLASS_CROPPER_DELETE, this.deleteSelected.bind(this))
         .on(EVENT_CLICK, CLASS_CROPPER_UNDO, this.undoDeleteSelected.bind(this))
@@ -185,7 +185,7 @@
     },
 
     changeIcon: function ($ele, isNew) {
-      
+
       var $item = $ele.find('.qor-table--medialibrary-item'),
           $target = $item.size() ? $item : $ele.find('td:first');
 
@@ -247,13 +247,14 @@
           selectedItem = this.getSelectedItemData().selectedNum,
           _this = this;
 
-
-      if (maxItem == 1) {
-        this.changeIcon(data.$clickElement, 'one');
-      } else {
-        this.changeIcon(data.$clickElement, true);
+      if (!isNewData){
+        if (maxItem == 1) {
+          this.changeIcon(data.$clickElement, 'one');
+        } else {
+          this.changeIcon(data.$clickElement, true);
+        }
       }
-      
+
 
       if (maxItem && selectedItem >= maxItem) {
         if (maxItem == 1) {
@@ -291,7 +292,6 @@
         });
       }
 
-
       if (isNewData || maxItem == 1) {
         setTimeout(function () {
           _this.BottomSheets.hide();
@@ -301,26 +301,26 @@
     },
 
     resetImages: function (data, $template) {
-        var cropOptions = data.MediaOption.CropOptions,
-            keys = Object.keys(cropOptions),
-            url = data.MediaOption.OriginalURL;
+      var cropOptions = data.MediaOption.CropOptions,
+          keys = Object.keys(cropOptions),
+          url = data.MediaOption.OriginalURL;
 
-        if (!/original/.test(url)) {
-          return;
+      if (!/original/.test(url)) {
+        return;
+      }
+
+      for (var i = keys.length - 1; i >= 0; i--) {
+        cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
+      }
+
+      $template.find('img').each(function () {
+        var $this = $(this),
+            sizeName = $this.data().sizeName;
+
+        if (sizeName && sizeName != 'original' && cropOptions[sizeName]) {
+          $this.prop('src', cropOptions[sizeName]['URL']);
         }
-
-        for (var i = keys.length - 1; i >= 0; i--) {
-          cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
-        }
-
-        $template.find('img').each(function () {
-          var $this = $(this),
-              sizeName = $this.data().sizeName;
-
-          if (sizeName && sizeName != 'original' && cropOptions[sizeName]) {
-            $this.prop('src', cropOptions[sizeName]['URL']);
-          }
-        });
+      });
     },
 
     handleSelectMany: function () {
