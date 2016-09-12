@@ -121,12 +121,23 @@
           $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
           _this = this,
           $tr,
+          $img,
           key;
 
-      $items.each(function() {
+      $items.each(function () {
         key = $(this).data().primaryKey;
         $tr = $trs.filter('[data-primary-key="' + key + '"]').addClass(CLASS_SELECTED);
         _this.changeIcon($tr,true);
+      });
+
+      $trs.each(function () {
+        $tr = $(this);
+        $img = $tr.find('.qor-table--ml-slideout p img').first();
+        $tr.find('.qor-table__actions').remove();
+        if ($img.length) {
+          $tr.find('.qor-table--medialibrary-item').css('background-image', 'url(' + $img.prop('src') + ')');
+          $img.parent().remove();
+        }
       });
 
       this.updateHint(this.getSelectedItemData());
