@@ -17,7 +17,6 @@
                data-mediabox-url="{{url_for $metaConfig.RemoteDataResource}}"
                data-select-modal="mediabox"
                data-select-id={{.InputId}}
-               data-has-search="true"
                title="{{t "qor_media_library.form.choose_file" "Choose File"}}"
                {{if not (has_update_permission .Meta)}}
                disabled
