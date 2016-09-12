@@ -214,10 +214,25 @@
     syncImageCrop: function ($ele, callback) {
       var item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
           url = $ele.data().mediaLibraryUrl,
-          syncData = {};
+          syncData = {},
+          sizes = ['Width','Height'],
+          sizeResolutionName,
+          sizeData,
+          $imgs = $ele.find('img[data-size-name]');
 
       delete item.ID;
       delete item.Url;
+
+      item.Sizes = {};
+
+      $imgs.each(function () {
+        sizeData = $(this).data();
+        item['Sizes'][sizeData.sizeName] = {};
+        for (var i = 0; i < sizes.length; i++) {
+          sizeResolutionName = 'sizeResolution' + sizes[i];
+          item['Sizes'][sizeData.sizeName][sizes[i]] = sizeData[sizeResolutionName];
+        }
+      });
 
       syncData.MediaOption = JSON.stringify(item);
 
