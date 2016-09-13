@@ -139,8 +139,9 @@
           $img.parent().remove();
         }
       });
-
-      this.updateHint(this.getSelectedItemData());
+      if (this.bottomsheetsData.maxItem != '1') {
+        this.updateHint(this.getSelectedItemData());
+      }
     },
 
     reloadData: function () {
@@ -412,7 +413,9 @@
     },
 
     updateDatas: function () {
-      this.updateHint(this.getSelectedItemData());
+      if (this.bottomsheetsData.maxItem != '1') {
+        this.updateHint(this.getSelectedItemData());
+      }
       this.updateMediaLibraryData();
     }
 
