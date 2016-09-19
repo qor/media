@@ -106,7 +106,7 @@ func saveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 			}
 
 			if !scope.HasError() && len(updateColumns) != 0 {
-				scope.NewDB().Model(scope.Value).UpdateColumns(updateColumns)
+				scope.Err(scope.NewDB().Model(scope.Value).UpdateColumns(updateColumns).Error)
 			}
 		}
 	}
