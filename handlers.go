@@ -59,7 +59,8 @@ func (imageHandler) Handle(media Media, file multipart.File, option *Option) (er
 
 					// save sizes image
 					for key, size := range media.GetSizes() {
-						if g, err := gif.DecodeAll(&buffer); err == nil {
+						file.Seek(0, 0)
+						if g, err := gif.DecodeAll(file); err == nil {
 							if cropOption := media.GetCropOption(key); cropOption != nil {
 								for i := range g.Image {
 									img := imaging.Crop(g.Image[i], *cropOption)
