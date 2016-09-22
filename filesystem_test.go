@@ -1,8 +1,8 @@
 package media_library_test
 
 import (
-	"fmt"
 	"image"
+	"image/gif"
 	"os"
 	"path"
 	"strings"
@@ -132,6 +132,12 @@ func TestSaveIntoFileSystem(t *testing.T) {
 func TestSaveGifIntoFileSystem(t *testing.T) {
 	var user = User{Name: "jinzhu"}
 	if avatar, err := os.Open("test/test.gif"); err == nil {
+		var frames int
+		if g, err := gif.DecodeAll(avatar); err == nil {
+			frames = len(g.Image)
+		}
+
+		avatar.Seek(0, 0)
 		user.Avatar.Scan(avatar)
 		if err := db.Save(&user).Error; err == nil {
 			if _, err := os.Stat(path.Join("public", user.Avatar.URL())); err != nil {
@@ -152,14 +158,17 @@ func TestSaveGifIntoFileSystem(t *testing.T) {
 				t.Errorf("Failed open croped image")
 			}
 
-			if image, _, err := image.DecodeConfig(file); err == nil {
-				fmt.Println(image.Width)
-				fmt.Println(image.Height)
-				if image.Width != 20 || image.Height != 10 {
-					t.Errorf("image should be croped successfully")
+			if g, err := gif.DecodeAll(file); err == nil {
+				for _, image := range g.Image {
+					if image.Rect.Dx() != 10 || image.Rect.Dy() != 20 {
+						t.Errorf("image should be croped successfully, but it is %vx%v", image.Rect.Dx(), image.Rect.Dy())
+					}
+				}
+				if frames != len(g.Image) || frames == 0 {
+					t.Errorf("Gif's frames should be same")
 				}
 			} else {
-				t.Errorf("Failed to decode croped image")
+				t.Errorf("Failed to decode croped gif image")
 			}
 		} else {
 			t.Errorf("should saved user successfully")
