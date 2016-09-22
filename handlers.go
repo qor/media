@@ -48,6 +48,10 @@ func (imageHandler) Handle(media Media, file multipart.File, option *Option) (er
 								img := imaging.Crop(g.Image[i], *cropOption)
 								g.Image[i] = image.NewPaletted(img.Rect, g.Image[i].Palette)
 								draw.Draw(g.Image[i], img.Rect, img, image.Pt(0, 0), draw.Src)
+								if i == 0 {
+									g.Config.Width = img.Rect.Dx()
+									g.Config.Height = img.Rect.Dy()
+								}
 							}
 						}
 
@@ -68,12 +72,12 @@ func (imageHandler) Handle(media Media, file multipart.File, option *Option) (er
 								}
 								img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
 								g.Image[i] = image.NewPaletted(image.Rect(0, 0, size.Width, size.Height), g.Image[i].Palette)
-								draw.Draw(g.Image[i], img.Bounds(), img, image.Pt(0, 0), draw.Src)
+								draw.Draw(g.Image[i], image.Rect(0, 0, size.Width, size.Height), img, image.Pt(0, 0), draw.Src)
 							}
-							g.Config.Width = size.Width
-							g.Config.Height = size.Height
 
 							var result bytes.Buffer
+							g.Config.Width = size.Width
+							g.Config.Height = size.Height
 							gif.EncodeAll(&result, g)
 							media.Store(media.URL(key), option, &result)
 						}
