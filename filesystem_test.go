@@ -159,9 +159,13 @@ func TestSaveGifIntoFileSystem(t *testing.T) {
 			}
 
 			if g, err := gif.DecodeAll(file); err == nil {
+				if g.Config.Width != 20 || g.Config.Height != 10 {
+					t.Errorf("gif should be croped successfully")
+				}
+
 				for _, image := range g.Image {
-					if image.Rect.Dx() != 10 || image.Rect.Dy() != 20 {
-						t.Errorf("image should be croped successfully, but it is %vx%v", image.Rect.Dx(), image.Rect.Dy())
+					if image.Rect.Dx() != 20 || image.Rect.Dy() != 10 {
+						t.Errorf("gif's frames should be croped successfully, but it is %vx%v", image.Rect.Dx(), image.Rect.Dy())
 					}
 				}
 				if frames != len(g.Image) || frames == 0 {

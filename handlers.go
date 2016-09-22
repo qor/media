@@ -61,14 +61,17 @@ func (imageHandler) Handle(media Media, file multipart.File, option *Option) (er
 					for key, size := range media.GetSizes() {
 						file.Seek(0, 0)
 						if g, err := gif.DecodeAll(file); err == nil {
-							if cropOption := media.GetCropOption(key); cropOption != nil {
-								for i := range g.Image {
-									img := imaging.Crop(g.Image[i], *cropOption)
-									img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
-									g.Image[i] = image.NewPaletted(image.Rect(0, 0, size.Height, size.Width), g.Image[i].Palette)
-									draw.Draw(g.Image[i], img.Rect, img, image.Pt(0, 0), draw.Src)
+							for i := range g.Image {
+								var img image.Image = g.Image[i]
+								if cropOption := media.GetCropOption(key); cropOption != nil {
+									img = imaging.Crop(g.Image[i], *cropOption)
 								}
+								img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
+								g.Image[i] = image.NewPaletted(image.Rect(0, 0, size.Width, size.Height), g.Image[i].Palette)
+								draw.Draw(g.Image[i], img.Bounds(), img, image.Pt(0, 0), draw.Src)
 							}
+							g.Config.Width = size.Width
+							g.Config.Height = size.Height
 
 							var result bytes.Buffer
 							gif.EncodeAll(&result, g)
