@@ -12,6 +12,7 @@ import (
 
 func cropField(field *gorm.Field, scope *gorm.Scope) (cropped bool) {
 	if field.Field.CanAddr() {
+		// TODO Handle scanner
 		if media, ok := field.Field.Addr().Interface().(Media); ok && !media.Cropped() {
 			option := parseTagOption(field.Tag.Get("media_library"))
 			if media.GetFileHeader() != nil || media.NeedCrop() {
@@ -66,6 +67,7 @@ func saveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 		if !scope.HasError() {
 			var updateColumns = map[string]interface{}{}
 
+			// Handle SerializableMeta
 			if value, ok := scope.Value.(serializable_meta.SerializableMetaInterface); ok {
 				var (
 					isCropped        bool
@@ -99,6 +101,7 @@ func saveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 				}
 			}
 
+			// Handle Normal Field
 			for _, field := range scope.Fields() {
 				if cropField(field, scope) && isCreate {
 					updateColumns[field.DBName] = field.Field.Interface()
