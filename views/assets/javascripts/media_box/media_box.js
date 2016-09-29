@@ -361,32 +361,32 @@
       this.initItem();
     },
 
-    formatSelectResults: function (data) {
-      this.formatResults(data);
+    formatSelectResults: function (e, data) {
+      this.formatResults(e, data);
     },
 
-    formatSubmitResults: function (data) {
-      this.formatResults(data, true);
+    formatSubmitResults: function (e, data) {
+      this.formatResults(e, data, true);
     },
 
-    formatResults: function (data, isNewData) {
+    formatResults: function (e, data, isNewData) {
       var url = data.url || data.mediaLibraryUrl,
           _this = this,
           formatData = data;
 
       if (isNewData) {
         formatData.MediaOption = JSON.parse(data.MediaOption);
-        this.handleFormat(formatData, isNewData);
+        this.handleFormat(e, formatData, isNewData);
       } else {
         $.getJSON(url,function(data){
           data.MediaOption = JSON.parse(data.MediaOption);
           $.extend(formatData, data);
-          _this.handleFormat(formatData);
+          _this.handleFormat(e, formatData);
         });
       }
     },
 
-    handleFormat: function (data, isNewData) {
+    handleFormat: function (e, data, isNewData) {
       var $element = data.$clickElement,
           isSelected;
 
