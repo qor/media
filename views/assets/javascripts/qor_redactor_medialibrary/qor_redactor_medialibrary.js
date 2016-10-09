@@ -47,6 +47,7 @@ $.Redactor.prototype.medialibrary = function() {
             src = src.replace(/image\..+\./, 'image.');
 
             json.url = src;
+            json.fromMedialibrary = true;
 
             // insert: function(json, direct, e)
             this.image.insert(json, false, e);
