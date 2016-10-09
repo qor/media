@@ -15,7 +15,6 @@
 
   var $body = $('body');
   var $document = $(document);
-  var Mustache = window.Mustache;
   var NAMESPACE = 'qor.medialibrary';
   var PARENT_NAMESPACE = 'qor.bottomsheets';
   var EVENT_CLICK = 'click.' + NAMESPACE;
@@ -149,11 +148,11 @@
     },
 
     renderSelectMany: function (data) {
-      return Mustache.render(this.SELECT_MEDIABOX_TEMPLATE, data);
+      return window.Mustache.render(this.SELECT_MEDIABOX_TEMPLATE, data);
     },
 
     renderHint: function (data) {
-      return Mustache.render(this.SELECT_MANY_HINT, data);
+      return window.Mustache.render(this.SELECT_MANY_HINT, data);
     },
 
     getSelectedItemData: function($ele) {
