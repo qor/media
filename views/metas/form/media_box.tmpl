@@ -26,7 +26,7 @@
                data-max-item="{{$metaConfig.Max}}"
                data-max-item-hint="{{t "qor_media_library.form.choose_file.max_hint" "Choose up to {{$1}} item(s)" $metaConfig.Max}}"
                {{end}}>
-            {{t (printf "qor_admin.form.add_%v" (singular (meta_label .Meta))) (printf "Add %v" (singular (meta_label .Meta)))}}
+            {{t (printf "%v.attributes.add_%v" .BaseResource.ToParam (singular (meta_label .Meta))) (printf "Add %v" (singular (meta_label .Meta)))}}
         </label>
 
         {{if $value.Files}}
