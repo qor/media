@@ -7,10 +7,6 @@
 
   <div class="qor-field__block qor-file">
     <div class="qor-fieldset">
-      <label class="mdl-button mdl-button--primary qor-button__icon-add" title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}>
-        <input class="visuallyhidden qor-file__input" id="{{.InputId}}" name="{{.InputName}}" type="file">
-        {{t (printf "%v.attributes.add_%v" .BaseResource.ToParam (singular (meta_label .Meta))) (printf "Add %v" (singular (meta_label .Meta)))}}
-      </label>
 
       <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop the image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.ok" "OK"}}" name="{{.InputName}}" aria-hidden="true">{{if $value}}{{$value.Value}}{{end}}</textarea>
       <div class="qor-file__list">
@@ -45,6 +41,12 @@
           </div>
         {{end}}
       </div>
+
+      <label class="mdl-button mdl-button--primary qor-button__icon-add" title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}>
+        <input class="visuallyhidden qor-file__input" id="{{.InputId}}" name="{{.InputName}}" type="file">
+        {{t (printf "%v.attributes.add_%v" .BaseResource.ToParam (singular (meta_label .Meta))) (printf "Add %v" (singular (meta_label .Meta)))}}
+      </label>
+
     </div>
   </div>
 </div>
