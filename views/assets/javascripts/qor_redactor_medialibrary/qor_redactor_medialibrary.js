@@ -24,22 +24,22 @@ $.Redactor.prototype.medialibrary = function() {
         handleMediaLibrary: function () {
             var $bottomsheets = $('.qor-bottomsheets'),
                 options = {
-                    formatOnSelect: this.medialibrary.formatSelectResults,  // render selected item after click item lists
-                    formatOnSubmit: this.medialibrary.formatSubmitResults   // render new items after new item form submitted
+                    onSelect: this.medialibrary.selectResults,  // render selected item after click item lists
+                    onSubmit: this.medialibrary.submitResults   // render new items after new item form submitted
                 };
 
                 $bottomsheets.qorSelectCore(options).addClass('qor-bottomsheets__mediabox').find('.qor-button--new').data('ingore-submit', true);
         },
 
-        formatSelectResults: function (e, data) {
-            this.medialibrary.formatResults(e, data);
+        selectResults: function (e, data) {
+            this.medialibrary.handleResults(e, data);
         },
 
-        formatSubmitResults: function (e, data) {
-            this.medialibrary.formatResults(e, data, true);
+        submitResults: function (e, data) {
+            this.medialibrary.handleResults(e, data, true);
         },
 
-        formatResults: function (e, data, isNew) {
+        handleResults: function (e, data, isNew) {
             var json = {},
                 src;
 

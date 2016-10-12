@@ -352,40 +352,40 @@
     handleSelectMany: function () {
       var $bottomsheets = $(CLASS_BOTTOMSHEETS),
           options = {
-            formatOnSelect: this.formatSelectResults.bind(this),  // render selected item after click item lists
-            formatOnSubmit: this.formatSubmitResults.bind(this)   // render new items after new item form submitted
+            onSelect: this.onSelectResults.bind(this),  // render selected item after click item lists
+            onSubmit: this.onSubmitResults.bind(this)   // render new items after new item form submitted
           };
 
       $bottomsheets.qorSelectCore(options).addClass(CLASS_MEDIABOX);
       this.initItem();
     },
 
-    formatSelectResults: function (e, data) {
-      this.formatResults(e, data);
+    onSelectResults: function (e, data) {
+      this.handleResults(e, data);
     },
 
-    formatSubmitResults: function (e, data) {
-      this.formatResults(e, data, true);
+    onSubmitResults: function (e, data) {
+      this.handleResults(e, data, true);
     },
 
-    formatResults: function (e, data, isNewData) {
+    handleResults: function (e, data, isNewData) {
       var url = data.url || data.mediaLibraryUrl,
           _this = this,
           formatData = data;
 
       if (isNewData) {
         formatData.MediaOption = JSON.parse(data.MediaOption);
-        this.handleFormat(e, formatData, isNewData);
+        this.handleResultsData(e, formatData, isNewData);
       } else {
         $.getJSON(url,function(data){
           data.MediaOption = JSON.parse(data.MediaOption);
           $.extend(formatData, data);
-          _this.handleFormat(e, formatData);
+          _this.handleResultsData(e, formatData);
         });
       }
     },
 
-    handleFormat: function (e, data, isNewData) {
+    handleResultsData: function (e, data, isNewData) {
       var $element = data.$clickElement,
           isSelected;
 
