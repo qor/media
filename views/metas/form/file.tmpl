@@ -1,13 +1,37 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 
-<div class="qor-field">
-  <label class="qor-field__label" for="{{.InputId}}">
+<div class="qor-field" data-toggle="qor.tab.radio">
+  <!-- <label class="qor-field__label" for="{{.InputId}}">
     {{meta_label .Meta}}
   </label>
+ -->
+
+  <div class="qor-tab__radio">
+    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-file">
+      <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button" name="options" data-tab-target="file" value="1" checked>
+      <span class="mdl-radio__label">File</span>
+    </label>
+    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-videolink">
+      <input type="radio" id="qor-swtichtab-videolink" class="mdl-radio__button" data-tab-target="videolink" name="options" value="2">
+      <span class="mdl-radio__label">Video Link</span>
+    </label>
+  </div>
 
   <div class="qor-field__block qor-file">
-    <div class="qor-fieldset">
 
+    <!-- Start: video link form -->
+    <div class="qor-fieldset" data-tab-source="videolink" style="display: none;">
+      <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
+        <label class="qor-field__label mdl-textfield__label" for="video-link-1">
+          Enter Video URL
+        </label>
+        <input type="text" class="mdl-textfield__input" id="video-link-1" />
+      </div>
+    </div>
+    <!-- End: video link form -->
+
+    <!-- Start: other files form -->
+    <div class="qor-fieldset" data-tab-source="file">
       <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.ok" "OK"}}" name="{{.InputName}}" aria-hidden="true">{{if $value}}{{$value.Value}}{{end}}</textarea>
       <div class="qor-file__list">
         {{if $value.GetSizes}}
@@ -48,5 +72,7 @@
       </label>
 
     </div>
+    <!-- End: other files form -->
+
   </div>
 </div>
