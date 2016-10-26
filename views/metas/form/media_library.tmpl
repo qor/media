@@ -1,19 +1,14 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 
 <div class="qor-field" data-toggle="qor.tab.radio">
-  <!-- <label class="qor-field__label" for="{{.InputId}}">
-    {{meta_label .Meta}}
-  </label>
- -->
-
   <div class="qor-tab__radio">
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-file">
       <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button" name="options" data-tab-target="file" value="1" checked>
-      <span class="mdl-radio__label">File</span>
+      <span class="mdl-radio__label">{{t "qor_media_library.media_switcher.file" "File"}}</span>
     </label>
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-videolink">
       <input type="radio" id="qor-swtichtab-videolink" class="mdl-radio__button" data-tab-target="videolink" name="options" value="2">
-      <span class="mdl-radio__label">Video Link</span>
+      <span class="mdl-radio__label">{{t "qor_media_library.media_switcher.video_link" "Video Link"}}</span>
     </label>
   </div>
 
@@ -23,7 +18,7 @@
     <div class="qor-fieldset" data-tab-source="videolink" style="display: none;">
       <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
         <label class="qor-field__label mdl-textfield__label" for="video-link-1">
-          Enter Video URL
+          {{t "qor_media_library.media_library.enter_video_link" "Enter Video Link"}}
         </label>
         <input type="text" class="mdl-textfield__input" id="video-link-1" />
       </div>
@@ -73,6 +68,5 @@
 
     </div>
     <!-- End: other files form -->
-
   </div>
 </div>

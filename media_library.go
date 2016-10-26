@@ -60,7 +60,9 @@ func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
 
 type MediaLibraryStorage struct {
 	FileSystem
-	Sizes map[string]Size `json:",omitempty"`
+	Sizes        map[string]Size `json:",omitempty"`
+	Video        string
+	SelectedType string
 }
 
 func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]Size {
@@ -134,6 +136,7 @@ func (mediaLibraryStorage MediaLibraryStorage) Value() (driver.Value, error) {
 
 func (mediaLibraryStorage MediaLibraryStorage) ConfigureQorMeta(metaor resource.Metaor) {
 	if meta, ok := metaor.(*admin.Meta); ok {
+		meta.Type = "media_library"
 		meta.SetFormattedValuer(func(record interface{}, context *qor.Context) interface{} {
 			return meta.GetValuer()(record, context)
 		})
@@ -275,6 +278,7 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 	return
 }
 
+// MediaBoxConfig configure MediaBox metas
 type MediaBoxConfig struct {
 	RemoteDataResource *admin.Resource
 	Sizes              map[string]Size
