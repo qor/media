@@ -15,7 +15,7 @@
 
   var $body = $('body');
   var $document = $(document);
-  var NAMESPACE = 'qor.medialibrary';
+  var NAMESPACE = 'qor.medialibrary.select';
   var PARENT_NAMESPACE = 'qor.bottomsheets';
   var EVENT_CLICK = 'click.' + NAMESPACE;
   var EVENT_ENABLE = 'enable.' + NAMESPACE;

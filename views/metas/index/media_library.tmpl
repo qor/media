@@ -1,7 +1,7 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 {{if $value}}
   {{if (eq $value.SelectedType "video")}}
-    {{$value.Video}}
+    <span class="qor-medialibrary__video-link" data-videolink="{{$value.Video}}"></span>
   {{else}}
     {{if $value.IsImage}}
       {{if (index $value.GetSizes "@qor_preview")}}
