@@ -134,7 +134,7 @@
   $.fn.qorSliderAfterShow = $.fn.qorSliderAfterShow || {};
   $.fn.qorSliderAfterShow.renderMediaVideo = function () {
     var $render = $('[data-tab-source="video"]'),
-        url = $render.data().videourl;
+        url = $render.length && $render.data().videourl;
 
     if ($render.length && url) {
       $render.append('<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
