@@ -17,6 +17,7 @@
   var EVENT_ENABLE = 'enable.' + NAMESPACE;
   var EVENT_DISABLE = 'disable.' + NAMESPACE;
   var EVENT_BLUR = 'blur.' + NAMESPACE;
+  var EVENT_FOCUS = 'focus.' + NAMESPACE;
   var EVENT_SWITCHED = 'switched.qor.tabbar.radio';
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
   var CLASS_VIDEO = '.qor-video__link';
@@ -48,14 +49,20 @@
     bind: function () {
       $(document)
         .on(EVENT_SWITCHED, EVENT_SWITCHED_TARGET,  this.resetMediaData)
-        .on(EVENT_BLUR, CLASS_VIDEO,  this.setVideo);
+        .on(EVENT_BLUR, CLASS_VIDEO,  this.setVideo)
+        .on(EVENT_FOCUS, CLASS_VIDEO,  this.initVideo);
     },
 
     unbind: function () {
       // this.$element.off(EVENT_CLICK, CLASS_TAB, this.switchTab);
       $(document)
         .off(EVENT_SWITCHED, EVENT_SWITCHED_TARGET, this.resetMediaData)
-        .off(EVENT_BLUR, CLASS_VIDEO,  this.setVideo);
+        .off(EVENT_BLUR, CLASS_VIDEO,  this.setVideo)
+        .off(EVENT_FOCUS, CLASS_VIDEO,  this.initVideo);
+    },
+    initVideo: function (event) {
+      var $input = $(event.target);
+      this.originalLink = $input.val();
     },
 
     initMedia: function () {
@@ -88,13 +95,15 @@
           $iframe = $parent.find('iframe'),
           youtubeID = getYoutubeID(url);
 
-      fileOption.SelectedType = 'video';
-      fileOption.Video = url;
-      $fileOption.val(JSON.stringify(fileOption));
+      if (url != this.originalLink) {
+        fileOption.SelectedType = 'video';
+        fileOption.Video = url;
+        $fileOption.val(JSON.stringify(fileOption));
 
-      if (youtubeID) {
-        $iframe.length && $iframe.remove();
-        $parent.append('<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+        if (youtubeID) {
+          $iframe.length && $iframe.remove();
+          $parent.append('<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+        }
       }
 
     },
@@ -102,11 +111,13 @@
     resetMediaData: function (e, element, type) {
       var $element = $(element),
           $fileOption = $element.find(CLASS_FILE_OPTION),
+          $alert = $element.find('[data-tab-source="video"] .qor-fieldset__alert'),
           fileOption = JSON.parse($fileOption.val());
 
       fileOption.SelectedType = type;
       if (type == 'video') {
         fileOption.Video = $element.find(CLASS_VIDEO).val();
+        $alert.length && $alert.remove();
       } else {
         fileOption.Video = '';
       }
