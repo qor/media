@@ -54,6 +54,7 @@ func (mediaLibrary *MediaLibrary) GetMediaOption() (mediaOption MediaOption) {
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		res.UseTheme("grid")
+		res.UseTheme("media_library")
 		res.IndexAttrs("File")
 	}
 }
