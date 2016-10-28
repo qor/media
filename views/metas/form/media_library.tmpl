@@ -15,7 +15,7 @@
   <div class="qor-field__block qor-file">
 
     <!-- Start: video link form -->
-    <div class="qor-fieldset" data-tab-source="video" {{if (eq $value.SelectedType "video")}} data-videourl="{{$value.Video}}" {{else}} style="display: none;" {{end}}>
+    <div class="qor-fieldset" data-tab-source="video" data-videourl="{{$value.Video}}" {{if not (eq $value.SelectedType "video")}} style="display: none;" {{end}}>
       <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
         <label class="qor-field__label mdl-textfield__label">
           {{t "qor_media_library.media_library.enter_video_link" "Enter Video Link"}}

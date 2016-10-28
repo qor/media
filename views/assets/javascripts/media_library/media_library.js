@@ -118,9 +118,8 @@
       if (type == 'video') {
         fileOption.Video = $element.find(CLASS_VIDEO).val();
         $alert.length && $alert.remove();
-      } else {
-        fileOption.Video = '';
       }
+
       $fileOption.val(JSON.stringify(fileOption));
     },
 
