@@ -1,5 +1,4 @@
 .qor-table--medialibrary{
-  margin-left: 24px;
   .qor-table--video{
     position: relative;
     &:after{
@@ -12,66 +11,5 @@
       height: 200px;
       background-color: rgba(0, 0, 0, .2);
     }
-  }
-  .qor-sorting__hover{
-    td{
-      border: 0;
-    }
-    .mdl-card{
-      /* border: 2px solid $color-main-header; */
-    }
-  }
-  &.mdl-data-table--selectable{
-    th{
-      text-align: left;
-    }
-    tbody tr td:first-child {
-      position: absolute;
-      z-index: 2;
-      margin: 8px 0 0 10px;
-    }
-  }
-  .mdl-card{
-    width: 200px;
-    .mdl-card__menu{
-      right: 4px;
-      top: 8px;
-      z-index: 10;
-    }
-    &:hover{
-      .mdl-button{
-        background-color: rgba(158,158,158,.5);
-      }
-    }
-  }
-  .mdl-card__supporting-text{
-    width: auto;
-    padding: 0;
-    > p{
-      margin-bottom: 8px;
-      padding: 0 16px;
-      line-height: 1.2;
-      &:last-child{
-        margin-bottom: 16px;
-      }
-      &[data-heading*="Image"], &[data-heading*="image"], &[data-heading*="File"], &[data-heading*="file"], &.qor-table--video{
-        padding: 0;
-        height: 200px;
-      }
-    }
-  }
-  tbody{
-      tr{
-        vertical-align: top;
-        display: inline-flex;
-      td{
-        padding-right: 16px;
-        padding-bottom: 16px;
-      }
-    }
-  }
-  img{
-    max-width: 100%;
-    width: 100%;
   }
 }

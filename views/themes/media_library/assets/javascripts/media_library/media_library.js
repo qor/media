@@ -20,6 +20,7 @@
   var EVENT_FOCUS = 'focus.' + NAMESPACE;
   var EVENT_SWITCHED = 'switched.qor.tabbar.radio';
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
+  var CLASS_MEDIA_DATA = '[name="QorResource.SelectedType"]';
   var CLASS_VIDEO = '.qor-video__link';
   var CLASS_VIDEO_TABLE = '.qor-medialibrary__video-link';
   var CLASS_UPLOAD_VIDEO_TABLE = '.qor-medialibrary__video';
@@ -123,6 +124,8 @@
         fileOption.Video = $element.find(CLASS_VIDEO).val();
         $alert.length && $alert.remove();
       }
+
+      $(CLASS_MEDIA_DATA).val(type);
 
       $fileOption.val(JSON.stringify(fileOption));
     },
