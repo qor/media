@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"reflect"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -52,6 +53,14 @@ func (mediaLibrary *MediaLibrary) GetMediaOption() (mediaOption MediaOption) {
 	mediaOption.CropOptions = mediaLibrary.File.CropOptions
 	mediaOption.Sizes = mediaLibrary.File.GetSizes()
 	return
+}
+
+func (mediaLibrary *MediaLibrary) SetSelectedType(typ string) {
+	mediaLibrary.SelectedType = typ
+}
+
+func (mediaLibrary *MediaLibrary) GetSelectedType() string {
+	return mediaLibrary.SelectedType
 }
 
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
@@ -208,6 +217,10 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 					mediaLibraryResource = Admin.NewResource(&MediaLibrary{})
 				}
 				config.RemoteDataResource = mediaLibraryResource
+			}
+
+			if _, ok := config.RemoteDataResource.Value.(MediaLibraryInterface); !ok {
+				utils.ExitWithMsg("%v havn't implement MediaLibraryInterface, please fix that.", reflect.TypeOf(config.RemoteDataResource.Value))
 			}
 
 			if meta := config.RemoteDataResource.GetMeta("MediaOption"); meta == nil {
