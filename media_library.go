@@ -234,6 +234,7 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 			}
 
 			config.RemoteDataResource.UseTheme("grid")
+			config.RemoteDataResource.UseTheme("media_library")
 			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
 			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "-MediaOption")
 			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "MediaOption")
