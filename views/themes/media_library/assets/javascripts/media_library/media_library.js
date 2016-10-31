@@ -80,7 +80,7 @@
             url = $this.data('videolink'),
             ID = getYoutubeID(url);
 
-        $this.parent().addClass('video-cover').html('<iframe width="200" height="200" src="https://www.youtube.com/embed/' + ID + '?showinfo=0&controls=0&rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+        ID && $this.parent().addClass('qor-video').html('<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' + ID + '?showinfo=0&controls=0&rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
       });
 
     },
