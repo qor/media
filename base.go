@@ -218,6 +218,20 @@ func (b Base) IsImage() bool {
 	return err == nil
 }
 
+func (b Base) IsVideo() bool {
+	formats := []string{".mp4", ".m4p", ".m4v", ".m4v", ".mov", ".mpeg", ".webm", ".avi", ".ogg", ".ogv"}
+
+	ext := strings.ToLower(filepath.Ext(url))
+
+	for _, format := range formats {
+		if format == ext {
+			return true
+		}
+	}
+
+	return false
+}
+
 func init() {
 	admin.RegisterViewPath("github.com/qor/media_library/views")
 }

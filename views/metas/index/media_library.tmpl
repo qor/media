@@ -2,17 +2,17 @@
 {{if $value}}
   {{if (eq $value.SelectedType "video")}}
     <span class="qor-medialibrary__video-link" data-videolink="{{$value.Video}}"></span>
-  {{else}}
-    {{if $value.IsImage}}
-      {{if (index $value.GetSizes "@qor_preview")}}
-        <img src="{{$value.URL "@qor_preview"}}" alt="{{$value.GetFileName}}">
-      {{else}}
-        <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
-      {{end}}
-    {{else if (eq $value.Ext ".svg")}}
-      <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
+  {{else if $value.IsVideo}}
+
+  {{else if $value.IsImage}}
+    {{if (index $value.GetSizes "@qor_preview")}}
+      <img src="{{$value.URL "@qor_preview"}}" alt="{{$value.GetFileName}}">
     {{else}}
-      <a href="{{$value.URL}}">{{$value.GetFileName}}</a>
+      <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
     {{end}}
+  {{else if (eq $value.Ext ".svg")}}
+    <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
+  {{else}}
+    <a href="{{$value.URL}}">{{$value.GetFileName}}</a>
   {{end}}
 {{end}}
