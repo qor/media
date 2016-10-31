@@ -17,12 +17,15 @@ import (
 
 type MediaLibraryInterface interface {
 	ScanMediaOptions(MediaOption) error
+	SetSelectedType(string)
+	GetSelectedType() string
 	GetMediaOption() MediaOption
 }
 
 type MediaLibrary struct {
 	gorm.Model
-	File MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
+	SelectedType string
+	File         MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
 }
 
 type MediaOption struct {
@@ -229,6 +232,24 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 							}
 						}
 						return ""
+					},
+				})
+			}
+
+			if meta := config.RemoteDataResource.GetMeta("SelectedType"); meta == nil {
+				config.RemoteDataResource.Meta(&admin.Meta{
+					Name: "SelectedType",
+					Type: "hidden",
+					Valuer: func(record interface{}, context *qor.Context) interface{} {
+						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+							return mediaLibrary.GetSelectedType()
+						}
+						return ""
+					},
+					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
+						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+							mediaLibrary.SetSelectedType(utils.ToString(metaValue.Value))
+						}
 					},
 				})
 			}
