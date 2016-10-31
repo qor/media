@@ -221,7 +221,7 @@ func (b Base) IsImage() bool {
 func (b Base) IsVideo() bool {
 	formats := []string{".mp4", ".m4p", ".m4v", ".m4v", ".mov", ".mpeg", ".webm", ".avi", ".ogg", ".ogv"}
 
-	ext := strings.ToLower(filepath.Ext(url))
+	ext := strings.ToLower(filepath.Ext(b.URL()))
 
 	for _, format := range formats {
 		if format == ext {
