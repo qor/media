@@ -111,6 +111,8 @@ func (imageHandler) Handle(media Media, file multipart.File, option *Option) (er
 					}
 				}
 			}
+		} else {
+			return err
 		}
 	}
 
