@@ -271,6 +271,7 @@
           $hiddenItem = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]'),
           maxItem = this.bottomsheetsData.maxItem,
           selectedItem = this.getSelectedItemData().selectedNum,
+          videoLink,
           _this = this;
 
       if (!isNewData){
@@ -300,6 +301,11 @@
         }
         return;
       }
+
+      // if (data.SelectedType == 'video') {
+      //   videoLink = MediaOption
+      //   return;
+      // }
 
       $template.appendTo(this.$selectFeild);
 
@@ -360,32 +366,32 @@
       this.initItem();
     },
 
-    onSelectResults: function (e, data) {
-      this.handleResults(e, data);
+    onSelectResults: function (data) {
+      this.handleResults(data);
     },
 
-    onSubmitResults: function (e, data) {
-      this.handleResults(e, data, true);
+    onSubmitResults: function (data) {
+      this.handleResults(data, true);
     },
 
-    handleResults: function (e, data, isNewData) {
+    handleResults: function (data, isNewData) {
       var url = data.url || data.mediaLibraryUrl,
           _this = this,
           formatData = data;
 
       if (isNewData) {
         formatData.MediaOption = JSON.parse(data.MediaOption);
-        this.handleResultsData(e, formatData, isNewData);
+        this.handleResultsData(formatData, isNewData);
       } else {
-        $.getJSON(url,function(data){
+        $.getJSON(url, function(data){
           data.MediaOption = JSON.parse(data.MediaOption);
-          $.extend(formatData, data);
-          _this.handleResultsData(e, formatData);
+          formatData = $.extend({}, formatData, data);
+          _this.handleResultsData(formatData);
         });
       }
     },
 
-    handleResultsData: function (e, data, isNewData) {
+    handleResultsData: function (data, isNewData) {
       var $element = data.$clickElement,
           isSelected;
 

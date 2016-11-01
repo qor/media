@@ -75,7 +75,8 @@
             videoType = url && url.match(/\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/);
 
         if (videoType) {
-            $this.parent().addClass('qor-table--video qor-table--video-internal').html('<video width=100% height=100%><source src="' + url + '" type="video/' + videoType[0].replace('.', '') + '"></video>');
+          $this.closest('tr').data('isUploadedVideo', true);
+          $this.parent().addClass('qor-table--video qor-table--video-internal').html('<video width=100% height=100% controls><source src="' + url + '" type="video/' + videoType[0].replace('.', '') + '"></video>');
         }
 
       });
@@ -85,7 +86,11 @@
             url = $this.data('videolink'),
             ID = getYoutubeID(url);
 
-        ID && $this.parent().addClass('qor-table--video qor-table--video-external').html('<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' + ID + '?showinfo=0&controls=0&rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+        if (ID) {
+          $this.closest('tr').data('isExternalVideo', true);
+          $this.parent().addClass('qor-table--video qor-table--video-external').html('<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' + ID + '?rel=0" frameborder="0" allowfullscreen></iframe>');
+        }
+
       });
 
     },
@@ -107,7 +112,7 @@
 
         if (youtubeID) {
           $iframe.length && $iframe.remove();
-          $parent.append('<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+          $parent.append('<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0" frameborder="0" allowfullscreen></iframe>');
         }
       }
 
