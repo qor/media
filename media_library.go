@@ -36,6 +36,7 @@ type MediaOption struct {
 	OriginalURL string                 `json:",omitempty"`
 	CropOptions map[string]*CropOption `json:",omitempty"`
 	Sizes       map[string]Size        `json:",omitempty"`
+	Description string
 }
 
 func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) error {
@@ -47,14 +48,16 @@ func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) erro
 	}
 }
 
-func (mediaLibrary *MediaLibrary) GetMediaOption() (mediaOption MediaOption) {
-	mediaOption.Video = mediaLibrary.File.Video
-	mediaOption.FileName = mediaLibrary.File.FileName
-	mediaOption.URL = mediaLibrary.File.URL()
-	mediaOption.OriginalURL = mediaLibrary.File.URL("original")
-	mediaOption.CropOptions = mediaLibrary.File.CropOptions
-	mediaOption.Sizes = mediaLibrary.File.GetSizes()
-	return
+func (mediaLibrary *MediaLibrary) GetMediaOption() MediaOption {
+	return MediaOption{
+		Video:       mediaLibrary.File.Video,
+		FileName:    mediaLibrary.File.FileName,
+		URL:         mediaLibrary.File.URL(),
+		OriginalURL: mediaLibrary.File.URL("original"),
+		CropOptions: mediaLibrary.File.CropOptions,
+		Sizes:       mediaLibrary.File.GetSizes(),
+		Description: mediaLibrary.File.Description,
+	}
 }
 
 func (mediaLibrary *MediaLibrary) SetSelectedType(typ string) {
@@ -78,6 +81,7 @@ type MediaLibraryStorage struct {
 	Sizes        map[string]Size `json:",omitempty"`
 	Video        string
 	SelectedType string
+	Description  string
 }
 
 func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]Size {
@@ -284,8 +288,9 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 }
 
 type File struct {
-	ID  json.Number
-	Url string
+	ID          json.Number
+	Url         string
+	Description string
 }
 
 func (file File) URL(styles ...string) string {
