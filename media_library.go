@@ -30,6 +30,7 @@ type MediaLibrary struct {
 }
 
 type MediaOption struct {
+	Video       string                 `json:",omitempty"`
 	FileName    string                 `json:",omitempty"`
 	URL         string                 `json:",omitempty"`
 	OriginalURL string                 `json:",omitempty"`
@@ -47,6 +48,7 @@ func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) erro
 }
 
 func (mediaLibrary *MediaLibrary) GetMediaOption() (mediaOption MediaOption) {
+	mediaOption.Video = mediaLibrary.File.Video
 	mediaOption.FileName = mediaLibrary.File.FileName
 	mediaOption.URL = mediaLibrary.File.URL()
 	mediaOption.OriginalURL = mediaLibrary.File.URL("original")
