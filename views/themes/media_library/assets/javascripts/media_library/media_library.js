@@ -21,9 +21,11 @@
   var EVENT_SWITCHED = 'switched.qor.tabbar.radio';
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
   var CLASS_MEDIA_DATA = '[name="QorResource.SelectedType"]';
+  var CLASS_MEDIA_CONTAINER = '.qor-medialibrary__container';
   var CLASS_VIDEO = '.qor-video__link';
   var CLASS_VIDEO_TABLE = '.qor-medialibrary__video-link';
   var CLASS_UPLOAD_VIDEO_TABLE = '.qor-medialibrary__video';
+  var CLASS_IMAGE_DESC = '.qor-medialibrary__desc';
   var CLASS_FILE_OPTION = '.qor-file__options';
 
   function getYoutubeID(url) {
@@ -50,21 +52,35 @@
 
     bind: function () {
       $(document)
-        .on(EVENT_SWITCHED, EVENT_SWITCHED_TARGET,  this.resetMediaData)
+        .on(EVENT_SWITCHED, EVENT_SWITCHED_TARGET,  this.resetMediaData.bind(this))
         .on(EVENT_BLUR, CLASS_VIDEO,  this.setVideo)
+        .on(EVENT_BLUR, CLASS_IMAGE_DESC,  this.setImageDesc)
         .on(EVENT_FOCUS, CLASS_VIDEO,  this.initVideo);
     },
 
     unbind: function () {
-      // this.$element.off(EVENT_CLICK, CLASS_TAB, this.switchTab);
       $(document)
-        .off(EVENT_SWITCHED, EVENT_SWITCHED_TARGET, this.resetMediaData)
+        .off(EVENT_SWITCHED, EVENT_SWITCHED_TARGET, this.resetMediaData.bind(this))
         .off(EVENT_BLUR, CLASS_VIDEO,  this.setVideo)
+        .off(EVENT_BLUR, CLASS_IMAGE_DESC,  this.setImageDesc)
         .off(EVENT_FOCUS, CLASS_VIDEO,  this.initVideo);
     },
-    initVideo: function (event) {
-      var $input = $(event.target);
-      this.originalLink = $input.val();
+
+    setImageDesc: function (e) {
+      var $input = $(e.target),
+          $fileOption,
+          fileOption;
+
+      $fileOption = (this.$mediainfo && this.$mediainfo.length) ? this.$mediainfo.find(CLASS_FILE_OPTION) : $input.closest(CLASS_MEDIA_CONTAINER).find(CLASS_FILE_OPTION);
+
+      fileOption = JSON.parse($fileOption.val());
+      fileOption.Description = $input.val();
+
+      $fileOption.val(JSON.stringify(fileOption));
+    },
+
+    initVideo: function (e) {
+      this.originalLink = $(e.target).val();
     },
 
     initMedia: function () {
@@ -124,6 +140,8 @@
           $alert = $element.find('[data-tab-source="video"] .qor-fieldset__alert'),
           fileOption = JSON.parse($fileOption.val());
 
+      this.$mediainfo = $element;
+
       fileOption.SelectedType = type;
       if (type == 'video') {
         fileOption.Video = $element.find(CLASS_VIDEO).val();
@@ -145,7 +163,10 @@
   $.fn.qorSliderAfterShow = $.fn.qorSliderAfterShow || {};
   $.fn.qorSliderAfterShow.renderMediaVideo = function () {
     var $render = $('[data-tab-source="video"]'),
+        $desc = $(CLASS_IMAGE_DESC),
         url = $render.length && $render.data().videourl;
+
+    $desc.length && $desc.val($desc.data().imageInfo.Description);
 
     if ($render.length && url) {
       $render.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');

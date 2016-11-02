@@ -271,7 +271,6 @@
           $hiddenItem = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]'),
           maxItem = this.bottomsheetsData.maxItem,
           selectedItem = this.getSelectedItemData().selectedNum,
-          videoLink,
           _this = this;
 
       if (!isNewData){

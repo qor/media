@@ -82,10 +82,9 @@ $.Redactor.prototype.medialibrary = function() {
 
             var htmlCode, $htmlCode, videoLink, mediaOption, parentTag,
                 mediaContainerClass = this.opts.mediaContainerClass,
-                tags = 'p, div, ol, ul, li, span',
                 isVideo = data.SelectedType == 'video',
-                iframeStart = '<div class="' + mediaContainerClass + '"><iframe style="width: 100%; height: 380px;" src="',
-                iframeEnd = '" frameborder="0" allowfullscreen></iframe></div>';
+                iframeStart = '<iframe class="' + mediaContainerClass + '" style="width: 100%; height: 380px;" src="',
+                iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
 
             if (isNew) {
                 mediaOption = JSON.parse(data.MediaOption);
@@ -96,7 +95,7 @@ $.Redactor.prototype.medialibrary = function() {
                         htmlCode = videoLink.replace(this.medialibrary.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                     }
                 } else if (mediaOption.URL.match(this.medialibrary.reVideo)) {
-                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '"><source src="' + mediaOption.URL + '"></video>'
+                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '"><source src="' + mediaOption.URL + '"></video>';
                 }
 
             } else {
@@ -121,7 +120,7 @@ $.Redactor.prototype.medialibrary = function() {
 
             parentTag = this.selection.parentTag;
             parentTag && $(parentTag).after($img);
-            this.image.setEditable($img)
+            this.image.setEditable($img);
             this.code.sync();
         }
 

@@ -1,6 +1,6 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 
-<div class="qor-field" data-toggle="qor.tab.radio">
+<div class="qor-field qor-medialibrary__container" data-toggle="qor.tab.radio">
   <div class="qor-tab__radio">
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-file">
       <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button ignore-dirtyform" name="options" data-tab-target="file" value="1" {{if not (eq $value.SelectedType "video")}} checked {{end}}>
@@ -66,14 +66,25 @@
         {{end}}
 
       {{end}}
-
       </div>
+
+      <!-- If is image, show description input -->
+      <div class="qor-field" {{if not $value.IsImage}}style="display:none;"{{end}}>
+        <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
+          <label class="qor-field__label mdl-textfield__label">
+            {{t "qor_media_library.form.Description" "Description"}}
+          </label>
+          <div class="qor-field__edit">
+            <input class="mdl-textfield__input qor-medialibrary__desc" type="text" value="" data-image-info="{{$value.Value}}" />
+          </div>
+        </div>
+      </div>
+      <!-- end -->
 
       <label class="mdl-button mdl-button--primary qor-button__icon-add" title="{{t "qor_media_library.form.choose_file" "Choose File"}}" {{if not (has_update_permission .Meta)}}disabled{{end}}>
         <input class="visuallyhidden qor-file__input" id="{{.InputId}}" name="{{.InputName}}" type="file">
         {{t (printf "%v.attributes.add_%v" .BaseResource.ToParam (singular (meta_label .Meta))) (printf "Add %v" (singular (meta_label .Meta)))}}
       </label>
-
     </div>
     <!-- End: other files form -->
   </div>
