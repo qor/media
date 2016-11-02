@@ -15,7 +15,7 @@ $.Redactor.prototype.medialibrary = function() {
 
         addMedialibrary: function () {
             var $element = this.$element,
-                data = {'selectModal': 'mediabox', 'max-item': '1'},
+                data = {'selectModal': 'mediabox', 'maxItem': '1'},
                 mediaboxUrl = $element.data().redactorSettings.medialibraryUrl,
                 BottomSheets;
 

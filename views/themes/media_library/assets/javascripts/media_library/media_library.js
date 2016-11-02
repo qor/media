@@ -21,6 +21,7 @@
   var EVENT_SWITCHED = 'switched.qor.tabbar.radio';
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
   var CLASS_MEDIA_DATA = '[name="QorResource.SelectedType"]';
+  var CLASS_VIDEO_TAB = '[data-tab-source="video"]';
   var CLASS_MEDIA_CONTAINER = '.qor-medialibrary__container';
   var CLASS_VIDEO = '.qor-video__link';
   var CLASS_VIDEO_TABLE = '.qor-medialibrary__video-link';
@@ -137,7 +138,7 @@
     resetMediaData: function (e, element, type) {
       var $element = $(element),
           $fileOption = $element.find(CLASS_FILE_OPTION),
-          $alert = $element.find('[data-tab-source="video"] .qor-fieldset__alert'),
+          $alert = $element.find(CLASS_VIDEO_TAB).find('.qor-fieldset__alert'),
           fileOption = JSON.parse($fileOption.val());
 
       this.$mediainfo = $element;
@@ -147,7 +148,7 @@
         fileOption.Video = $element.find(CLASS_VIDEO).val();
         $alert.length && $alert.remove();
       }
-
+      fileOption.Description = $('[data-tab-source="' + type + '"]').find(CLASS_IMAGE_DESC).val();
       $(CLASS_MEDIA_DATA).val(type);
 
       $fileOption.val(JSON.stringify(fileOption));
@@ -162,7 +163,7 @@
 
   $.fn.qorSliderAfterShow = $.fn.qorSliderAfterShow || {};
   $.fn.qorSliderAfterShow.renderMediaVideo = function () {
-    var $render = $('[data-tab-source="video"]'),
+    var $render = $(CLASS_VIDEO_TAB),
         $desc = $(CLASS_IMAGE_DESC),
         url = $render.length && $render.data().videourl;
 
