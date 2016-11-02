@@ -10,11 +10,12 @@ $.Redactor.prototype.medialibrary = function() {
             var button = this.button.add('medialibrary', 'MediaLibrary');
             this.button.addCallback(button, this.medialibrary.addMedialibrary);
             this.button.setIcon(button, '<i class="material-icons">photo_library</i>');
+            $(document).on('reload.qor.bottomsheets', '.qor-bottomsheets__mediabox', this.medialibrary.initItem);
         },
 
         addMedialibrary: function () {
             var $element = this.$element,
-                data = {'selectModal': 'mediabox'},
+                data = {'selectModal': 'mediabox', 'max-item': '1'},
                 mediaboxUrl = $element.data().redactorSettings.medialibraryUrl,
                 BottomSheets;
 
@@ -31,6 +32,23 @@ $.Redactor.prototype.medialibrary = function() {
                 };
 
                 $bottomsheets.qorSelectCore(options).addClass('qor-bottomsheets__mediabox');
+                this.medialibrary.initItem();
+        },
+
+        initItem: function () {
+            var $trs = $('.qor-bottomsheets').find('tbody tr'),
+                $tr,
+                $img;
+
+            $trs.each(function () {
+                $tr = $(this);
+                $img = $tr.find('.qor-table--ml-slideout p img').first();
+                $tr.find('.qor-table__actions').remove();
+                if ($img.length) {
+                    $tr.find('.qor-table--medialibrary-item').css('background-image', 'url(' + $img.prop('src') + ')');
+                    $img.parent().hide();
+                }
+            });
         },
 
         selectResults: function (data) {
@@ -60,13 +78,13 @@ $.Redactor.prototype.medialibrary = function() {
         },
 
         insertVideoCode: function (data, isNew) {
-            this.opts.videoContainerClass = (typeof this.opts.videoContainerClass === 'undefined') ? 'qor-video-container' : this.opts.videoContainerClass;
+            this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
 
-            var htmlCode, videoLink, mediaOption, $html,
-                current,
+            var htmlCode, $htmlCode, videoLink, mediaOption, parentTag,
+                mediaContainerClass = this.opts.mediaContainerClass,
                 tags = 'p, div, ol, ul, li, span',
                 isVideo = data.SelectedType == 'video',
-                iframeStart = '<div class="' + this.opts.videoContainerClass + '"><iframe style="width: 100%; height: 300px;" src="',
+                iframeStart = '<div class="' + mediaContainerClass + '"><iframe style="width: 100%; height: 380px;" src="',
                 iframeEnd = '" frameborder="0" allowfullscreen></iframe></div>';
 
             if (isNew) {
@@ -78,50 +96,33 @@ $.Redactor.prototype.medialibrary = function() {
                         htmlCode = videoLink.replace(this.medialibrary.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                     }
                 } else if (mediaOption.URL.match(this.medialibrary.reVideo)) {
-                    htmlCode = '<video width="100%" height="300px" controls class="' + this.opts.videoContainerClass + '"><source src="' + mediaOption.URL + '"></video>'
+                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '"><source src="' + mediaOption.URL + '"></video>'
                 }
 
             } else {
                 htmlCode = data.File || data.$clickElement.find('.qor-table--video').html();
-                $(htmlCode).addClass(this.opts.videoContainerClass);
-                htmlCode = $(htmlCode)[0].outerHTML;
+                $htmlCode = $(htmlCode).addClass(mediaContainerClass);
+                htmlCode = $htmlCode[0].outerHTML;
             }
 
-            $html = $(htmlCode);
-
-            // console.log($(this.insert.nodeToPoint(e, this.marker.get())).next());
-            // $(this.insert.nodeToPoint(e, this.marker.get())).next().after($html);
-            this.buffer.set();
-            this.air.collapsed();
-            this.insert.raw(htmlCode);
-            // this.caret.after($html);
-
-
-            //
-            // current = this.selection.current();
-            // console.log($(current).closest(tags, this.core.editor()[0]))
-            // $($(current).closest(tags, this.core.editor()[0])).addClass("aaa").after(htmlCode);
-            // $(current).parent().after(htmlCode);
-
-            // console.log($(current).parent())
-
-
-            // this.code.sync();
-            // this.selection.restore();
+            parentTag = this.selection.parentTag;
+            parentTag && $(parentTag).after(htmlCode);
+            this.code.sync();
         },
 
         insertImages: function (data, isNew) {
-            var json = {}, src;
+            var src, parentTag, $img = $('<img>'), $figure = $('<' + this.opts.imageTag + '>');
 
             src = isNew ? JSON.parse(data.MediaOption).URL : ($(data.Image || data.File).prop('src') || data.$clickElement.find('p[data-heading] img').prop('src'));
             src = src.replace(/image\..+\./, 'image.');
 
-            json.url = src;
-            json.fromMedialibrary = true;
+            $img.attr('src', src);
+            $figure.append($img);
 
-            this.buffer.set();
-            // insert: function(json, direct, e)
-            this.image.insert(json, false);
+            parentTag = this.selection.parentTag;
+            parentTag && $(parentTag).after($img);
+            this.image.setEditable($img)
+            this.code.sync();
         }
 
 

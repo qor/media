@@ -6,7 +6,6 @@
 		margin-top: 0;
 	}
 }
-
 .qor-bottomsheets__mediabox{
 	max-height: 700px !important;
 	.mdl-card__supporting-text,.qor-table--medialibrary-item{
@@ -45,7 +44,12 @@
 				>p{
 					margin-bottom: 0;
 					color: #fff;
+					&[data-heading*="Image"], &[data-heading*="image"], &[data-heading*="File"], &[data-heading*="file"], &.qor-table--video{
+						padding: 0;
+						height: auto;
+					}
 				}
+
 			}
 
 			thead{
@@ -99,4 +103,11 @@
 
 .qor-field__mediabox-item.is_deleted {
 	border: 1px solid rgba(0,0,0,.12);
+}
+
+/* Firefox inline-flex bug */
+@-moz-document url-prefix() {
+	.qor-bottomsheets__mediabox .qor-bottomsheets__body .qor-table--medialibrary tbody tr{
+		margin-right: -4px;
+	}
 }
