@@ -16,12 +16,11 @@
   var NAMESPACE = 'qor.medialibrary.action';
   var EVENT_ENABLE = 'enable.' + NAMESPACE;
   var EVENT_DISABLE = 'disable.' + NAMESPACE;
-  var EVENT_BLUR = 'blur.' + NAMESPACE;
-  var EVENT_FOCUS = 'focus.' + NAMESPACE;
+  var EVENT_KEYUP = 'keyup.' + NAMESPACE;
   var EVENT_SWITCHED = 'switched.qor.tabbar.radio';
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
   var CLASS_MEDIA_DATA = '[name="QorResource.SelectedType"]';
-  var CLASS_VIDEO_TAB = '[data-tab-source="video"]';
+  var CLASS_VIDEO_TAB = '[data-tab-source="video_link"]';
   var CLASS_VIDEO = '.qor-video__link';
   var CLASS_VIDEO_TABLE = '.qor-medialibrary__video-link';
   var CLASS_UPLOAD_VIDEO_TABLE = '.qor-medialibrary__video';
@@ -54,39 +53,40 @@
     bind: function () {
       $(document)
         .on(EVENT_SWITCHED, EVENT_SWITCHED_TARGET,  this.resetMediaData.bind(this))
-        .on(EVENT_BLUR, CLASS_VIDEO,  this.setVideo)
-        .on(EVENT_BLUR, CLASS_IMAGE_DESC,  this.setImageDesc)
-        .on(EVENT_FOCUS, CLASS_VIDEO,  this.initVideo);
+        .on(EVENT_KEYUP, CLASS_VIDEO,  this.setVideo.bind(this))
+        .on(EVENT_KEYUP, CLASS_IMAGE_DESC,  this.setImageDesc.bind(this));
     },
 
     unbind: function () {
       $(document)
         .off(EVENT_SWITCHED, EVENT_SWITCHED_TARGET, this.resetMediaData.bind(this))
-        .off(EVENT_BLUR, CLASS_VIDEO,  this.setVideo)
-        .off(EVENT_BLUR, CLASS_IMAGE_DESC,  this.setImageDesc)
-        .off(EVENT_FOCUS, CLASS_VIDEO,  this.initVideo);
+        .off(EVENT_KEYUP, CLASS_VIDEO,  this.setVideo.bind(this))
+        .off(EVENT_KEYUP, CLASS_IMAGE_DESC,  this.setImageDesc.bind(this));
+    },
+
+    setMediaData: function($form, value) {
+      var $fileOption = $form.find(CLASS_FILE_OPTION),
+          $MediaOption = $form.find(CLASS_MEDIA_OPTION);
+
+      $fileOption.val(JSON.stringify(value));
+      $MediaOption.val(JSON.stringify(value));
+
+      console.log($fileOption.val());
+
     },
 
     setImageDesc: function (e) {
       var $input = $(e.target),
           $form = $input.closest('form'),
           $fileOption,
-          $MediaOption,
           fileOption;
 
-
       $fileOption = $form.find(CLASS_FILE_OPTION);
-      $MediaOption = $form.find(CLASS_MEDIA_OPTION);
-
       fileOption = JSON.parse($fileOption.val());
       fileOption.Description = $input.val();
 
-      $fileOption.val(JSON.stringify(fileOption));
-      $MediaOption.val(JSON.stringify(fileOption));
-    },
+      this.setMediaData($form, fileOption);
 
-    initVideo: function (e) {
-      this.originalLink = $(e.target).val();
     },
 
     initMedia: function () {
@@ -120,41 +120,43 @@
     setVideo: function (event) {
       var $input = $(event.target),
           $parent = $input.closest('[data-tab-source]'),
-          $element = $input.closest(EVENT_SWITCHED_TARGET),
-          $fileOption = $element.find(CLASS_FILE_OPTION),
+          $form = $input.closest('form'),
+          $fileOption = $form.find(CLASS_FILE_OPTION),
           fileOption = JSON.parse($fileOption.val()),
           url = $input.val(),
           $iframe = $parent.find('iframe'),
           youtubeID = getYoutubeID(url);
 
-      if (url != this.originalLink) {
-        fileOption.SelectedType = 'video_link';
-        fileOption.Video = url;
-        $fileOption.val(JSON.stringify(fileOption));
+      fileOption.SelectedType = 'video_link';
+      fileOption.Video = url;
 
-        if (youtubeID) {
-          $iframe.length && $iframe.remove();
-          $parent.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0" frameborder="0" allowfullscreen></iframe>');
-        }
+      this.setMediaData($form, fileOption);
+
+      if (youtubeID) {
+        $iframe.length && $iframe.remove();
+        $parent.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0" frameborder="0" allowfullscreen></iframe>');
       }
 
     },
 
     resetMediaData: function (e, element, type) {
       var $element = $(element),
+          $form = $element.closest('form'),
           $fileOption = $element.find(CLASS_FILE_OPTION),
           $alert = $element.find(CLASS_VIDEO_TAB).find('.qor-fieldset__alert'),
           fileOption = JSON.parse($fileOption.val());
 
       fileOption.SelectedType = type;
+
       if (type == 'video_link') {
         fileOption.Video = $element.find(CLASS_VIDEO).val();
         $alert.length && $alert.remove();
       }
+
       fileOption.Description = $('[data-tab-source="' + type + '"]').find(CLASS_IMAGE_DESC).val();
       $(CLASS_MEDIA_DATA).val(type);
 
-      $fileOption.val(JSON.stringify(fileOption));
+      this.setMediaData($form, fileOption);
     },
 
     destroy: function () {
