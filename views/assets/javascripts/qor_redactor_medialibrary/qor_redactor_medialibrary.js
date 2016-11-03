@@ -61,7 +61,7 @@ $.Redactor.prototype.medialibrary = function() {
 
         handleResults: function (data, isNew) {
             if (isNew) {
-                if (data.SelectedType == 'video' || JSON.parse(data.MediaOption).URL.match(this.medialibrary.reVideo)) {
+                if (data.SelectedType == 'video_link' || JSON.parse(data.MediaOption).URL.match(this.medialibrary.reVideo)) {
                     this.medialibrary.insertVideoCode(data, true);
                 } else {
                     this.medialibrary.insertImages(data, true);
@@ -82,7 +82,7 @@ $.Redactor.prototype.medialibrary = function() {
 
             var htmlCode, $htmlCode, videoLink, mediaOption, $currentTag,
                 mediaContainerClass = this.opts.mediaContainerClass,
-                isVideo = data.SelectedType == 'video',
+                isVideo = data.SelectedType == 'video_link',
                 iframeStart = '<iframe class="' + mediaContainerClass + '" aria-label="' + data.MediaOption.Description + '" style="width: 100%; height: 380px;" src="',
                 iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
 

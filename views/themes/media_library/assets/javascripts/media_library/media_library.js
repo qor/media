@@ -98,7 +98,7 @@
 
         if (videoType) {
           $this.closest('tr').data('isUploadedVideo', true);
-          $this.parent().addClass('qor-table--video qor-table--video-internal').html('<video width=100% height=100% controls><source src="' + url + '" type="video/' + videoType[0].replace('.', '') + '"></video>');
+          $this.parent().addClass('qor-table--video qor-table--video-internal').html('<video width=100% height=100% controls><source src="' + url + '"></video>');
         }
 
       });
@@ -128,7 +128,7 @@
           youtubeID = getYoutubeID(url);
 
       if (url != this.originalLink) {
-        fileOption.SelectedType = 'video';
+        fileOption.SelectedType = 'video_link';
         fileOption.Video = url;
         $fileOption.val(JSON.stringify(fileOption));
 
@@ -147,7 +147,7 @@
           fileOption = JSON.parse($fileOption.val());
 
       fileOption.SelectedType = type;
-      if (type == 'video') {
+      if (type == 'video_link') {
         fileOption.Video = $element.find(CLASS_VIDEO).val();
         $alert.length && $alert.remove();
       }

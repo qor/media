@@ -3,11 +3,11 @@
 <div class="qor-field" data-toggle="qor.tab.radio">
   <div class="qor-tab__radio">
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-file">
-      <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button ignore-dirtyform" name="options" data-tab-target="file" value="1" {{if not (eq $value.SelectedType "video")}} checked {{end}}>
+      <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button ignore-dirtyform" name="options" data-tab-target="file" value="1" {{if not (eq $value.SelectedType "video_link")}} checked {{end}}>
       <span class="mdl-radio__label">{{t "qor_media_library.media_switcher.file" "File"}}</span>
     </label>
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-video">
-      <input type="radio" id="qor-swtichtab-video" class="mdl-radio__button ignore-dirtyform" data-tab-target="video" name="options" value="2" {{if (eq $value.SelectedType "video")}} checked {{end}}>
+      <input type="radio" id="qor-swtichtab-video" class="mdl-radio__button ignore-dirtyform" data-tab-target="video_link" name="options" value="2" {{if (eq $value.SelectedType "video_link")}} checked {{end}}>
       <span class="mdl-radio__label">{{t "qor_media_library.media_switcher.video_link" "Video Link"}}</span>
     </label>
   </div>
@@ -15,7 +15,7 @@
   <div class="qor-field__block qor-file">
 
     <!-- Start: video link form -->
-    <div class="qor-fieldset" data-tab-source="video" data-videourl="{{$value.Video}}" {{if not (eq $value.SelectedType "video")}} style="display: none;" {{end}}>
+    <div class="qor-fieldset" data-tab-source="video_link" data-videourl="{{$value.Video}}" {{if not (eq $value.SelectedType "video_link")}} style="display: none;" {{end}}>
       <div class="qor-field">
         <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
           <label class="qor-field__label mdl-textfield__label" for="ProductVideo_desc">
@@ -41,7 +41,7 @@
     <!-- End: video link form -->
 
     <!-- Start: other files form -->
-    <div class="qor-fieldset" data-tab-source="file" {{if (eq $value.SelectedType "video")}} style="display: none;" {{end}}>
+    <div class="qor-fieldset" data-tab-source="file" {{if (eq $value.SelectedType "video_link")}} style="display: none;" {{end}}>
       <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.ok" "OK"}}" name="{{.InputName}}" aria-hidden="true">{{if $value}}{{$value.Value}}{{end}}</textarea>
 
       <!-- If is image or videos, show description input -->
