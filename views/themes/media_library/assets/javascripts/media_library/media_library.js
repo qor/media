@@ -70,9 +70,6 @@
 
       $fileOption.val(JSON.stringify(value));
       $MediaOption.val(JSON.stringify(value));
-
-      console.log($fileOption.val());
-
     },
 
     setImageDesc: function (e) {
