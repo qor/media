@@ -219,17 +219,7 @@ func (b Base) IsImage() bool {
 }
 
 func (b Base) IsVideo() bool {
-	formats := []string{".mp4", ".m4p", ".m4v", ".m4v", ".mov", ".mpeg", ".webm", ".avi", ".ogg", ".ogv"}
-
-	ext := strings.ToLower(filepath.Ext(b.URL()))
-
-	for _, format := range formats {
-		if format == ext {
-			return true
-		}
-	}
-
-	return false
+	return isVideoFormat(b.URL())
 }
 
 func init() {
@@ -265,4 +255,18 @@ func getImageFormat(url string) (*imaging.Format, error) {
 		return &f, nil
 	}
 	return nil, imaging.ErrUnsupportedFormat
+}
+
+func isVideoFormat(name string) bool {
+	formats := []string{".mp4", ".m4p", ".m4v", ".m4v", ".mov", ".mpeg", ".webm", ".avi", ".ogg", ".ogv"}
+
+	ext := strings.ToLower(filepath.Ext(name))
+
+	for _, format := range formats {
+		if format == ext {
+			return true
+		}
+	}
+
+	return false
 }

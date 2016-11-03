@@ -267,7 +267,18 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 					},
 					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
 						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							mediaLibrary.SetSelectedType(utils.ToString(metaValue.Value))
+							name := mediaLibrary.GetMediaOption().FileName
+							if name == "" {
+								name = mediaLibrary.GetMediaOption().URL
+							}
+
+							if _, err := getImageFormat(name); err == nil {
+								mediaLibrary.SetSelectedType("image")
+							} else if isVideoFormat(name) {
+								mediaLibrary.SetSelectedType("video")
+							} else {
+								mediaLibrary.SetSelectedType("file")
+							}
 						}
 					},
 				})
