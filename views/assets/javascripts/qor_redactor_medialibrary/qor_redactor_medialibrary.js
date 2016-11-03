@@ -83,7 +83,7 @@ $.Redactor.prototype.medialibrary = function() {
             var htmlCode, $htmlCode, videoLink, mediaOption, $currentTag,
                 mediaContainerClass = this.opts.mediaContainerClass,
                 isVideo = data.SelectedType == 'video_link',
-                iframeStart = '<iframe class="' + mediaContainerClass + '" aria-label="' + data.MediaOption.Description + '" style="width: 100%; height: 380px;" src="',
+                iframeStart = '<iframe class="' + mediaContainerClass + '" style="width: 100%; height: 380px;" src="',
                 iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
 
             if (isNew) {
@@ -95,7 +95,7 @@ $.Redactor.prototype.medialibrary = function() {
                         htmlCode = videoLink.replace(this.medialibrary.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                     }
                 } else if (mediaOption.URL.match(this.medialibrary.reVideo)) {
-                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '" aria-label="' + data.MediaOption.Description + '"><source src="' + mediaOption.URL + '"></video>';
+                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '"><source src="' + mediaOption.URL + '"></video>';
                 }
 
             } else {
