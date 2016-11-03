@@ -1,7 +1,7 @@
 // Add media library button for redactor editor
 // By Jason weng @theplant
 
-$.Redactor.prototype.medialibrary = function() {
+ $.Redactor.prototype.medialibrary = function() {
     return {
         reUrlYoutube: /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube\.com\S*[^\w\-\s])([\w\-]{11})(?=[^\w\-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig,
         reUrlVimeo: /https?:\/\/(www\.)?vimeo.com\/(\d+)($|\/)/,
@@ -80,11 +80,12 @@ $.Redactor.prototype.medialibrary = function() {
         insertVideoCode: function (data, isNew) {
             this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
 
+
             var htmlCode, $htmlCode, videoLink, mediaOption, $currentTag,
                 mediaContainerClass = this.opts.mediaContainerClass,
                 isVideo = data.SelectedType == 'video_link',
-                iframeStart = '<iframe class="' + mediaContainerClass + '" style="width: 100%; height: 380px;" src="',
-                iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
+                iframeStart = '<figure class="' + mediaContainerClass + '"><iframe style="width: 100%; height: 380px;" src="',
+                iframeEnd = '" frameborder="0" allowfullscreen></iframe><figcaption>' + data.MediaOption.Description + '</figcaption></figure>';
 
             if (isNew) {
                 mediaOption = JSON.parse(data.MediaOption);
@@ -95,12 +96,14 @@ $.Redactor.prototype.medialibrary = function() {
                         htmlCode = videoLink.replace(this.medialibrary.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                     }
                 } else if (mediaOption.URL.match(this.medialibrary.reVideo)) {
-                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '"><source src="' + mediaOption.URL + '"></video>';
+                    htmlCode = '<figure class="' + mediaContainerClass + '"><div role="application"><video width="100%" height="380px" controls><source src="' + mediaOption.URL + '"></video></div><figcaption>' + data.MediaOption.Description + '</figcaption></figure>';
                 }
 
             } else {
                 htmlCode = data.File || data.$clickElement.find('.qor-table--video').html();
-                $htmlCode = $(htmlCode).addClass(mediaContainerClass).attr('aria-label', data.MediaOption.Description);
+                // todo: add figcaption
+                $htmlCode = $(htmlCode).addClass(mediaContainerClass);
+
                 htmlCode = $htmlCode[0].outerHTML;
             }
 
