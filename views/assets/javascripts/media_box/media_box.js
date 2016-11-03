@@ -49,6 +49,7 @@
       var $element = this.$element;
       this.SELECT_MEDIABOX_UNDO_TEMPLATE = $element.find('[name="media-box-undo-delete"]').html();
       this.bind();
+      this.initSelectedMedia();
     },
 
     bind: function () {
@@ -114,7 +115,25 @@
 
     },
 
-    initItem: function () {
+    initSelectedMedia: function () {
+      var $element = this.$element,
+          $selectedMedias = $element.find(CLASS_ITEM),
+          $selectedMedia,
+          selectedMediaData,
+          mediaData = JSON.parse($element.find(CLASS_LISTS_DATA).val());
+
+      if (mediaData) {
+        for (var i = 0; i < mediaData.length; i++) {
+          $selectedMedia = $selectedMedias.filter('[data-primary-key="' + mediaData[i].ID + '"]');
+          selectedMediaData = $selectedMedia.data().description;
+          if (!selectedMediaData) {
+            $selectedMedia.data('description', mediaData[i].Description);
+          }
+        }
+      }
+    },
+
+    initMedia: function () {
       var $selectFeild = this.$selectFeild,
           $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
           $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
@@ -144,7 +163,7 @@
     },
 
     reloadData: function () {
-      this.initItem();
+      this.initMedia();
     },
 
     renderSelectMany: function (data) {
@@ -167,7 +186,8 @@
 
           files.push({
             ID: item.primaryKey,
-            Url: item.originalUrl.replace(/.original.(\w+)$/, '.$1')
+            Url: item.originalUrl.replace(/.original.(\w+)$/, '.$1'),
+            Description: item.description
           });
         });
       }
@@ -301,11 +321,7 @@
         return;
       }
 
-      // if (data.SelectedType == 'video') {
-      //   videoLink = MediaOption
-      //   return;
-      // }
-
+      $template.data('description',data.MediaOption.Description);
       $template.appendTo(this.$selectFeild);
 
       // if image alread have CropOptions, replace original images as [big,middle, small] images.
@@ -362,7 +378,7 @@
           };
 
       $bottomsheets.qorSelectCore(options).addClass(CLASS_MEDIABOX);
-      this.initItem();
+      this.initMedia();
     },
 
     onSelectResults: function (data) {
@@ -374,19 +390,11 @@
     },
 
     handleResults: function (data, isNewData) {
-      var url = data.url || data.mediaLibraryUrl,
-          _this = this,
-          formatData = data;
-
       if (isNewData) {
-        formatData.MediaOption = JSON.parse(data.MediaOption);
-        this.handleResultsData(formatData, isNewData);
+        data.MediaOption = JSON.parse(data.MediaOption);
+        this.handleResultsData(data, isNewData);
       } else {
-        $.getJSON(url, function(data){
-          data.MediaOption = JSON.parse(data.MediaOption);
-          formatData = $.extend({}, formatData, data);
-          _this.handleResultsData(formatData);
-        });
+        this.handleResultsData(data);
       }
     },
 

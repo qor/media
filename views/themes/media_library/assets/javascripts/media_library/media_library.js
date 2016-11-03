@@ -22,12 +22,12 @@
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
   var CLASS_MEDIA_DATA = '[name="QorResource.SelectedType"]';
   var CLASS_VIDEO_TAB = '[data-tab-source="video"]';
-  var CLASS_MEDIA_CONTAINER = '.qor-medialibrary__container';
   var CLASS_VIDEO = '.qor-video__link';
   var CLASS_VIDEO_TABLE = '.qor-medialibrary__video-link';
   var CLASS_UPLOAD_VIDEO_TABLE = '.qor-medialibrary__video';
   var CLASS_IMAGE_DESC = '.qor-medialibrary__desc';
   var CLASS_FILE_OPTION = '.qor-file__options';
+  var CLASS_MEDIA_OPTION = 'input[name="QorResource.MediaOption"]';
 
   function getYoutubeID(url) {
     var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -69,15 +69,20 @@
 
     setImageDesc: function (e) {
       var $input = $(e.target),
+          $form = $input.closest('form'),
           $fileOption,
+          $MediaOption,
           fileOption;
 
-      $fileOption = (this.$mediainfo && this.$mediainfo.length) ? this.$mediainfo.find(CLASS_FILE_OPTION) : $input.closest(CLASS_MEDIA_CONTAINER).find(CLASS_FILE_OPTION);
+
+      $fileOption = $form.find(CLASS_FILE_OPTION);
+      $MediaOption = $form.find(CLASS_MEDIA_OPTION);
 
       fileOption = JSON.parse($fileOption.val());
       fileOption.Description = $input.val();
 
       $fileOption.val(JSON.stringify(fileOption));
+      $MediaOption.val(JSON.stringify(fileOption));
     },
 
     initVideo: function (e) {
@@ -140,8 +145,6 @@
           $fileOption = $element.find(CLASS_FILE_OPTION),
           $alert = $element.find(CLASS_VIDEO_TAB).find('.qor-fieldset__alert'),
           fileOption = JSON.parse($fileOption.val());
-
-      this.$mediainfo = $element;
 
       fileOption.SelectedType = type;
       if (type == 'video') {

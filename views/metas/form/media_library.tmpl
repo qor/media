@@ -1,6 +1,6 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 
-<div class="qor-field qor-medialibrary__container" data-toggle="qor.tab.radio">
+<div class="qor-field" data-toggle="qor.tab.radio">
   <div class="qor-tab__radio">
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-file">
       <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button ignore-dirtyform" name="options" data-tab-target="file" value="1" {{if not (eq $value.SelectedType "video")}} checked {{end}}>
@@ -45,7 +45,7 @@
       <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.ok" "OK"}}" name="{{.InputName}}" aria-hidden="true">{{if $value}}{{$value.Value}}{{end}}</textarea>
 
       <!-- If is image or videos, show description input -->
-      <div class="qor-field qor-medialibrary__image-desc" {{if not $value.IsImage}}style="display:none;"{{end}}>
+      <div class="qor-field qor-medialibrary__image-desc">
         <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
           <label class="qor-field__label mdl-textfield__label" for="ProductImage_desc">
             {{t "qor_media_library.form.Description" "Description"}}

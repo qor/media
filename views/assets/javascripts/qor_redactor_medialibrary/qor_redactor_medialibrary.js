@@ -80,10 +80,10 @@ $.Redactor.prototype.medialibrary = function() {
         insertVideoCode: function (data, isNew) {
             this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
 
-            var htmlCode, $htmlCode, videoLink, mediaOption, parentTag,
+            var htmlCode, $htmlCode, videoLink, mediaOption, $currentTag,
                 mediaContainerClass = this.opts.mediaContainerClass,
                 isVideo = data.SelectedType == 'video',
-                iframeStart = '<iframe class="' + mediaContainerClass + '" style="width: 100%; height: 380px;" src="',
+                iframeStart = '<iframe class="' + mediaContainerClass + '" aria-label="' + data.MediaOption.Description + '" style="width: 100%; height: 380px;" src="',
                 iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
 
             if (isNew) {
@@ -95,35 +95,39 @@ $.Redactor.prototype.medialibrary = function() {
                         htmlCode = videoLink.replace(this.medialibrary.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                     }
                 } else if (mediaOption.URL.match(this.medialibrary.reVideo)) {
-                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '"><source src="' + mediaOption.URL + '"></video>';
+                    htmlCode = '<video width="100%" height="380px" controls class="' + mediaContainerClass + '" aria-label="' + data.MediaOption.Description + '"><source src="' + mediaOption.URL + '"></video>';
                 }
 
             } else {
                 htmlCode = data.File || data.$clickElement.find('.qor-table--video').html();
-                $htmlCode = $(htmlCode).addClass(mediaContainerClass);
+                $htmlCode = $(htmlCode).addClass(mediaContainerClass).attr('aria-label', data.MediaOption.Description);
                 htmlCode = $htmlCode[0].outerHTML;
             }
 
-            parentTag = this.selection.parentTag;
-            parentTag && $(parentTag).after(htmlCode);
+            $currentTag = this.selection.$currentTag;
+            $currentTag && $currentTag.after(htmlCode);
             this.code.sync();
         },
 
-        insertImages: function (data, isNew) {
-            var src, parentTag, $img = $('<img>'), $figure = $('<' + this.opts.imageTag + '>');
+        insertImages: function (data) {
+            var src,
+                $currentTag,
+                $img = $('<img>'),
+                $figure = $('<' + this.opts.imageTag + '>'),
+                mediaOption = data.MediaOption;
 
-            src = isNew ? JSON.parse(data.MediaOption).URL : ($(data.Image || data.File).prop('src') || data.$clickElement.find('p[data-heading] img').prop('src'));
-            src = src.replace(/image\..+\./, 'image.');
+            src = mediaOption.URL.replace(/image\..+\./, 'image.');
 
-            $img.attr('src', src);
+            $img.attr({
+                'src': src,
+                'alt': mediaOption.Description
+            });
             $figure.append($img);
 
-            parentTag = this.selection.parentTag;
-            parentTag && $(parentTag).after($img);
+            $currentTag = this.selection.$currentTag;
+            $currentTag && $currentTag.after($figure);
             this.image.setEditable($img);
             this.code.sync();
         }
-
-
     };
 };
