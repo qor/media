@@ -30,13 +30,14 @@ type MediaLibrary struct {
 }
 
 type MediaOption struct {
-	Video       string                 `json:",omitempty"`
-	FileName    string                 `json:",omitempty"`
-	URL         string                 `json:",omitempty"`
-	OriginalURL string                 `json:",omitempty"`
-	CropOptions map[string]*CropOption `json:",omitempty"`
-	Sizes       map[string]Size        `json:",omitempty"`
-	Description string
+	Video        string                 `json:",omitempty"`
+	FileName     string                 `json:",omitempty"`
+	URL          string                 `json:",omitempty"`
+	OriginalURL  string                 `json:",omitempty"`
+	CropOptions  map[string]*CropOption `json:",omitempty"`
+	Sizes        map[string]Size        `json:",omitempty"`
+	SelectedType string                 `json:",omitempty"`
+	Description  string                 `json:",omitempty"`
 }
 
 func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) error {
@@ -50,13 +51,14 @@ func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) erro
 
 func (mediaLibrary *MediaLibrary) GetMediaOption() MediaOption {
 	return MediaOption{
-		Video:       mediaLibrary.File.Video,
-		FileName:    mediaLibrary.File.FileName,
-		URL:         mediaLibrary.File.URL(),
-		OriginalURL: mediaLibrary.File.URL("original"),
-		CropOptions: mediaLibrary.File.CropOptions,
-		Sizes:       mediaLibrary.File.GetSizes(),
-		Description: mediaLibrary.File.Description,
+		Video:        mediaLibrary.File.Video,
+		FileName:     mediaLibrary.File.FileName,
+		URL:          mediaLibrary.File.URL(),
+		OriginalURL:  mediaLibrary.File.URL("original"),
+		CropOptions:  mediaLibrary.File.CropOptions,
+		Sizes:        mediaLibrary.File.GetSizes(),
+		SelectedType: mediaLibrary.File.SelectedType,
+		Description:  mediaLibrary.File.Description,
 	}
 }
 
@@ -267,15 +269,18 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 					},
 					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
 						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							name := mediaLibrary.GetMediaOption().FileName
+							mediaOption := mediaLibrary.GetMediaOption()
+							name := mediaOption.FileName
 							if name == "" {
-								name = mediaLibrary.GetMediaOption().URL
+								name = mediaOption.URL
 							}
 
 							if _, err := getImageFormat(name); err == nil {
 								mediaLibrary.SetSelectedType("image")
 							} else if isVideoFormat(name) {
 								mediaLibrary.SetSelectedType("video")
+							} else if mediaOption.SelectedType == "video_link" {
+								mediaLibrary.SetSelectedType("video_link")
 							} else {
 								mediaLibrary.SetSelectedType("file")
 							}
