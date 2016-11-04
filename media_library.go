@@ -38,6 +38,7 @@ type MediaOption struct {
 	Sizes        map[string]Size        `json:",omitempty"`
 	SelectedType string                 `json:",omitempty"`
 	Description  string                 `json:",omitempty"`
+	Crop         bool
 }
 
 func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) error {
@@ -329,6 +330,7 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 		record := res.NewStruct()
 		if err = res.CallFindOne(record, nil, context); err == nil {
 			if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+				mediaOption.Crop = true
 				if err = mediaLibrary.ScanMediaOptions(mediaOption); err == nil {
 					err = res.CallSave(record, context)
 				}
