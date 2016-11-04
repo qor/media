@@ -3,9 +3,6 @@
 
  $.Redactor.prototype.medialibrary = function() {
     return {
-        reUrlYoutube: /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube\.com\S*[^\w\-\s])([\w\-]{11})(?=[^\w\-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig,
-        reUrlVimeo: /https?:\/\/(www\.)?vimeo.com\/(\d+)($|\/)/,
-        reVideo: /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
         init: function () {
             var button = this.button.add('medialibrary', 'MediaLibrary');
             this.button.addCallback(button, this.medialibrary.addMedialibrary);
@@ -80,31 +77,33 @@
         insertVideoCode: function (data, isNew) {
             this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
 
-
-            var htmlCode, $htmlCode, videoLink, mediaOption, $currentTag,
+            var htmlCode, videoLink, mediaOption, $currentTag,
                 mediaContainerClass = this.opts.mediaContainerClass,
-                isVideo = data.SelectedType == 'video_link',
+                isVideoLink = data.SelectedType == 'video_link',
+                reUrlYoutube = this.opts.regexps.linkyoutube,
+                reUrlVimeo = this.opts.regexps.linkvimeo,
+                reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
+                randomID = (Math.random() + 1).toString(36).substring(7),
+
                 iframeStart = '<figure class="' + mediaContainerClass + '"><iframe style="width: 100%; height: 380px;" src="',
                 iframeEnd = '" frameborder="0" allowfullscreen></iframe><figcaption>' + data.MediaOption.Description + '</figcaption></figure>';
 
-            if (isNew) {
-                mediaOption = JSON.parse(data.MediaOption);
+            isNew && (data.MediaOption = JSON.parse(data.MediaOption));
+            mediaOption = data.MediaOption;
 
-                if (isVideo) {
-                    videoLink = mediaOption.Video;
-                    if (videoLink.match(this.medialibrary.reUrlYoutube)) {
-                        htmlCode = videoLink.replace(this.medialibrary.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
-                    }
-                } else if (mediaOption.URL.match(this.medialibrary.reVideo)) {
-                    htmlCode = '<figure class="' + mediaContainerClass + '"><div role="application"><video width="100%" height="380px" controls><source src="' + mediaOption.URL + '"></video></div><figcaption>' + data.MediaOption.Description + '</figcaption></figure>';
+            if (isVideoLink) {
+                videoLink = mediaOption.Video;
+
+                if (videoLink.match(reUrlYoutube)) {
+                    htmlCode = videoLink.replace(reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                 }
 
-            } else {
-                htmlCode = data.File || data.$clickElement.find('.qor-table--video').html();
-                // todo: add figcaption
-                $htmlCode = $(htmlCode).addClass(mediaContainerClass);
+                if (videoLink.match(reUrlVimeo)) {
+                    htmlCode = videoLink.replace(reUrlVimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
+                }
 
-                htmlCode = $htmlCode[0].outerHTML;
+            } else if (mediaOption.URL.match(reVideo)) {
+                htmlCode = '<figure class="' + mediaContainerClass + '"><div role="application"><video width="100%" height="380px" controls="controls" aria-describedby="qor-video-' + randomID + '" tabindex="0"><source src="' + mediaOption.URL + '"></video></div><figcaption id="qor-video-' + randomID + '">' + mediaOption.Description + '</figcaption></figure>';
             }
 
             $currentTag = this.selection.$currentTag;
