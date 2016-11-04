@@ -256,6 +256,19 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				})
 			}
 
+			if meta := config.RemoteDataResource.GetMeta("SelectedType"); meta == nil {
+				config.RemoteDataResource.Meta(&admin.Meta{
+					Name: "SelectedType",
+					Type: "hidden",
+					Valuer: func(record interface{}, context *qor.Context) interface{} {
+						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+							return mediaLibrary.GetSelectedType()
+						}
+						return ""
+					},
+				})
+			}
+
 			config.RemoteDataResource.AddProcessor(func(record interface{}, metaValues *resource.MetaValues, context *qor.Context) error {
 				if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
 					if metaValue := metaValues.Get("MediaOption"); metaValue != nil {
