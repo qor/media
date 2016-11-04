@@ -163,7 +163,7 @@
     },
 
     reloadData: function () {
-      this.initMedia();
+      this.$selectFeild && this.initMedia();
     },
 
     renderSelectMany: function (data) {

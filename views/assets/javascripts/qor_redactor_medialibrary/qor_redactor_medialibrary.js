@@ -28,8 +28,9 @@
                     onSubmit: this.medialibrary.submitResults   // render new items after new item form submitted
                 };
 
-                $bottomsheets.qorSelectCore(options).addClass('qor-bottomsheets__mediabox');
-                this.medialibrary.initItem();
+            this.medialibrary.$bottomsheets = $bottomsheets;
+            $bottomsheets.qorSelectCore(options).addClass('qor-bottomsheets__mediabox');
+            this.medialibrary.initItem();
         },
 
         initItem: function () {
@@ -43,7 +44,7 @@
                 $tr.find('.qor-table__actions').remove();
                 if ($img.length) {
                     $tr.find('.qor-table--medialibrary-item').css('background-image', 'url(' + $img.prop('src') + ')');
-                    $img.parent().hide();
+                    $img.parent().remove();
                 }
             });
         },
@@ -57,61 +58,74 @@
         },
 
         handleResults: function (data, isNew) {
-            if (isNew) {
-                if (data.SelectedType == 'video_link' || JSON.parse(data.MediaOption).URL.match(this.medialibrary.reVideo)) {
-                    this.medialibrary.insertVideoCode(data, true);
-                } else {
-                    this.medialibrary.insertImages(data, true);
-                }
-            } else {
-                if (data.isExternalVideo || data.isUploadedVideo) {
-                    this.medialibrary.insertVideoCode(data);
-                } else {
-                    this.medialibrary.insertImages(data);
-                }
+            isNew && (data.MediaOption = JSON.parse(data.MediaOption));
+            var reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
+                mediaOption = data.MediaOption;
+
+            if (data.SelectedType == 'video_link' || mediaOption.Video || mediaOption.URL.match(reVideo)) {
+                this.medialibrary.insertVideo(data);
+            } else{
+                this.medialibrary.insertImage(data);
             }
 
+            this.medialibrary.$bottomsheets.qorSelectCore('destroy');
             this.medialibrary.BottomSheets.hide();
         },
 
-        insertVideoCode: function (data, isNew) {
+        insertVideo: function (data) {
             this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
 
-            var htmlCode, videoLink, mediaOption, $currentTag,
+            var htmlCode, videoLink, $currentTag, iframeStart, iframeEnd, videoType, callbackData = {},
                 mediaContainerClass = this.opts.mediaContainerClass,
-                isVideoLink = data.SelectedType == 'video_link',
                 reUrlYoutube = this.opts.regexps.linkyoutube,
                 reUrlVimeo = this.opts.regexps.linkvimeo,
                 reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
-                randomID = (Math.random() + 1).toString(36).substring(7),
+                randomString = (Math.random() + 1).toString(36).substring(7),
+                videoIdentification = 'qor-video-' + randomString,
+                mediaOption = data.MediaOption,
+                description = mediaOption.Description;
 
-                iframeStart = '<figure class="' + mediaContainerClass + '"><iframe style="width: 100%; height: 380px;" src="',
-                iframeEnd = '" frameborder="0" allowfullscreen></iframe><figcaption>' + data.MediaOption.Description + '</figcaption></figure>';
+            iframeStart = '<figure class="' + mediaContainerClass + '"><iframe title="' + description + '" width="100%" height="380px" src="';
+            iframeEnd = '" frameborder="0" allowfullscreen></iframe><figcaption>' + description + '</figcaption></figure>';
 
-            isNew && (data.MediaOption = JSON.parse(data.MediaOption));
-            mediaOption = data.MediaOption;
-
-            if (isVideoLink) {
+            if (data.SelectedType == 'video_link') {
                 videoLink = mediaOption.Video;
 
                 if (videoLink.match(reUrlYoutube)) {
+                    videoType = 'youtube';
                     htmlCode = videoLink.replace(reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
                 }
 
                 if (videoLink.match(reUrlVimeo)) {
+                    videoType = 'vimeo';
                     htmlCode = videoLink.replace(reUrlVimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
                 }
 
             } else if (mediaOption.URL.match(reVideo)) {
-                htmlCode = '<figure class="' + mediaContainerClass + '"><div role="application"><video width="100%" height="380px" controls="controls" aria-describedby="qor-video-' + randomID + '" tabindex="0"><source src="' + mediaOption.URL + '"></video></div><figcaption id="qor-video-' + randomID + '">' + mediaOption.Description + '</figcaption></figure>';
+                videoType = 'uploadedVideo';
+                htmlCode = '<figure class="' + mediaContainerClass + '"><div role="application"><video width="100%" title="' + description + '" aria-label="' + description + '" height="380px" controls="controls" aria-describedby="'+ videoIdentification +'" tabindex="0"><source src="' + mediaOption.URL + '"></video></div><figcaption id="'+ videoIdentification +'">' + description + '</figcaption></figure>';
+            }
+
+            if (!htmlCode) {
+                return;
             }
 
             $currentTag = this.selection.$currentTag;
-            $currentTag && $currentTag.after(htmlCode);
+            $currentTag && $(htmlCode).addClass(videoIdentification).insertAfter($currentTag);
             this.code.sync();
+
+            // trigger insertedVideo.redactor event after inserted videos
+            callbackData.type = videoType;
+            callbackData.videoLink = videoLink || mediaOption.URL;
+            callbackData.videoIdentification = videoIdentification;
+            callbackData.description = description;
+            callbackData.$editor = this.$editor;
+            callbackData.$element = this.$element;
+
+            this.$element.trigger('insertedVideo.redactor', [callbackData]);
         },
 
-        insertImages: function (data) {
+        insertImage: function (data) {
             var src,
                 $currentTag,
                 $img = $('<img>'),

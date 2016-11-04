@@ -90,11 +90,10 @@
 
       $(CLASS_UPLOAD_VIDEO_TABLE).each(function () {
         var $this = $(this),
-            url = $this.data().videolink,
+            url = $this.data('videolink'),
             videoType = url && url.match(/\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/);
 
         if (videoType) {
-          $this.closest('tr').data('isUploadedVideo', true);
           $this.parent().addClass('qor-table--video qor-table--video-internal').html('<video width=100% height=100% controls><source src="' + url + '"></video>');
         }
 
@@ -106,7 +105,6 @@
             ID = getYoutubeID(url);
 
         if (ID) {
-          $this.closest('tr').data('isExternalVideo', true);
           $this.parent().addClass('qor-table--video qor-table--video-external').html('<iframe width="100%" height="100%" src="//www.youtube.com/embed/' + ID + '?rel=0" frameborder="0" allowfullscreen></iframe>');
         }
 
