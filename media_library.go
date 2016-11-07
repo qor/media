@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"reflect"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -17,50 +18,72 @@ import (
 
 type MediaLibraryInterface interface {
 	ScanMediaOptions(MediaOption) error
+	SetSelectedType(string)
+	GetSelectedType() string
 	GetMediaOption() MediaOption
 }
 
 type MediaLibrary struct {
 	gorm.Model
-	File MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
+	SelectedType string
+	File         MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
 }
 
 type MediaOption struct {
-	FileName    string                 `json:",omitempty"`
-	URL         string                 `json:",omitempty"`
-	OriginalURL string                 `json:",omitempty"`
-	CropOptions map[string]*CropOption `json:",omitempty"`
-	Sizes       map[string]Size        `json:",omitempty"`
+	Video        string                 `json:",omitempty"`
+	FileName     string                 `json:",omitempty"`
+	URL          string                 `json:",omitempty"`
+	OriginalURL  string                 `json:",omitempty"`
+	CropOptions  map[string]*CropOption `json:",omitempty"`
+	Sizes        map[string]Size        `json:",omitempty"`
+	SelectedType string                 `json:",omitempty"`
+	Description  string                 `json:",omitempty"`
+	Crop         bool
 }
 
 func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) error {
 	if bytes, err := json.Marshal(mediaOption); err == nil {
-		mediaLibrary.File.Crop = true
 		return mediaLibrary.File.Scan(bytes)
 	} else {
 		return err
 	}
 }
 
-func (mediaLibrary *MediaLibrary) GetMediaOption() (mediaOption MediaOption) {
-	mediaOption.FileName = mediaLibrary.File.FileName
-	mediaOption.URL = mediaLibrary.File.URL()
-	mediaOption.OriginalURL = mediaLibrary.File.URL("original")
-	mediaOption.CropOptions = mediaLibrary.File.CropOptions
-	mediaOption.Sizes = mediaLibrary.File.GetSizes()
-	return
+func (mediaLibrary *MediaLibrary) GetMediaOption() MediaOption {
+	return MediaOption{
+		Video:        mediaLibrary.File.Video,
+		FileName:     mediaLibrary.File.FileName,
+		URL:          mediaLibrary.File.URL(),
+		OriginalURL:  mediaLibrary.File.URL("original"),
+		CropOptions:  mediaLibrary.File.CropOptions,
+		Sizes:        mediaLibrary.File.GetSizes(),
+		SelectedType: mediaLibrary.File.SelectedType,
+		Description:  mediaLibrary.File.Description,
+	}
+}
+
+func (mediaLibrary *MediaLibrary) SetSelectedType(typ string) {
+	mediaLibrary.SelectedType = typ
+}
+
+func (mediaLibrary *MediaLibrary) GetSelectedType() string {
+	return mediaLibrary.SelectedType
 }
 
 func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
 	if res, ok := res.(*admin.Resource); ok {
 		res.UseTheme("grid")
+		res.UseTheme("media_library")
 		res.IndexAttrs("File")
 	}
 }
 
 type MediaLibraryStorage struct {
 	FileSystem
-	Sizes map[string]Size `json:",omitempty"`
+	Sizes        map[string]Size `json:",omitempty"`
+	Video        string
+	SelectedType string
+	Description  string
 }
 
 func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]Size {
@@ -134,6 +157,7 @@ func (mediaLibraryStorage MediaLibraryStorage) Value() (driver.Value, error) {
 
 func (mediaLibraryStorage MediaLibraryStorage) ConfigureQorMeta(metaor resource.Metaor) {
 	if meta, ok := metaor.(*admin.Meta); ok {
+		meta.Type = "media_library"
 		meta.SetFormattedValuer(func(record interface{}, context *qor.Context) interface{} {
 			return meta.GetValuer()(record, context)
 		})
@@ -203,6 +227,10 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				config.RemoteDataResource = mediaLibraryResource
 			}
 
+			if _, ok := config.RemoteDataResource.Value.(MediaLibraryInterface); !ok {
+				utils.ExitWithMsg("%v havn't implement MediaLibraryInterface, please fix that.", reflect.TypeOf(config.RemoteDataResource.Value))
+			}
+
 			if meta := config.RemoteDataResource.GetMeta("MediaOption"); meta == nil {
 				config.RemoteDataResource.Meta(&admin.Meta{
 					Name: "MediaOption",
@@ -229,9 +257,49 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				})
 			}
 
+			if meta := config.RemoteDataResource.GetMeta("SelectedType"); meta == nil {
+				config.RemoteDataResource.Meta(&admin.Meta{
+					Name: "SelectedType",
+					Type: "hidden",
+					Valuer: func(record interface{}, context *qor.Context) interface{} {
+						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+							return mediaLibrary.GetSelectedType()
+						}
+						return ""
+					},
+				})
+			}
+
+			config.RemoteDataResource.AddProcessor(func(record interface{}, metaValues *resource.MetaValues, context *qor.Context) error {
+				if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+					if metaValue := metaValues.Get("MediaOption"); metaValue != nil {
+						var mediaOption MediaOption
+						mediaOptionStr := utils.ToString(metaValue.Value)
+						json.Unmarshal([]byte(mediaOptionStr), &mediaOption)
+
+						name := mediaOption.FileName
+						if name == "" {
+							name = mediaOption.URL
+						}
+
+						if _, err := getImageFormat(name); err == nil {
+							mediaLibrary.SetSelectedType("image")
+						} else if isVideoFormat(name) {
+							mediaLibrary.SetSelectedType("video")
+						} else if mediaOption.SelectedType == "video_link" {
+							mediaLibrary.SetSelectedType("video_link")
+						} else {
+							mediaLibrary.SetSelectedType("file")
+						}
+					}
+				}
+				return nil
+			})
+
 			config.RemoteDataResource.UseTheme("grid")
+			config.RemoteDataResource.UseTheme("media_library")
 			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
-			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "-MediaOption")
+			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "MediaOption")
 			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "MediaOption")
 
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
@@ -243,8 +311,9 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 }
 
 type File struct {
-	ID  json.Number
-	Url string
+	ID          json.Number
+	Url         string
+	Description string
 }
 
 func (file File) URL(styles ...string) string {
@@ -261,6 +330,7 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 		record := res.NewStruct()
 		if err = res.CallFindOne(record, nil, context); err == nil {
 			if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+				mediaOption.Crop = true
 				if err = mediaLibrary.ScanMediaOptions(mediaOption); err == nil {
 					err = res.CallSave(record, context)
 				}
@@ -275,6 +345,7 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 	return
 }
 
+// MediaBoxConfig configure MediaBox metas
 type MediaBoxConfig struct {
 	RemoteDataResource *admin.Resource
 	Sizes              map[string]Size
