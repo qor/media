@@ -4,7 +4,7 @@
   <div class="qor-tab__radio">
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-file">
       <input type="radio" id="qor-swtichtab-file" class="mdl-radio__button ignore-dirtyform" name="options" data-tab-target="file" value="1" {{if not (eq $value.SelectedType "video_link")}} checked {{end}}>
-      <span class="mdl-radio__label">{{t "qor_media_library.media_switcher.file" "File"}}</span>
+      <span class="mdl-radio__label">{{t "qor_media_library.media_switcher.image_or_file" "Image or File"}}</span>
     </label>
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="qor-swtichtab-video">
       <input type="radio" id="qor-swtichtab-video" class="mdl-radio__button ignore-dirtyform" data-tab-target="video_link" name="options" value="2" {{if (eq $value.SelectedType "video_link")}} checked {{end}}>
@@ -19,7 +19,7 @@
       <div class="qor-field">
         <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
           <label class="qor-field__label mdl-textfield__label" for="ProductVideo_desc">
-            {{t "qor_media_library.media_library.enter_video_link" "Enter Video Link"}}
+            {{t "qor_media_library.media_library.video_url" "Video URL"}}
           </label>
           <input type="text" class="mdl-textfield__input qor-video__link" value="{{$value.Video}}" id="ProductVideo_desc" />
         </div>
@@ -28,7 +28,7 @@
       <div class="qor-field">
         <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
           <label class="qor-field__label mdl-textfield__label">
-            {{t "qor_media_library.form.video_description" "Video Description"}}
+            {{t "qor_media_library.form.video_description_for_accessibility" "Video Description for Accessibility"}}
           </label>
           <div class="qor-field__edit">
             <input class="mdl-textfield__input qor-medialibrary__desc" type="text" value="" data-image-info="{{$value.Value}}" />
@@ -48,7 +48,7 @@
       <div class="qor-field qor-medialibrary__image-desc">
         <div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
           <label class="qor-field__label mdl-textfield__label" for="ProductImage_desc">
-            {{t "qor_media_library.form.Description" "Description"}}
+            {{t "qor_media_library.form.description_for_accessibility" "Description for Accessibility"}}
           </label>
           <div class="qor-field__edit">
             <input class="mdl-textfield__input qor-medialibrary__desc" id="ProductImage_desc" type="text" value="" data-image-info="{{$value.Value}}" />
