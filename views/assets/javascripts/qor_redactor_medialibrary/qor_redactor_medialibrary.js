@@ -75,10 +75,12 @@
         insertVideo: function (data) {
             this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
 
-            var htmlCode, videoLink, $currentTag, iframeStart, iframeEnd, videoType, callbackData = {},
+            var htmlCode, videoLink, iframeStart, iframeEnd, videoType, $html,
+                callbackData = {},
                 mediaContainerClass = this.opts.mediaContainerClass,
                 reUrlYoutube = this.opts.regexps.linkyoutube,
                 reUrlVimeo = this.opts.regexps.linkvimeo,
+                $currentTag = this.selection.$currentTag,
                 reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
                 randomString = (Math.random() + 1).toString(36).substring(7),
                 videoIdentification = 'qor-video-' + randomString,
@@ -110,8 +112,14 @@
                 return;
             }
 
-            $currentTag = this.selection.$currentTag;
-            $currentTag && $(htmlCode).addClass(videoIdentification).insertAfter($currentTag);
+            $html = $(htmlCode).addClass(videoIdentification);
+
+            if ($currentTag) {
+                $currentTag.after($html);
+            } else {
+                this.$editor.prepend($html);
+            }
+
             this.code.sync();
 
             // trigger insertedVideo.redactor event after inserted videos
@@ -127,10 +135,11 @@
 
         insertImage: function (data) {
             var src,
-                $currentTag,
+                $currentTag = this.selection.$currentTag,
                 $img = $('<img>'),
                 $figure = $('<' + this.opts.imageTag + '>'),
-                mediaOption = data.MediaOption;
+                mediaOption = data.MediaOption,
+                callbackData = {};
 
             src = mediaOption.URL.replace(/image\..+\./, 'image.');
 
@@ -140,10 +149,22 @@
             });
             $figure.append($img);
 
-            $currentTag = this.selection.$currentTag;
-            $currentTag && $currentTag.after($figure);
+            if ($currentTag) {
+                $currentTag.after($figure);
+            } else {
+                this.$editor.prepend($figure);
+            }
+
             this.image.setEditable($img);
             this.code.sync();
+
+            // trigger insertedVideo.redactor event after inserted images
+            callbackData.description = mediaOption.Description;
+            callbackData.$img = $figure;
+            callbackData.$editor = this.$editor;
+            callbackData.$element = this.$element;
+
+            this.$element.trigger('insertedImage.redactor', [callbackData]);
         }
     };
 };
