@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"path"
 	"reflect"
 	"strings"
@@ -272,25 +273,30 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 
 			config.RemoteDataResource.AddProcessor(func(record interface{}, metaValues *resource.MetaValues, context *qor.Context) error {
 				if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+					var filename string
+					var mediaOption MediaOption
+
+					for _, metaValue := range metaValues.Values {
+						if fileHeaders, ok := metaValue.Value.([]*multipart.FileHeader); ok {
+							for _, fileHeader := range fileHeaders {
+								filename = fileHeader.Filename
+							}
+						}
+					}
+
 					if metaValue := metaValues.Get("MediaOption"); metaValue != nil {
-						var mediaOption MediaOption
 						mediaOptionStr := utils.ToString(metaValue.Value)
 						json.Unmarshal([]byte(mediaOptionStr), &mediaOption)
+					}
 
-						name := mediaOption.FileName
-						if name == "" {
-							name = mediaOption.URL
-						}
-
-						if _, err := getImageFormat(name); err == nil {
-							mediaLibrary.SetSelectedType("image")
-						} else if isVideoFormat(name) {
-							mediaLibrary.SetSelectedType("video")
-						} else if mediaOption.SelectedType == "video_link" {
-							mediaLibrary.SetSelectedType("video_link")
-						} else {
-							mediaLibrary.SetSelectedType("file")
-						}
+					if _, err := getImageFormat(filename); err == nil {
+						mediaLibrary.SetSelectedType("image")
+					} else if isVideoFormat(filename) {
+						mediaLibrary.SetSelectedType("video")
+					} else if mediaOption.SelectedType == "video_link" {
+						mediaLibrary.SetSelectedType("video_link")
+					} else {
+						mediaLibrary.SetSelectedType("file")
 					}
 				}
 				return nil
