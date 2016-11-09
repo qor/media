@@ -289,14 +289,16 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 						json.Unmarshal([]byte(mediaOptionStr), &mediaOption)
 					}
 
-					if _, err := getImageFormat(filename); err == nil {
-						mediaLibrary.SetSelectedType("image")
-					} else if isVideoFormat(filename) {
-						mediaLibrary.SetSelectedType("video")
-					} else if mediaOption.SelectedType == "video_link" {
+					if mediaOption.SelectedType == "video_link" {
 						mediaLibrary.SetSelectedType("video_link")
-					} else {
-						mediaLibrary.SetSelectedType("file")
+					} else if filename != "" {
+						if _, err := getImageFormat(filename); err == nil {
+							mediaLibrary.SetSelectedType("image")
+						} else if isVideoFormat(filename) {
+							mediaLibrary.SetSelectedType("video")
+						} else {
+							mediaLibrary.SetSelectedType("file")
+						}
 					}
 				}
 				return nil
