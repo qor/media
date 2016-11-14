@@ -250,7 +250,7 @@ func getImageFormat(url string) (*imaging.Format, error) {
 		".gif":  imaging.GIF,
 	}
 
-	ext := strings.ToLower(filepath.Ext(url))
+	ext := strings.ToLower(regexp.MustCompile(`(\?.*?$)`).ReplaceAllString(filepath.Ext(url), ""))
 	if f, ok := formats[ext]; ok {
 		return &f, nil
 	}
@@ -260,7 +260,7 @@ func getImageFormat(url string) (*imaging.Format, error) {
 func isVideoFormat(name string) bool {
 	formats := []string{".mp4", ".m4p", ".m4v", ".m4v", ".mov", ".mpeg", ".webm", ".avi", ".ogg", ".ogv"}
 
-	ext := strings.ToLower(filepath.Ext(name))
+	ext := strings.ToLower(regexp.MustCompile(`(\?.*?$)`).ReplaceAllString(filepath.Ext(url), ""))
 
 	for _, format := range formats {
 		if format == ext {
