@@ -250,10 +250,8 @@
         item['Sizes'][sizeData.sizeName] = {};
         for (var i = 0; i < sizes.length; i++) {
           sizeResolutionData = sizeData['sizeResolution' + sizes[i]];
-          console.log(sizeResolutionData);
           if (!sizeResolutionData) {
             sizeResolutionData = sizeData['sizeResolution'][sizes[i]];
-            console.log(sizeResolutionData);
           }
           item['Sizes'][sizeData.sizeName][sizes[i]] = sizeResolutionData;
         }
