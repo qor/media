@@ -236,7 +236,7 @@
           url = $ele.data().mediaLibraryUrl,
           syncData = {},
           sizes = ['Width','Height'],
-          sizeResolutionName,
+          sizeResolutionData,
           sizeData,
           $imgs = $ele.find('img[data-size-name]');
 
@@ -249,8 +249,13 @@
         sizeData = $(this).data();
         item['Sizes'][sizeData.sizeName] = {};
         for (var i = 0; i < sizes.length; i++) {
-          sizeResolutionName = 'sizeResolution' + sizes[i];
-          item['Sizes'][sizeData.sizeName][sizes[i]] = sizeData[sizeResolutionName];
+          sizeResolutionData = sizeData['sizeResolution' + sizes[i]];
+          console.log(sizeResolutionData);
+          if (!sizeResolutionData) {
+            sizeResolutionData = sizeData['sizeResolution'][sizes[i]];
+            console.log(sizeResolutionData);
+          }
+          item['Sizes'][sizeData.sizeName][sizes[i]] = sizeResolutionData;
         }
       });
 
