@@ -76,3 +76,21 @@ func (s CloudFront) Store(url string, option *media_library.Option, reader io.Re
 	_, err = s3client().PutObject(params)
 	return err
 }
+
+// Retrieve retrieve file content with url
+func (s CloudFront) Retrieve(url string) (file *os.File, err error) {
+	if !strings.HasPrefix(url, "http") {
+		url = "http:" + url
+	}
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	if file, err = ioutil.TempFile("/tmp", "s3"); err == nil {
+		_, err := io.Copy(file, response.Body)
+		return file, err
+	}
+	return nil, err
+}
