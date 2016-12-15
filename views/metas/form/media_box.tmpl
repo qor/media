@@ -50,6 +50,9 @@
              data-select-modal="mediabox"
              data-select-id={{.InputId}}
              title="{{t "qor_media_library.form.choose_file" "Choose File"}}"
+             {{if $metaConfig.Sizes}}
+             data-crop-sizes="{{range $key, $size := $metaConfig.Sizes}}{{$key}},{{end}}"
+             {{end}}
              {{if not (has_update_permission .Meta)}}
              disabled
              data-is-disabled="true"
@@ -64,6 +67,8 @@
     </div>
   </div>
 
+
+  
 
   <script name="media-box-template" type="x-tmpl-mustache">
     [[#MediaOption]]
