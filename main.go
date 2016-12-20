@@ -34,7 +34,7 @@ type Media interface {
 	GetFileHeader() FileHeader
 	GetFileName() string
 
-	GetSizes() map[string]Size
+	GetSizes() map[string]*Size
 	NeedCrop() bool
 	Cropped(values ...bool) bool
 	GetCropOption(name string) *image.Rectangle
