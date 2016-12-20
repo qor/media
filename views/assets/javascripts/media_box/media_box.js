@@ -337,7 +337,6 @@
                 }
             }
 
-
             if (maxItem && selectedItem >= maxItem) {
                 if (maxItem == 1) {
                     this.$selectFeild.find(CLASS_ITEM).remove();
@@ -355,6 +354,10 @@
                     }, 1000);
                 }
                 return;
+            }
+
+            if (maxItem == 1) {
+                this.$selectFeild.find(CLASS_ITEM).filter('.is_deleted').remove();
             }
 
             $template.data('description', data.MediaOption.Description);
