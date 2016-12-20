@@ -289,9 +289,16 @@
 
         compareCropSizes: function(data) {
             var cropOptions = data.MediaOption.CropOptions,
-                needCropSizes = this.bottomsheetsData.cropSizes.split(','),
-                needCropSizesSize = needCropSizes.length - 1,
+                needCropSizes = this.bottomsheetsData.cropSizes,
+                needCropSizesSize,
                 cropOptionsKeys;
+
+            if (!needCropSizes) {
+                return false;
+            }
+
+            needCropSizes = needCropSizes.split(',');
+            needCropSizesSize = needCropSizes.length - 1;
 
             if (window._.isObject(cropOptions)) {
                 cropOptionsKeys = Object.keys(cropOptions);
