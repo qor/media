@@ -208,8 +208,8 @@ func (b Base) Retrieve(url string) (*os.File, error) {
 }
 
 // GetSizes get configured sizes, it will be used to crop images accordingly
-func (b Base) GetSizes() map[string]Size {
-	return map[string]Size{}
+func (b Base) GetSizes() map[string]*Size {
+	return map[string]*Size{}
 }
 
 // IsImage return if it is an image

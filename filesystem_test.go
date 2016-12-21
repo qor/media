@@ -19,7 +19,7 @@ type MyFileSystem struct {
 	media_library.FileSystem
 }
 
-func (MyFileSystem) GetSizes() map[string]media_library.Size {
+func (MyFileSystem) GetSizes() map[string]*media_library.Size {
 	return map[string]media_library.Size{
 		"small1": {20, 10},
 		"small2": {20, 10},

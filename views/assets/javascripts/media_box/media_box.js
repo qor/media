@@ -289,9 +289,16 @@
 
         compareCropSizes: function(data) {
             var cropOptions = data.MediaOption.CropOptions,
-                needCropSizes = this.bottomsheetsData.cropSizes.split(','),
-                needCropSizesSize = needCropSizes.length - 1,
+                needCropSizes = this.bottomsheetsData.cropSizes,
+                needCropSizesSize,
                 cropOptionsKeys;
+
+            if (!needCropSizes) {
+                return false;
+            }
+
+            needCropSizes = needCropSizes.split(',');
+            needCropSizesSize = needCropSizes.length - 1;
 
             if (window._.isObject(cropOptions)) {
                 cropOptionsKeys = Object.keys(cropOptions);
@@ -330,7 +337,6 @@
                 }
             }
 
-
             if (maxItem && selectedItem >= maxItem) {
                 if (maxItem == 1) {
                     this.$selectFeild.find(CLASS_ITEM).remove();
@@ -348,6 +354,10 @@
                     }, 1000);
                 }
                 return;
+            }
+
+            if (maxItem == 1) {
+                this.$selectFeild.find(CLASS_ITEM).filter('.is_deleted').remove();
             }
 
             $template.data('description', data.MediaOption.Description);
