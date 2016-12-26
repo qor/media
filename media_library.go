@@ -306,6 +306,9 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 
 			config.RemoteDataResource.UseTheme("grid")
 			config.RemoteDataResource.UseTheme("media_library")
+			if config.RemoteDataResource.Config.PageCount == 0 {
+				config.RemoteDataResource.Config.PageCount = admin.PaginationPageCount / 2 * 3
+			}
 			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
 			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "MediaOption")
 			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "MediaOption")
