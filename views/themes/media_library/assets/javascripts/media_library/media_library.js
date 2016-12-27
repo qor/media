@@ -40,6 +40,25 @@
         }
     }
 
+    function getYoukuID(url) {
+        /******
+        
+        // <iframe height=498 width=510 src='http://player.youku.com/embed/XMTM1NzQ0NTQ4' frameborder=0 'allowfullscreen'></iframe>
+        // http://player.youku.com/player.php/sid/XMTM1NzQ0NTQ4/v.swf
+        // <embed src='http://player.youku.com/player.php/sid/XMTM1NzQ0NTQ4/v.swf' allowFullScreen='true' quality='high' width='480' height='400' align='middle' allowScriptAccess='always' type='application/x-shockwave-flash'></embed>
+        // http://v.youku.com/v_show/id_XMTc4MjU2NTk4OA.html
+
+        *****/
+
+        var regExp = /(\/id_)(\w+)\.html/;
+        var match = url.match(regExp);
+        if (match && match[2]) {
+            return match[2];
+        } else {
+            return false;
+        }
+    }
+
     function QorMedialibraryAction(element, options) {
         this.$element = $(element);
         this.options = $.extend({}, QorMedialibraryAction.DEFAULTS, $.isPlainObject(options) && options);
@@ -118,10 +137,15 @@
             $linkedvideo.each(function() {
                 var $this = $(this),
                     url = $this.data('videolink'),
-                    ID = getYoutubeID(url);
+                    youtubeID = getYoutubeID(url),
+                    youkuID = getYoukuID(url);
 
-                if (ID) {
-                    $this.parent().addClass('qor-table--video qor-table--video-external').html('<iframe width="100%" height="100%" src="//www.youtube.com/embed/' + ID + '?rel=0" frameborder="0" allowfullscreen></iframe>');
+                if (youtubeID) {
+                    $this.parent().addClass('qor-table--video qor-table--video-external').html('<iframe width="100%" height="100%" src="//www.youtube.com/embed/' + youtubeID + '?rel=0" frameborder="0" allowfullscreen></iframe>');
+                }
+
+                if (youkuID) {
+                    $this.parent().addClass('qor-table--video qor-table--video-external').html('<iframe width=100% height=100% src="http://player.youku.com/embed/' + youkuID + '" frameborder=0 "allowfullscreen"></iframe>');
                 }
 
             });
@@ -135,18 +159,23 @@
                 fileOption = JSON.parse($fileOption.val()),
                 url = $input.val(),
                 $iframe = $parent.find('iframe'),
-                youtubeID = getYoutubeID(url);
+                youtubeID = getYoutubeID(url),
+                youkuID = getYoukuID(url);
 
             fileOption.SelectedType = 'video_link';
             fileOption.Video = url;
 
             this.setMediaData($form, fileOption);
 
-            if (youtubeID) {
+            if (youtubeID || youkuID) {
                 $iframe.length && $iframe.remove();
-                $parent.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0" frameborder="0" allowfullscreen></iframe>');
+                if (youtubeID) {
+                    $parent.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + youtubeID + '?rel=0" frameborder="0" allowfullscreen></iframe>');
+                }
+                if (youkuID) {
+                    $parent.append('<iframe width=100% height=400 src="http://player.youku.com/embed/' + youkuID + '" frameborder=0 "allowfullscreen"></iframe>');
+                }
             }
-
         },
 
         resetMediaData: function(e, element, type) {
@@ -178,14 +207,23 @@
 
     $.fn.qorSliderAfterShow = $.fn.qorSliderAfterShow || {};
     $.fn.qorSliderAfterShow.renderMediaVideo = function() {
+
         var $render = $(CLASS_VIDEO_TAB),
             $desc = $(CLASS_IMAGE_DESC),
-            url = $render.length && $render.data().videourl;
+            url = $render.length && $render.data().videourl,
+            youtubeID = getYoutubeID(url),
+            youkuID = getYoukuID(url);
 
         $desc.length && $desc.val($desc.data().imageInfo.Description);
 
         if ($render.length && url) {
-            $render.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + getYoutubeID(url) + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+            if (youtubeID) {
+                $render.append('<iframe width="100%" height="400" src="//www.youtube.com/embed/' + youtubeID + '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>');
+            }
+            if (youkuID) {
+                $render.append('<iframe width=100% height=400 src="http://player.youku.com/embed/' + youkuID + '" frameborder=0 "allowfullscreen"></iframe>');
+            }
+
         }
     };
 
