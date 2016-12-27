@@ -82,7 +82,7 @@ $(function() {
                     reUrlYoutube = this.opts.regexps.linkyoutube,
                     reUrlVimeo = this.opts.regexps.linkvimeo,
                     reUrlYouku = /http?:\/\/(www\.)|(v\.)youku.com/,
-                    reUrlYoukuID = /(\/id_)(\w+)\.html/,
+                    reUrlYoukuID = /(\/id_)(\w+)/,
                     $currentTag = this.selection.$currentTag,
                     reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
                     randomString = (Math.random() + 1).toString(36).substring(7),

@@ -50,9 +50,10 @@
 
         *****/
 
-        var regExp = /(\/id_)(\w+)\.html/;
-        var match = url.match(regExp);
-        if (match && match[2]) {
+        var regExp = /(\/id_)(\w+)/,
+            regYouku = /http?:\/\/(www\.)|(v\.)youku.com/,
+            match = url.match(regExp);
+        if (regYouku.test(url) && match && match[2]) {
             return match[2];
         } else {
             return false;
@@ -166,7 +167,7 @@
             fileOption.Video = url;
 
             this.setMediaData($form, fileOption);
-
+            
             if (youtubeID || youkuID) {
                 $iframe.length && $iframe.remove();
                 if (youtubeID) {
