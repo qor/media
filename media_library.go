@@ -359,7 +359,7 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 // MediaBoxConfig configure MediaBox metas
 type MediaBoxConfig struct {
 	RemoteDataResource *admin.Resource
-	Sizes              map[string]Size
+	Sizes              map[string]*Size
 	Max                uint
 	admin.SelectManyConfig
 }
