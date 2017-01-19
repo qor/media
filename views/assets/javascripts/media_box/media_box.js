@@ -1,4 +1,4 @@
-(function(factory) {
+(function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as anonymous module.
         define(['jquery'], factory);
@@ -9,7 +9,7 @@
         // Browser globals.
         factory(jQuery);
     }
-})(function($) {
+})(function ($) {
 
     'use strict';
 
@@ -45,14 +45,14 @@
     QorMediaBox.prototype = {
         constructor: QorMediaBox,
 
-        init: function() {
+        init: function () {
             var $element = this.$element;
             this.SELECT_MEDIABOX_UNDO_TEMPLATE = $element.find('[name="media-box-undo-delete"]').html();
             this.bind();
             this.initSelectedMedia();
         },
 
-        bind: function() {
+        bind: function () {
             $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this)).
             on(EVENT_RELOAD, '.' + CLASS_MEDIABOX, this.reloadData.bind(this));
 
@@ -62,7 +62,7 @@
                 .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.imageCrop.bind(this));
         },
 
-        deleteSelected: function(e) {
+        deleteSelected: function (e) {
             var $target = $(e.target),
                 $selectFeild = $target.closest(CLASS_ITEM);
 
@@ -72,7 +72,7 @@
             return false;
         },
 
-        undoDeleteSelected: function(e) {
+        undoDeleteSelected: function (e) {
             var $target = $(e.target),
                 $selectFeild = $target.closest(CLASS_ITEM);
 
@@ -83,12 +83,12 @@
             return false;
         },
 
-        imageCrop: function(e) {
+        imageCrop: function (e) {
             var $parent = $(e.target).closest(CLASS_ITEM);
             this.syncImageCrop($parent);
         },
 
-        openBottomSheets: function(e) {
+        openBottomSheets: function (e) {
             var $ele = $(e.target).closest('[data-mediabox-url]'),
                 data = $ele.data(),
                 $parent;
@@ -115,7 +115,7 @@
 
         },
 
-        initSelectedMedia: function() {
+        initSelectedMedia: function () {
             var $element = this.$element,
                 $selectedMedias = $element.find(CLASS_ITEM),
                 $selectedMedia,
@@ -133,7 +133,7 @@
             }
         },
 
-        initMedia: function() {
+        initMedia: function () {
             var $selectFeild = this.$selectFeild,
                 $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
                 $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
@@ -142,13 +142,13 @@
                 $img,
                 key;
 
-            $items.each(function() {
+            $items.each(function () {
                 key = $(this).data().primaryKey;
                 $tr = $trs.filter('[data-primary-key="' + key + '"]').addClass(CLASS_SELECTED);
                 _this.changeIcon($tr, true);
             });
 
-            $trs.each(function() {
+            $trs.each(function () {
                 $tr = $(this);
                 $img = $tr.find('.qor-table--ml-slideout p img').first();
                 $tr.find('.qor-table__actions').remove();
@@ -162,26 +162,26 @@
             }
         },
 
-        reloadData: function() {
+        reloadData: function () {
             this.$selectFeild && this.initMedia();
         },
 
-        renderSelectMany: function(data) {
+        renderSelectMany: function (data) {
             return window.Mustache.render(this.SELECT_MEDIABOX_TEMPLATE, data);
         },
 
-        renderHint: function(data) {
+        renderHint: function (data) {
             return window.Mustache.render(this.SELECT_MANY_HINT, data);
         },
 
-        getSelectedItemData: function($ele) {
+        getSelectedItemData: function ($ele) {
             var $selectFeild = $ele ? $ele : this.$selectFeild,
                 $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
                 files = [],
                 item;
 
             if ($items.size()) {
-                $items.each(function() {
+                $items.each(function () {
                     item = $(this).data();
 
                     files.push({
@@ -198,7 +198,7 @@
             };
         },
 
-        updateHint: function(data) {
+        updateHint: function (data) {
             var template;
 
             $.extend(data, this.bottomsheetsData);
@@ -208,14 +208,15 @@
             $(CLASS_BOTTOMSHEETS).find('.qor-page__body').before(template);
         },
 
-        updateMediaLibraryData: function($ele) {
+        updateMediaLibraryData: function ($ele) {
             var $dataInput = $ele ? $ele.find(CLASS_LISTS_DATA) : this.$selectFeild.find(CLASS_LISTS_DATA),
                 data = this.getSelectedItemData($ele);
 
-            $dataInput.val(JSON.stringify(data.files));
+            console.log($dataInput);
+            $dataInput.val(JSON.stringify(data.files)).trigger('changed.medialibrary');
         },
 
-        changeIcon: function($ele, isNew) {
+        changeIcon: function ($ele, isNew) {
 
             var $item = $ele.find('.qor-table--medialibrary-item'),
                 $target = $item.size() ? $item : $ele.find('td:first');
@@ -231,7 +232,7 @@
 
         },
 
-        syncImageCrop: function($ele, callback) {
+        syncImageCrop: function ($ele, callback) {
             var item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
                 url = $ele.data().mediaLibraryUrl,
                 syncData = {},
@@ -245,7 +246,7 @@
 
             item.Sizes = {};
 
-            $imgs.each(function() {
+            $imgs.each(function () {
                 sizeData = $(this).data();
                 item['Sizes'][sizeData.sizeName] = {};
                 for (var i = 0; i < sizes.length; i++) {
@@ -265,7 +266,7 @@
                 data: JSON.stringify(syncData),
                 contentType: "application/json",
                 dataType: 'json',
-                success: function(data) {
+                success: function (data) {
                     syncData.MediaOption = JSON.parse(data.MediaOption);
 
                     if (callback && $.isFunction(callback)) {
@@ -275,19 +276,19 @@
             });
         },
 
-        showHiddenItem: function($hiddenItem) {
+        showHiddenItem: function ($hiddenItem) {
             $hiddenItem.removeClass(CLASS_DELETE).find('.qor-file__list').show();
             $hiddenItem.find('.qor-fieldset__alert').remove();
         },
 
-        removeItem: function(data) {
+        removeItem: function (data) {
             var primaryKey = data.primaryKey;
 
             this.$selectFeild.find('[data-primary-key="' + primaryKey + '"]').remove();
             this.changeIcon(data.$clickElement);
         },
 
-        compareCropSizes: function(data) {
+        compareCropSizes: function (data) {
             var cropOptions = data.MediaOption.CropOptions,
                 needCropSizes = this.bottomsheetsData.cropSizes,
                 needCropSizesSize,
@@ -317,7 +318,7 @@
             return false;
         },
 
-        addItem: function(data, isNewData) {
+        addItem: function (data, isNewData) {
             var $template = $(this.renderSelectMany(data)),
                 $input = $template.find('.qor-file__input'),
                 $item = $input.closest(CLASS_ITEM),
@@ -349,7 +350,7 @@
             if ($hiddenItem.size()) {
                 this.showHiddenItem($hiddenItem);
                 if (maxItem == 1) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         _this.BottomSheets.hide();
                     }, 1000);
                 }
@@ -374,20 +375,20 @@
 
             // if not have crop options or have crop options but have anothre size name to crop
             if (!cropOptions || needCropSize) {
-                $input.data('qor.cropper').load(data.MediaOption.URL, function() {
+                $input.data('qor.cropper').load(data.MediaOption.URL, function () {
                     _this.syncImageCrop($item, _this.resetImages);
                 });
             }
 
             if (isNewData || maxItem == 1) {
-                setTimeout(function() {
+                setTimeout(function () {
                     _this.BottomSheets.hide();
                 }, 150);
             }
 
         },
 
-        resetImages: function(data, $template) {
+        resetImages: function (data, $template) {
             var cropOptions = data.MediaOption.CropOptions,
                 keys = Object.keys(cropOptions),
                 url = data.MediaOption.OriginalURL;
@@ -400,7 +401,7 @@
                 cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
             }
 
-            $template.find('img').each(function() {
+            $template.find('img').each(function () {
                 var $this = $(this),
                     sizeName = $this.data().sizeName;
 
@@ -410,7 +411,7 @@
             });
         },
 
-        handleSelectMany: function() {
+        handleSelectMany: function () {
             var $bottomsheets = $(CLASS_BOTTOMSHEETS),
                 options = {
                     onSelect: this.onSelectResults.bind(this), // render selected item after click item lists
@@ -421,15 +422,15 @@
             this.initMedia();
         },
 
-        onSelectResults: function(data) {
+        onSelectResults: function (data) {
             this.handleResults(data);
         },
 
-        onSubmitResults: function(data) {
+        onSubmitResults: function (data) {
             this.handleResults(data, true);
         },
 
-        handleResults: function(data, isNewData) {
+        handleResults: function (data, isNewData) {
             if (isNewData) {
                 data.MediaOption = JSON.parse(data.MediaOption);
                 this.handleResultsData(data, isNewData);
@@ -438,7 +439,7 @@
             }
         },
 
-        handleResultsData: function(data, isNewData) {
+        handleResultsData: function (data, isNewData) {
             var $element = data.$clickElement,
                 isSelected;
 
@@ -464,7 +465,7 @@
             this.updateDatas();
         },
 
-        updateDatas: function() {
+        updateDatas: function () {
             if (this.bottomsheetsData.maxItem != '1') {
                 this.updateHint(this.getSelectedItemData());
             }
@@ -474,8 +475,8 @@
     };
 
 
-    QorMediaBox.plugin = function(options) {
-        return this.each(function() {
+    QorMediaBox.plugin = function (options) {
+        return this.each(function () {
             var $this = $(this);
             var data = $this.data(NAMESPACE);
             var fn;
@@ -494,13 +495,13 @@
         });
     };
 
-    $(function() {
+    $(function () {
         var selector = '[data-toggle="qor.mediabox"]';
         $(document).
-        on(EVENT_DISABLE, function(e) {
+        on(EVENT_DISABLE, function (e) {
             QorMediaBox.plugin.call($(selector, e.target), 'destroy');
         }).
-        on(EVENT_ENABLE, function(e) {
+        on(EVENT_ENABLE, function (e) {
             QorMediaBox.plugin.call($(selector, e.target));
         }).
         triggerHandler(EVENT_ENABLE);
