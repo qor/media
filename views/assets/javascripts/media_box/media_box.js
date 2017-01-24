@@ -212,7 +212,6 @@
             var $dataInput = $ele ? $ele.find(CLASS_LISTS_DATA) : this.$selectFeild.find(CLASS_LISTS_DATA),
                 data = this.getSelectedItemData($ele);
 
-            console.log($dataInput);
             $dataInput.val(JSON.stringify(data.files)).trigger('changed.medialibrary');
         },
 
