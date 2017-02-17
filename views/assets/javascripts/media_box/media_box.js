@@ -208,11 +208,11 @@
             $(CLASS_BOTTOMSHEETS).find('.qor-page__body').before(template);
         },
 
-        updateMediaLibraryData: function ($ele) {
+        updateMediaLibraryData: function ($ele, data) {
             var $dataInput = $ele ? $ele.find(CLASS_LISTS_DATA) : this.$selectFeild.find(CLASS_LISTS_DATA),
-                data = this.getSelectedItemData($ele);
+                fileData = this.getSelectedItemData($ele);
 
-            $dataInput.val(JSON.stringify(data.files)).trigger('changed.medialibrary');
+            $dataInput.val(JSON.stringify(fileData.files)).data('mediaData', data).trigger('changed.medialibrary', [data]);
         },
 
         changeIcon: function ($ele, isNew) {
@@ -360,7 +360,7 @@
                 this.$selectFeild.find(CLASS_ITEM).filter('.is_deleted').remove();
             }
 
-            $template.data('description', data.MediaOption.Description);
+            $template.data({ 'description': data.MediaOption.Description, 'mediaData': data });
             $template.appendTo(this.$selectFeild);
 
             // if image alread have CropOptions, replace original images as [big,middle, small] images.
@@ -449,7 +449,7 @@
             if (isNewData) {
                 data.mediaLibraryUrl = this.bottomsheetsData.mediaboxUrl + '/' + data.primaryKey;
                 this.addItem(data, isNewData);
-                this.updateDatas();
+                this.updateDatas(data);
                 return;
             }
 
@@ -461,14 +461,14 @@
             } else {
                 this.removeItem(data);
             }
-            this.updateDatas();
+            this.updateDatas(data);
         },
 
-        updateDatas: function () {
+        updateDatas: function (data) {
             if (this.bottomsheetsData.maxItem != '1') {
                 this.updateHint(this.getSelectedItemData());
             }
-            this.updateMediaLibraryData();
+            this.updateMediaLibraryData(null, data);
         }
 
     };
