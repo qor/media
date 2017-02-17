@@ -68,6 +68,7 @@
 
             $selectFeild.addClass(CLASS_DELETE).append(this.SELECT_MEDIABOX_UNDO_TEMPLATE).find('.qor-file__list').hide();
             this.updateMediaLibraryData($target.closest(CLASS_LISTS));
+            this.$element.find(CLASS_LISTS_DATA).data('isDeleted', true);
 
             return false;
         },
@@ -79,6 +80,7 @@
             $selectFeild.removeClass(CLASS_DELETE).find('.qor-file__list').show();
             this.updateMediaLibraryData($target.closest(CLASS_LISTS));
             $target.closest('.qor-fieldset__alert').remove();
+            this.$element.find(CLASS_LISTS_DATA).data('isDeleted', false);
 
             return false;
         },
