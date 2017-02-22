@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/disintegration/imaging"
+	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
 	"github.com/jinzhu/inflection"
 	"github.com/qor/admin"
@@ -157,7 +158,7 @@ func getFuncMap(scope *gorm.Scope, field *gorm.Field, filename string) template.
 		"basename":    func() string { return strings.TrimSuffix(path.Base(filename), path.Ext(filename)) },
 		"hash":        hash,
 		"filename_with_hash": func() string {
-			return urlReplacer.ReplaceAllString(fmt.Sprintf("%v.%v%v", strings.TrimSuffix(filename, path.Ext(filename)), hash(), path.Ext(filename)), "-")
+			return urlReplacer.ReplaceAllString(fmt.Sprintf("%s.%v%v", slug.Make(strings.TrimSuffix(path.Base(filename), path.Ext(filename))), hash(), path.Ext(filename)), "-")
 		},
 		"extension": func() string { return strings.TrimPrefix(path.Ext(filename), ".") },
 	}
