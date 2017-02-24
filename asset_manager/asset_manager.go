@@ -1,4 +1,4 @@
-package media_library
+package asset_manager
 
 import (
 	"bytes"
@@ -9,13 +9,14 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/qor/admin"
+	"github.com/qor/media_library/oss"
 	"github.com/qor/qor/resource"
 )
 
 // AssetManager defined a asset manager that could be used to manage assets in qor admin
 type AssetManager struct {
 	gorm.Model
-	File FileSystem `media_library:"URL:/system/assets/{{primary_key}}/{{filename_with_hash}}"`
+	File oss.OSS `media_library:"URL:/system/assets/{{primary_key}}/{{filename_with_hash}}"`
 }
 
 // ConfigureQorResource configure qor locale for Qor Admin
