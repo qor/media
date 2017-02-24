@@ -1,4 +1,4 @@
-package media_test
+package oss_test
 
 import (
 	"image"
@@ -9,18 +9,19 @@ import (
 	"testing"
 
 	"github.com/jinzhu/gorm"
-	"github.com/qor/media_library"
+	"github.com/qor/media"
+	"github.com/qor/media/oss"
 	"github.com/qor/qor/test/utils"
 )
 
 var db = utils.TestDB()
 
 type MyFileSystem struct {
-	media_library.FileSystem
+	oss.OSS
 }
 
-func (MyFileSystem) GetSizes() map[string]*media_library.Size {
-	return map[string]*media_library.Size{
+func (MyFileSystem) GetSizes() map[string]*media.Size {
+	return map[string]*media.Size{
 		"small1": {20, 10},
 		"small2": {20, 10},
 		"square": {30, 30},
@@ -39,20 +40,20 @@ func init() {
 		panic(err)
 	}
 	db.AutoMigrate(&User{})
-	media_library.RegisterCallbacks(db)
+	media.RegisterCallbacks(db)
 }
 
 func TestURLWithoutFile(t *testing.T) {
 	user := User{Name: "jinzhu"}
 
 	if got, want := user.Avatar.URL(), ""; got != want {
-		t.Errorf(`media_library.Base#URL() == %q, want %q`, got, want)
+		t.Errorf(`media.Base#URL() == %q, want %q`, got, want)
 	}
 	if got, want := user.Avatar.URL("big"), ""; got != want {
-		t.Errorf(`media_library.Base#URL("big") == %q, want %q`, got, want)
+		t.Errorf(`media.Base#URL("big") == %q, want %q`, got, want)
 	}
 	if got, want := user.Avatar.URL("small1", "small2"), ""; got != want {
-		t.Errorf(`media_library.Base#URL("small1", "small2") == %q, want %q`, got, want)
+		t.Errorf(`media.Base#URL("small1", "small2") == %q, want %q`, got, want)
 	}
 }
 
@@ -71,7 +72,7 @@ func TestURLWithFile(t *testing.T) {
 
 	filePath = user.Avatar.URL()
 	if _, err := os.Stat(path.Join("public", filePath)); err != nil {
-		t.Errorf(`media_library.Base#URL() == %q, it's an invalid path`, filePath)
+		t.Errorf(`media.Base#URL() == %q, it's an invalid path`, filePath)
 	}
 
 	styleCases := []struct {
@@ -83,10 +84,10 @@ func TestURLWithFile(t *testing.T) {
 	for _, c := range styleCases {
 		filePath = user.Avatar.URL(c.styles...)
 		if _, err := os.Stat(path.Join("public", filePath)); err != nil {
-			t.Errorf(`media_library.Base#URL(%q) == %q, it's an invalid path`, strings.Join(c.styles, ","), filePath)
+			t.Errorf(`media.Base#URL(%q) == %q, it's an invalid path`, strings.Join(c.styles, ","), filePath)
 		}
 		if strings.Split(path.Base(filePath), ".")[2] != c.styles[0] {
-			t.Errorf(`media_library.Base#URL(%q) == %q, it's a wrong path`, strings.Join(c.styles, ","), filePath)
+			t.Errorf(`media.Base#URL(%q) == %q, it's a wrong path`, strings.Join(c.styles, ","), filePath)
 		}
 	}
 }
