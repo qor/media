@@ -1,4 +1,4 @@
-package media_library_test
+package media_test
 
 import (
 	"image"

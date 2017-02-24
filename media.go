@@ -1,29 +1,16 @@
-package media_library
+package media
 
 import (
 	"database/sql/driver"
 	"image"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/jinzhu/gorm"
-	"github.com/qor/qor/utils"
-
-	"os"
 )
 
-// Size is a struct, used for `GetSizes` method, it will return a slice of Size, media library will crop images automatically based on it
-type Size struct {
-	Width  int
-	Height int
-}
-
-// URLTemplater is a interface to return url template
-type URLTemplater interface {
-	GetURLTemplate(*Option) string
-}
-
-// MediaLibrary is an interface including methods that needs for a media library storage
+// Media is an interface including methods that needs for a media library storage
 type Media interface {
 	Scan(value interface{}) error
 	Value() (driver.Value, error)
@@ -49,15 +36,21 @@ type Media interface {
 	String() string
 }
 
+// Size is a struct, used for `GetSizes` method, it will return a slice of Size, media library will crop images automatically based on it
+type Size struct {
+	Width  int
+	Height int
+}
+
+// URLTemplater is a interface to return url template
+type URLTemplater interface {
+	GetURLTemplate(*Option) string
+}
+
 // Option media library option
 type Option map[string]string
 
 // Get used to get option with name
 func (option Option) Get(key string) string {
 	return option[strings.ToUpper(key)]
-}
-
-func parseTagOption(str string) *Option {
-	option := Option(utils.ParseTagOption(str))
-	return &option
 }

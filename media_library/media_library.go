@@ -12,6 +12,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/qor/admin"
+	"github.com/qor/media"
+	"github.com/qor/media/oss"
 	"github.com/qor/qor"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
@@ -31,14 +33,14 @@ type MediaLibrary struct {
 }
 
 type MediaOption struct {
-	Video        string                 `json:",omitempty"`
-	FileName     string                 `json:",omitempty"`
-	URL          string                 `json:",omitempty"`
-	OriginalURL  string                 `json:",omitempty"`
-	CropOptions  map[string]*CropOption `json:",omitempty"`
-	Sizes        map[string]*Size       `json:",omitempty"`
-	SelectedType string                 `json:",omitempty"`
-	Description  string                 `json:",omitempty"`
+	Video        string                       `json:",omitempty"`
+	FileName     string                       `json:",omitempty"`
+	URL          string                       `json:",omitempty"`
+	OriginalURL  string                       `json:",omitempty"`
+	CropOptions  map[string]*media.CropOption `json:",omitempty"`
+	Sizes        map[string]*media.Size       `json:",omitempty"`
+	SelectedType string                       `json:",omitempty"`
+	Description  string                       `json:",omitempty"`
 	Crop         bool
 }
 
@@ -80,20 +82,20 @@ func (MediaLibrary) ConfigureQorResource(res resource.Resourcer) {
 }
 
 type MediaLibraryStorage struct {
-	FileSystem
-	Sizes        map[string]*Size `json:",omitempty"`
+	oss.OSS
+	Sizes        map[string]*media.Size `json:",omitempty"`
 	Video        string
 	SelectedType string
 	Description  string
 }
 
-func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]*Size {
+func (mediaLibraryStorage MediaLibraryStorage) GetSizes() map[string]*media.Size {
 	if len(mediaLibraryStorage.Sizes) == 0 && !(mediaLibraryStorage.GetFileHeader() != nil || mediaLibraryStorage.Crop) {
-		return map[string]*Size{}
+		return map[string]*media.Size{}
 	}
 
-	var sizes = map[string]*Size{
-		"@qor_preview": &Size{Width: 200, Height: 200},
+	var sizes = map[string]*media.Size{
+		"@qor_preview": &media.Size{Width: 200, Height: 200},
 	}
 
 	for key, value := range mediaLibraryStorage.Sizes {
@@ -106,10 +108,10 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 	switch values := data.(type) {
 	case []byte:
 		if mediaLibraryStorage.Sizes == nil {
-			mediaLibraryStorage.Sizes = map[string]*Size{}
+			mediaLibraryStorage.Sizes = map[string]*media.Size{}
 		}
 		if mediaLibraryStorage.CropOptions == nil {
-			mediaLibraryStorage.CropOptions = map[string]*CropOption{}
+			mediaLibraryStorage.CropOptions = map[string]*media.CropOption{}
 		}
 		cropOptions := mediaLibraryStorage.CropOptions
 		sizeOptions := mediaLibraryStorage.Sizes
@@ -132,7 +134,7 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 
 				for key, value := range mediaLibraryStorage.CropOptions {
 					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
-						mediaLibraryStorage.Sizes[key] = &Size{Width: value.Width, Height: value.Height}
+						mediaLibraryStorage.Sizes[key] = &media.Size{Width: value.Width, Height: value.Height}
 					}
 				}
 			}
@@ -292,9 +294,9 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 					if mediaOption.SelectedType == "video_link" {
 						mediaLibrary.SetSelectedType("video_link")
 					} else if filename != "" {
-						if _, err := getImageFormat(filename); err == nil {
+						if media.IsImageFormat(filename) {
 							mediaLibrary.SetSelectedType("image")
-						} else if isVideoFormat(filename) {
+						} else if media.IsVideoFormat(filename) {
 							mediaLibrary.SetSelectedType("video")
 						} else {
 							mediaLibrary.SetSelectedType("file")
@@ -359,7 +361,7 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 // MediaBoxConfig configure MediaBox metas
 type MediaBoxConfig struct {
 	RemoteDataResource *admin.Resource
-	Sizes              map[string]*Size
+	Sizes              map[string]*media.Size
 	Max                uint
 	admin.SelectManyConfig
 }

@@ -5,18 +5,17 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/qor/media_library"
-
+	"github.com/qor/media"
 	"gopkg.in/h2non/bimg.v1"
 )
 
 type bimgImageHandler struct{}
 
-func (bimgImageHandler) CouldHandle(media media_library.MediaLibrary) bool {
+func (bimgImageHandler) CouldHandle(media media.Media) bool {
 	return media.IsImage()
 }
 
-func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.File, option *media_library.Option) (err error) {
+func (bimgImageHandler) Handle(media media.Media, file multipart.File, option *media.Option) (err error) {
 	// Save Original Image
 	if err = media.Store(media.URL("original"), option, file); err == nil {
 		file.Seek(0, 0)
@@ -91,5 +90,5 @@ func (bimgImageHandler) Handle(media media_library.MediaLibrary, file multipart.
 }
 
 func init() {
-	media_library.RegisterMediaHandler("image_handler", bimgImageHandler{})
+	media.RegisterMediaHandler("image_handler", bimgImageHandler{})
 }

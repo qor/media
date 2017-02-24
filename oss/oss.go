@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/qor/media_library"
+	"github.com/qor/media"
 	"github.com/qor/oss"
 	"github.com/qor/oss/filesystem"
 )
@@ -20,11 +20,11 @@ var (
 
 // OSS common storage interface
 type OSS struct {
-	media_library.Base
+	media.Base
 }
 
 // DefaultURLTemplateHandler used to generate URL and save into database
-var DefaultURLTemplateHandler = func(option *media_library.Option) (url string) {
+var DefaultURLTemplateHandler = func(option *media.Option) (url string) {
 	if url = option.Get("URL"); url == "" {
 		url = URLTemplate
 	}
@@ -43,18 +43,18 @@ var DefaultURLTemplateHandler = func(option *media_library.Option) (url string) 
 }
 
 // GetURLTemplate URL's template
-func (OSS) GetURLTemplate(option *media_library.Option) (url string) {
+func (OSS) GetURLTemplate(option *media.Option) (url string) {
 	return DefaultURLTemplateHandler(option)
 }
 
 // DefaultStoreHandler used to store reader with default Storage
-var DefaultStoreHandler = func(path string, option *media_library.Option, reader io.Reader) error {
+var DefaultStoreHandler = func(path string, option *media.Option, reader io.Reader) error {
 	_, err := Storage.Put(path, reader)
 	return err
 }
 
 // Store save reader's content with path
-func (OSS) Store(path string, option *media_library.Option, reader io.Reader) error {
+func (OSS) Store(path string, option *media.Option, reader io.Reader) error {
 	return DefaultStoreHandler(path, option, reader)
 }
 

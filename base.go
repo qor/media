@@ -1,4 +1,4 @@
-package media_library
+package media
 
 import (
 	"bytes"
@@ -17,7 +17,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/disintegration/imaging"
 	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
 	"github.com/jinzhu/inflection"
@@ -215,16 +214,15 @@ func (b Base) GetSizes() map[string]*Size {
 
 // IsImage return if it is an image
 func (b Base) IsImage() bool {
-	_, err := getImageFormat(b.URL())
-	return err == nil
+	return IsImageFormat(b.URL())
 }
 
 func (b Base) IsVideo() bool {
-	return isVideoFormat(b.URL())
+	return IsVideoFormat(b.URL())
 }
 
 func init() {
-	admin.RegisterViewPath("github.com/qor/media_library/views")
+	admin.RegisterViewPath("github.com/qor/media/views")
 }
 
 // ConfigureQorMetaBeforeInitialize configure this field for Qor Admin
@@ -238,36 +236,4 @@ func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 			})
 		}
 	}
-}
-
-func getImageFormat(url string) (*imaging.Format, error) {
-	formats := map[string]imaging.Format{
-		".jpg":  imaging.JPEG,
-		".jpeg": imaging.JPEG,
-		".png":  imaging.PNG,
-		".tif":  imaging.TIFF,
-		".tiff": imaging.TIFF,
-		".bmp":  imaging.BMP,
-		".gif":  imaging.GIF,
-	}
-
-	ext := strings.ToLower(regexp.MustCompile(`(\?.*?$)`).ReplaceAllString(filepath.Ext(url), ""))
-	if f, ok := formats[ext]; ok {
-		return &f, nil
-	}
-	return nil, imaging.ErrUnsupportedFormat
-}
-
-func isVideoFormat(name string) bool {
-	formats := []string{".mp4", ".m4p", ".m4v", ".m4v", ".mov", ".mpeg", ".webm", ".avi", ".ogg", ".ogv"}
-
-	ext := strings.ToLower(regexp.MustCompile(`(\?.*?$)`).ReplaceAllString(filepath.Ext(name), ""))
-
-	for _, format := range formats {
-		if format == ext {
-			return true
-		}
-	}
-
-	return false
 }

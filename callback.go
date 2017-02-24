@@ -1,4 +1,4 @@
-package media_library
+package media
 
 import (
 	"encoding/json"
