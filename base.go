@@ -228,7 +228,9 @@ func init() {
 // ConfigureQorMetaBeforeInitialize configure this field for Qor Admin
 func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
 	if meta, ok := meta.(*admin.Meta); ok {
-		meta.Type = "file"
+		if meta.Type == "" {
+			meta.Type = "file"
+		}
 
 		if meta.GetFormattedValuer() == nil {
 			meta.SetFormattedValuer(func(value interface{}, context *qor.Context) interface{} {
