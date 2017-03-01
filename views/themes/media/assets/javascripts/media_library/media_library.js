@@ -1,4 +1,4 @@
-(function(factory) {
+(function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as anonymous module.
         define(['jquery'], factory);
@@ -9,7 +9,7 @@
         // Browser globals.
         factory(jQuery);
     }
-})(function($) {
+})(function ($) {
 
     'use strict';
 
@@ -69,12 +69,12 @@
     QorMedialibraryAction.prototype = {
         constructor: QorMedialibraryAction,
 
-        init: function() {
+        init: function () {
             this.bind();
             this.initMedia();
         },
 
-        bind: function() {
+        bind: function () {
             $(document)
                 .on(EVENT_SWITCHED, EVENT_SWITCHED_TARGET, this.resetMediaData.bind(this))
                 .on(EVENT_KEYUP, CLASS_VIDEO, this.setVideo.bind(this))
@@ -82,14 +82,14 @@
                 .on(EVENT_BOTTOMSHEETS_RELOAD, CLASS_MEDIABOX, this.initMedia.bind(this, 'bottomsheet'));
         },
 
-        unbind: function() {
+        unbind: function () {
             $(document)
                 .off(EVENT_SWITCHED, EVENT_SWITCHED_TARGET, this.resetMediaData.bind(this))
                 .off(EVENT_KEYUP, CLASS_VIDEO, this.setVideo.bind(this))
                 .off(EVENT_KEYUP, CLASS_IMAGE_DESC, this.setImageDesc.bind(this));
         },
 
-        setMediaData: function($form, value) {
+        setMediaData: function ($form, value) {
             var $fileOption = $form.find(CLASS_FILE_OPTION),
                 $MediaOption = $form.find(CLASS_MEDIA_OPTION);
 
@@ -97,7 +97,7 @@
             $MediaOption.val(JSON.stringify(value));
         },
 
-        setImageDesc: function(e) {
+        setImageDesc: function (e) {
             var $input = $(e.target),
                 $form = $input.closest('form'),
                 $fileOption,
@@ -111,7 +111,7 @@
 
         },
 
-        initMedia: function(bottomsheet) {
+        initMedia: function (bottomsheet) {
             var $uploadVideo = $(CLASS_UPLOAD_VIDEO_TABLE),
                 $linkedvideo = $(CLASS_VIDEO_TABLE);
 
@@ -124,7 +124,7 @@
                 return;
             }
 
-            $uploadVideo.each(function() {
+            $uploadVideo.each(function () {
                 var $this = $(this),
                     url = $this.data('videolink'),
                     videoType = url && url.match(/\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/);
@@ -135,7 +135,7 @@
 
             });
 
-            $linkedvideo.each(function() {
+            $linkedvideo.each(function () {
                 var $this = $(this),
                     url = $this.data('videolink'),
                     youtubeID = getYoutubeID(url),
@@ -152,7 +152,7 @@
             });
         },
 
-        setVideo: function(event) {
+        setVideo: function (event) {
             var $input = $(event.target),
                 $parent = $input.closest('[data-tab-source]'),
                 $form = $input.closest('form'),
@@ -167,7 +167,7 @@
             fileOption.Video = url;
 
             this.setMediaData($form, fileOption);
-            
+
             if (youtubeID || youkuID) {
                 $iframe.length && $iframe.remove();
                 if (youtubeID) {
@@ -179,7 +179,7 @@
             }
         },
 
-        resetMediaData: function(e, element, type) {
+        resetMediaData: function (e, element, type) {
             var $element = $(element),
                 $form = $element.closest('form'),
                 $fileOption = $element.find(CLASS_FILE_OPTION),
@@ -199,7 +199,7 @@
             this.setMediaData($form, fileOption);
         },
 
-        destroy: function() {
+        destroy: function () {
             this.unbind();
         }
     };
@@ -207,13 +207,13 @@
     QorMedialibraryAction.DEFAULTS = {};
 
     $.fn.qorSliderAfterShow = $.fn.qorSliderAfterShow || {};
-    $.fn.qorSliderAfterShow.renderMediaVideo = function() {
+    $.fn.qorSliderAfterShow.renderMediaVideo = function () {
 
         var $render = $(CLASS_VIDEO_TAB),
             $desc = $(CLASS_IMAGE_DESC),
             url = $render.length && $render.data().videourl,
-            youtubeID = getYoutubeID(url),
-            youkuID = getYoukuID(url);
+            youtubeID = url && getYoutubeID(url),
+            youkuID = url && getYoukuID(url);
 
         $desc.length && $desc.val($desc.data().imageInfo.Description);
 
@@ -228,8 +228,8 @@
         }
     };
 
-    QorMedialibraryAction.plugin = function(options) {
-        return this.each(function() {
+    QorMedialibraryAction.plugin = function (options) {
+        return this.each(function () {
             var $this = $(this);
             var data = $this.data(NAMESPACE);
             var fn;
@@ -248,14 +248,14 @@
         });
     };
 
-    $(function() {
+    $(function () {
         var selector = '.qor-table--medialibrary';
 
         $(document)
-            .on(EVENT_DISABLE, function(e) {
+            .on(EVENT_DISABLE, function (e) {
                 QorMedialibraryAction.plugin.call($(selector, e.target), 'destroy');
             })
-            .on(EVENT_ENABLE, function(e) {
+            .on(EVENT_ENABLE, function (e) {
                 QorMedialibraryAction.plugin.call($(selector, e.target));
             })
             .triggerHandler(EVENT_ENABLE);
