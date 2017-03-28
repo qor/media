@@ -42,10 +42,30 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
+                &.qor-table--files {
+                    top: 0;
+                    >p {
+                        &[data-heading*="Image"],
+                        &[data-heading*="image"],
+                        &[data-heading*="File"],
+                        &[data-heading*="file"] {
+                            height: 100%;
+                        }
+                        &[data-heading*="Title"],
+                        &[data-heading*="title"],
+                        &[data-heading*="Name"],
+                        &[data-heading*="name"] {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                        }
+                    }
+                }
                 >p {
                     margin-bottom: 0;
                     color: #fff;
-                    background-color: rgba(0, 0, 0, .6);
+                    background-color: rgba(0, 0, 0, .1);
                     &.qor-table--video {
                         iframe,
                         video {
@@ -65,6 +85,19 @@
                     &.qor-table--video {
                         padding: 0;
                         height: auto;
+                    }
+                    .qor-table--medialibrary-file {
+                        height: 100%;
+                        &::after {
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            left: 0;
+                            z-index: 2;
+                            height: 162px;
+                            content: '';
+                            background-color: rgba(0, 0, 0, .1);
+                        }
                     }
                 }
             }
@@ -120,6 +153,31 @@
 .qor-field__mediabox-item.is_deleted {
     border: 1px solid rgba(0, 0, 0, .12);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Firefox inline-flex bug */

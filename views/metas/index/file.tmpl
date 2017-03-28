@@ -9,6 +9,6 @@
   {{else if (eq $value.Ext ".svg")}}
     <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
   {{else}}
-    <a href="{{$value.URL}}">{{$value.GetFileName}}</a>
+    <span class="qor-table--medialibrary-file"><a href="{{$value.URL}}">{{$value.GetFileName}}</a></span>
   {{end}}
 {{end}}

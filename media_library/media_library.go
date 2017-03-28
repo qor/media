@@ -19,6 +19,10 @@ import (
 	"github.com/qor/qor/utils"
 )
 
+func init() {
+	admin.RegisterViewPath("github.com/qor/media/media_library/views")
+}
+
 type MediaLibraryInterface interface {
 	ScanMediaOptions(MediaOption) error
 	SetSelectedType(string)
