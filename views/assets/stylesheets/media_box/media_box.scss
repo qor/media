@@ -8,9 +8,17 @@
     }
 }
 
+.qor-fieldset {
+    .qor-field__file-item {
+        .qor-file__list>ul>li {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    }
+}
+
 .qor-field__file-item {
     .qor-file__list>ul>li {
-        background-color: rgba(0, 0, 0, 0.05);
+        background-color: #fff;
         >p {
             background: none;
             display: flex;
@@ -173,6 +181,10 @@
 .qor-field__mediabox-item.is_deleted {
     border: 1px solid rgba(0, 0, 0, .12);
 }
+
+
+
+
 
 
 
