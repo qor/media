@@ -83,6 +83,21 @@
     [[/MediaOption]]
   </script>
 
+  <script name="media-box-file-template" type="x-tmpl-mustache">
+    [[#MediaOption]]
+      <div class="qor-file qor-field__mediabox-item qor-field__file-item" data-primary-key=[[primaryKey]] data-file-name=[[MediaOption.FileName]] data-original-url=[[MediaOption.URL]]>
+        <div class="qor-file__list">
+          <ul class="clearfix">
+            <li>
+              <p><span>[[MediaOption.FileName]]</span></p>
+            </li>
+          </ul>
+          <span class="qor-file__input visuallyhidden"></span>
+        </div>
+      </div>
+    [[/MediaOption]]
+  </script>
+
   <script name="media-box-undo-delete" type="x-tmpl-mustache">
     <div class="qor-fieldset__alert">
       <button class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect qor-cropper__toggle--undo" type="button">{{marshal (t "qor_media_library.form.crop_image.undo_delete" "Undo delete")}}</button>
