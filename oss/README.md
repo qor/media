@@ -6,7 +6,7 @@ Use [OSS](https://github.com/qor/oss) as backend to store medias
 
 ```go
 import (
-	"github.com/qor/media_library/oss"
+	"github.com/qor/media/oss"
 	"github.com/qor/oss/filesystem"
 	"github.com/qor/oss/s3"
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
@@ -19,7 +19,7 @@ type Product struct {
 
 func init() {
   // OSS's default storage is directory `public`, change it to S3
-	oss.Storage = s3.New(s3.Config{AccessID: "access_id", AccessKey: "access_key", Region: "region", Bucket: "bucket", Endpoint: "cdn.getqor.com", ACL: aws.BucketCannedACLPublicRead})
+	oss.Storage = s3.New(&s3.Config{AccessID: "access_id", AccessKey: "access_key", Region: "region", Bucket: "bucket", Endpoint: "cdn.getqor.com", ACL: awss3.BucketCannedACLPublicRead})
 
   // or change directory to `download`
 	oss.Storage = filesystem.New("download")
