@@ -3,7 +3,6 @@ package oss
 import (
 	"io"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/qor/media"
@@ -29,7 +28,7 @@ var DefaultURLTemplateHandler = func(option *media.Option) (url string) {
 		url = URLTemplate
 	}
 
-	url = path.Join(Storage.GetEndpoint(), url)
+	url = strings.Join([]string{strings.TrimSuffix(Storage.GetEndpoint(), "/"), strings.TrimPrefix(url, "/")}, "/")
 	if strings.HasPrefix(url, "/") {
 		return url
 	}
