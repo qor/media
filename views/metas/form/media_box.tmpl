@@ -24,7 +24,6 @@
                       {{range $key, $size := $metaConfig.Sizes}}
                         {{if not (is_included $key "@")}}
                           <li>
-                            111
                             <img src="{{$file.URL $key}}" data-original-url="{{$file.URL "original"}}" data-size-name="{{$key}}" data-size-resolution="{{marshal $size}}" />
                             <span>{{$key}} ({{$size.Width}}&times;{{$size.Height}} px)</span>
                           </li>
