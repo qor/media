@@ -238,44 +238,40 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 				utils.ExitWithMsg("%v havn't implement MediaLibraryInterface, please fix that.", reflect.TypeOf(config.RemoteDataResource.Value))
 			}
 
-			if meta := config.RemoteDataResource.GetMeta("MediaOption"); meta == nil {
-				config.RemoteDataResource.Meta(&admin.Meta{
-					Name: "MediaOption",
-					Type: "hidden",
-					Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
-						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							var mediaOption MediaOption
-							if err := json.Unmarshal([]byte(utils.ToString(metaValue.Value)), &mediaOption); err == nil {
-								mediaOption.FileName = ""
-								mediaOption.URL = ""
-								mediaOption.OriginalURL = ""
-								mediaLibrary.ScanMediaOptions(mediaOption)
-							}
+			config.RemoteDataResource.Meta(&admin.Meta{
+				Name: "MediaOption",
+				Type: "hidden",
+				Setter: func(record interface{}, metaValue *resource.MetaValue, context *qor.Context) {
+					if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+						var mediaOption MediaOption
+						if err := json.Unmarshal([]byte(utils.ToString(metaValue.Value)), &mediaOption); err == nil {
+							mediaOption.FileName = ""
+							mediaOption.URL = ""
+							mediaOption.OriginalURL = ""
+							mediaLibrary.ScanMediaOptions(mediaOption)
 						}
-					},
-					Valuer: func(record interface{}, context *qor.Context) interface{} {
-						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							if value, err := json.Marshal(mediaLibrary.GetMediaOption()); err == nil {
-								return string(value)
-							}
+					}
+				},
+				Valuer: func(record interface{}, context *qor.Context) interface{} {
+					if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+						if value, err := json.Marshal(mediaLibrary.GetMediaOption()); err == nil {
+							return string(value)
 						}
-						return ""
-					},
-				})
-			}
+					}
+					return ""
+				},
+			})
 
-			if meta := config.RemoteDataResource.GetMeta("SelectedType"); meta == nil {
-				config.RemoteDataResource.Meta(&admin.Meta{
-					Name: "SelectedType",
-					Type: "hidden",
-					Valuer: func(record interface{}, context *qor.Context) interface{} {
-						if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
-							return mediaLibrary.GetSelectedType()
-						}
-						return ""
-					},
-				})
-			}
+			config.RemoteDataResource.Meta(&admin.Meta{
+				Name: "SelectedType",
+				Type: "hidden",
+				Valuer: func(record interface{}, context *qor.Context) interface{} {
+					if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
+						return mediaLibrary.GetSelectedType()
+					}
+					return ""
+				},
+			})
 
 			config.RemoteDataResource.AddProcessor(func(record interface{}, metaValues *resource.MetaValues, context *qor.Context) error {
 				if mediaLibrary, ok := record.(MediaLibraryInterface); ok {
