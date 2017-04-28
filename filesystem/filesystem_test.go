@@ -95,7 +95,9 @@ func TestURLWithFile(t *testing.T) {
 func TestSaveIntoFileSystem(t *testing.T) {
 	var user = User{Name: "jinzhu"}
 	if avatar, err := os.Open("test/logo.png"); err == nil {
+		avatarStat, _ := avatar.Stat()
 		user.Avatar.Scan(avatar)
+
 		if err := db.Save(&user).Error; err == nil {
 			if _, err := os.Stat(path.Join("public", user.Avatar.URL())); err != nil {
 				t.Errorf("should find saved user avatar")
@@ -121,6 +123,13 @@ func TestSaveIntoFileSystem(t *testing.T) {
 				}
 			} else {
 				t.Errorf("Failed to decode croped image")
+			}
+
+			originalFile, err := os.Open(path.Join("public", newUser.Avatar.URL("original")))
+			if stat, err := originalFile.Stat(); err != nil {
+				t.Errorf("original file should be there")
+			} else if avatarStat.Size() != stat.Size() {
+				t.Errorf("Original file should not be changed after crop")
 			}
 		} else {
 			t.Errorf("should saved user successfully")
