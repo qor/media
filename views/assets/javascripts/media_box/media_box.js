@@ -13,27 +13,26 @@
 
     'use strict';
 
-    var $body = $('body');
-    var $document = $(document);
-    var NAMESPACE = 'qor.medialibrary.select';
-    var PARENT_NAMESPACE = 'qor.bottomsheets';
-    var EVENT_CLICK = 'click.' + NAMESPACE;
-    var EVENT_ENABLE = 'enable.' + NAMESPACE;
-    var EVENT_DISABLE = 'disable.' + NAMESPACE;
-    var EVENT_RELOAD = 'reload.' + PARENT_NAMESPACE;
-    var CLASS_SELECT_ICON = '.qor-select__select-icon';
-    var CLASS_SELECT_HINT = '.qor-selectmany__hint';
-    var CLASS_PARENT = '.qor-field__mediabox';
-    var CLASS_LISTS = '.qor-field__mediabox-list';
-    var CLASS_ITEM = '.qor-field__mediabox-item';
-    var CLASS_LISTS_DATA = '.qor-field__mediabox-data';
-    var CLASS_BOTTOMSHEETS = '.qor-bottomsheets';
-    var CLASS_SELECTED = 'is_selected';
-    var CLASS_DELETE = 'is_deleted';
-    var CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options';
-    var CLASS_CROPPER_DELETE = '.qor-cropper__toggle--delete';
-    var CLASS_CROPPER_UNDO = '.qor-cropper__toggle--undo';
-    var CLASS_MEDIABOX = 'qor-bottomsheets__mediabox';
+    let $body = $('body'),
+        $document = $(document),
+        NAMESPACE = 'qor.medialibrary.select',
+        PARENT_NAMESPACE = 'qor.bottomsheets',
+        EVENT_CLICK = 'click.' + NAMESPACE,
+        EVENT_ENABLE = 'enable.' + NAMESPACE,
+        EVENT_DISABLE = 'disable.' + NAMESPACE,
+        EVENT_RELOAD = 'reload.' + PARENT_NAMESPACE,
+        CLASS_SELECT_ICON = '.qor-select__select-icon',
+        CLASS_SELECT_HINT = '.qor-selectmany__hint',
+        CLASS_PARENT = '.qor-field__mediabox',
+        CLASS_LISTS = '.qor-field__mediabox-list',
+        CLASS_ITEM = '.qor-field__mediabox-item',
+        CLASS_LISTS_DATA = '.qor-field__mediabox-data',
+        CLASS_SELECTED = 'is_selected',
+        CLASS_DELETE = 'is_deleted',
+        CLASS_CROPPER_OPTIONS = 'textarea.qor-file__options',
+        CLASS_CROPPER_DELETE = '.qor-cropper__toggle--delete',
+        CLASS_CROPPER_UNDO = '.qor-cropper__toggle--undo',
+        CLASS_MEDIABOX = 'qor-bottomsheets__mediabox';
 
     function getExtension(filename) {
         return filename.split('.').pop();
@@ -84,10 +83,10 @@
         },
 
         bind: function() {
-            $document.on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this)).
-            on(EVENT_RELOAD, '.' + CLASS_MEDIABOX, this.reloadData.bind(this));
+            $document.on(EVENT_RELOAD, '.' + CLASS_MEDIABOX, this.reloadData.bind(this));
 
             this.$element
+                .on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this))
                 .on(EVENT_CLICK, CLASS_CROPPER_DELETE, this.deleteSelected.bind(this))
                 .on(EVENT_CLICK, CLASS_CROPPER_UNDO, this.undoDeleteSelected.bind(this))
                 .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.imageCrop.bind(this));
@@ -170,7 +169,7 @@
         initMedia: function() {
             var $selectFeild = this.$selectFeild,
                 $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
-                $trs = $(CLASS_BOTTOMSHEETS).find('tbody tr'),
+                $trs = this.$bottomsheets.find('tbody tr'),
                 _this = this,
                 $tr,
                 $img,
@@ -240,7 +239,7 @@
             template = this.renderHint(data);
 
             $(CLASS_SELECT_HINT).remove();
-            $(CLASS_BOTTOMSHEETS).find('.qor-page__body').before(template);
+            this.$bottomsheets.find('.qor-page__body').before(template);
         },
 
         updateMediaLibraryData: function($ele, data) {
@@ -386,7 +385,7 @@
                 this.showHiddenItem($hiddenItem);
                 if (maxItem == 1) {
                     setTimeout(function() {
-                        _this.BottomSheets.hide();
+                        _this.$bottomsheets.remove();
                     }, 1000);
                 }
                 return;
@@ -425,7 +424,7 @@
 
             if (isNewData || maxItem == 1) {
                 setTimeout(function() {
-                    _this.BottomSheets.hide();
+                    _this.$bottomsheets.remove();
                 }, 150);
             }
 
@@ -454,14 +453,14 @@
             });
         },
 
-        handleSelectMany: function() {
-            var $bottomsheets = $(CLASS_BOTTOMSHEETS),
-                options = {
+        handleSelectMany: function($bottomsheets) {
+            let options = {
                     onSelect: this.onSelectResults.bind(this), // render selected item after click item lists
                     onSubmit: this.onSubmitResults.bind(this) // render new items after new item form submitted
                 };
 
             $bottomsheets.qorSelectCore(options).addClass(CLASS_MEDIABOX);
+            this.$bottomsheets = $bottomsheets;
             this.initMedia();
         },
 
