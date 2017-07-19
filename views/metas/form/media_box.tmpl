@@ -38,7 +38,7 @@
                     {{end}}
                   {{else if $file.VideoLink}}
                     <li>
-                      <iframe width="100%" height="100%" src="{{$file.Url}}" frameborder="0" allowfullscreen></iframe>
+                      <span class="qor-linkify-object" data-video-link="{{$file.Url}}">{{$file.Url}}</span>
                     </li>
                   {{else if $file.IsVideo}}
                       <li>
