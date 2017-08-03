@@ -33,36 +33,14 @@
         CLASS_CROPPER_UNDO = ".qor-cropper__toggle--undo",
         CLASS_MEDIABOX = "qor-bottomsheets__mediabox";
 
-    function getExtension(filename) {
-        return filename.split(".").pop();
-    }
-
-    function isImage(filename) {
-        var ext = getExtension(filename);
-        switch (ext.toLowerCase()) {
-            case "jpg":
-            case "gif":
-            case "bmp":
-            case "png":
-            case "jpeg":
-            case "svg":
-                //etc
-                return true;
+    function getYoutubeID(url) {
+        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+        var match = url.match(regExp);
+        if (match && match[7].length == 11) {
+            return match[7];
+        } else {
+            return false;
         }
-        return false;
-    }
-
-    function isVideo(filename) {
-        var ext = getExtension(filename);
-        switch (ext.toLowerCase()) {
-            case "m4v":
-            case "avi":
-            case "mpg":
-            case "mp4":
-                // etc
-                return true;
-        }
-        return false;
     }
 
     function QorMediaBox(element, options) {
@@ -174,11 +152,17 @@
             ).html();
             this.SELECT_MANY_HINT = $('[name="select-many-hint"]').html();
 
-            this.SELECT_MEDIABOX_TEMPLATE = $parent
+            this.TEMPLATE_IMAGE = $parent
                 .find('[name="media-box-template"]')
                 .html();
-            this.SELECT_MEDIABOX_FILE_TEMPLATE = $parent
+            this.TEMPLATE_FILE = $parent
                 .find('[name="media-box-file-template"]')
+                .html();
+            this.TEMPLATE_UPLOADEDVIDEO = $parent
+                .find('[name="media-box-uploadedvideo-template"]')
+                .html();
+            this.TEMPLATE_VIDEOLINK = $parent
+                .find('[name="media-box-videolink-template"]')
                 .html();
             this.SELECT_MEDIABOX_UNDO_TEMPLATE = $parent
                 .find('[name="media-box-undo-delete"]')
@@ -250,10 +234,6 @@
             this.$selectFeild && this.initMedia();
         },
 
-        renderSelectMany: function(data) {
-            return window.Mustache.render(this.SELECT_MEDIABOX_TEMPLATE, data);
-        },
-
         renderHint: function(data) {
             return window.Mustache.render(this.SELECT_MANY_HINT, data);
         },
@@ -275,7 +255,8 @@
                             ".$1"
                         ),
                         Description: item.description,
-                        FileName: item.fileName
+                        FileName: item.fileName,
+                        VideoLink: item.videolink
                     });
                 });
             }
@@ -378,7 +359,7 @@
         },
 
         removeItem: function(data) {
-            var primaryKey = data.primaryKey;
+            let primaryKey = data.primaryKey;
 
             this.$selectFeild
                 .find('[data-primary-key="' + primaryKey + '"]')
@@ -387,12 +368,12 @@
         },
 
         compareCropSizes: function(data) {
-            var cropOptions = data.MediaOption.CropOptions,
+            let cropOptions = data.MediaOption.CropOptions,
                 needCropSizes = this.bottomsheetsData.cropSizes,
                 needCropSizesSize,
                 cropOptionsKeys;
 
-            if (!needCropSizes) {
+            if (!needCropSizes || data.SelectedType != "image") {
                 return false;
             }
 
@@ -406,7 +387,7 @@
             }
 
             if (cropOptionsKeys.length) {
-                for (var i = 0; i < needCropSizesSize; i++) {
+                for (let i = 0; i < needCropSizesSize; i++) {
                     if (cropOptionsKeys.indexOf(needCropSizes[i]) == -1) {
                         return true;
                     }
@@ -417,7 +398,9 @@
         },
 
         addItem: function(data, isNewData) {
-            var $template = $(this.renderSelectMany(data)),
+            let $template = $(
+                    window.Mustache.render(this.TEMPLATE_IMAGE, data)
+                ),
                 $input = $template.find(".qor-file__input"),
                 $item = $input.closest(CLASS_ITEM),
                 $hiddenItem = this.$selectFeild.find(
@@ -427,8 +410,7 @@
                 selectedItem = this.getSelectedItemData().selectedNum,
                 cropOptions = data.MediaOption.CropOptions,
                 needCropSize = this.compareCropSizes(data),
-                fileName = data.MediaOption.FileName,
-                isImageFile = isImage(fileName),
+                selectedType = data.SelectedType,
                 isSVG = /.svg$/.test(data.MediaOption.FileName),
                 _this = this;
 
@@ -466,18 +448,33 @@
                     .remove();
             }
 
-            if (!isImageFile) {
-                $template = $(
-                    window.Mustache.render(
-                        this.SELECT_MEDIABOX_FILE_TEMPLATE,
-                        data
-                    )
-                );
+            if (!isSVG) {
+                if (selectedType === "video") {
+                    $template = $(
+                        window.Mustache.render(
+                            this.TEMPLATE_UPLOADEDVIDEO,
+                            data
+                        )
+                    );
+                } else if (selectedType === "video_link") {
+                    data.VideoLink = `//www.youtube.com/embed/${getYoutubeID(
+                        data.MediaOption.Video
+                    )}?rel=0&fs=0&modestbranding=1&disablekb=1`;
+                    $template = $(
+                        window.Mustache.render(this.TEMPLATE_VIDEOLINK, data)
+                    );
+                } else if (selectedType === "file") {
+                    $template = $(
+                        window.Mustache.render(this.TEMPLATE_FILE, data)
+                    );
+                }
             }
 
             $template.data({
                 description: data.MediaOption.Description,
-                mediaData: data
+                mediaData: data,
+                videolink:
+                    selectedType === "video_link" ? data.MediaOption.Video : ""
             });
 
             if (isSVG) {
@@ -486,14 +483,17 @@
             $template.appendTo(this.$selectFeild);
 
             // if image alread have CropOptions, replace original images as [big,middle, small] images.
-            if (cropOptions) {
+            if (cropOptions && selectedType === "image") {
                 this.resetImages(data, $template);
             }
 
             // trigger cropper function for new item
-            $template
-                .find(CLASS_CROPPER_OPTIONS)
-                .val(JSON.stringify(data.MediaOption));
+            if (selectedType === "image") {
+                $template
+                    .find(CLASS_CROPPER_OPTIONS)
+                    .val(JSON.stringify(data.MediaOption));
+            }
+
             $template.trigger("enable");
 
             // if not have crop options or have crop options but have anothre size name to crop
