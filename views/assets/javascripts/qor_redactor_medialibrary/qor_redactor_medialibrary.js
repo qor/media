@@ -13,7 +13,7 @@ $(function() {
 
             addMedialibrary: function() {
                 var $element = this.$element,
-                    data = { 'selectModal': 'mediabox', 'maxItem': '1' },
+                    data = { selectModal: 'mediabox', maxItem: '1' },
                     mediaboxUrl = $element.data().redactorSettings.medialibraryUrl,
                     BottomSheets;
 
@@ -22,12 +22,11 @@ $(function() {
                 BottomSheets.open(data, this.medialibrary.handleMediaLibrary);
             },
 
-            handleMediaLibrary: function() {
-                var $bottomsheets = $('.qor-bottomsheets'),
-                    options = {
-                        onSelect: this.medialibrary.selectResults, // render selected item after click item lists
-                        onSubmit: this.medialibrary.submitResults // render new items after new item form submitted
-                    };
+            handleMediaLibrary: function($bottomsheets) {
+                var options = {
+                    onSelect: this.medialibrary.selectResults, // render selected item after click item lists
+                    onSubmit: this.medialibrary.submitResults // render new items after new item form submitted
+                };
 
                 this.medialibrary.$bottomsheets = $bottomsheets;
                 $bottomsheets.qorSelectCore(options).addClass('qor-bottomsheets__mediabox');
@@ -69,14 +68,19 @@ $(function() {
                     this.medialibrary.insertImage(data);
                 }
 
-                this.medialibrary.$bottomsheets.qorSelectCore('destroy');
-                this.medialibrary.BottomSheets.hide();
+                this.medialibrary.$bottomsheets.remove();
             },
 
             insertVideo: function(data) {
-                this.opts.mediaContainerClass = (typeof this.opts.mediaContainerClass === 'undefined') ? 'qor-video-container' : this.opts.mediaContainerClass;
+                this.opts.mediaContainerClass = typeof this.opts.mediaContainerClass === 'undefined' ? 'qor-video-container' : this.opts.mediaContainerClass;
 
-                var htmlCode, videoLink, iframeStart, iframeEnd, videoType, $html, youkuID,
+                var htmlCode,
+                    videoLink,
+                    iframeStart,
+                    iframeEnd,
+                    videoType,
+                    $html,
+                    youkuID,
                     callbackData = {},
                     mediaContainerClass = this.opts.mediaContainerClass,
                     reUrlYoutube = this.opts.regexps.linkyoutube,
@@ -111,10 +115,24 @@ $(function() {
                         youkuID = videoLink.match(reUrlYoukuID)[2];
                         htmlCode = '<iframe width=100% height=400 src="http://player.youku.com/embed/' + youkuID + '" frameborder=0 "allowfullscreen"></iframe>';
                     }
-
                 } else if (mediaOption.URL.match(reVideo)) {
                     videoType = 'uploadedVideo';
-                    htmlCode = '<figure class="' + mediaContainerClass + '"><div role="application"><video width="100%" title="' + description + '" aria-label="' + description + '" height="380px" controls="controls" aria-describedby="' + videoIdentification + '" tabindex="0"><source src="' + mediaOption.URL + '"></video></div><figcaption id="' + videoIdentification + '">' + description + '</figcaption></figure>';
+                    htmlCode =
+                        '<figure class="' +
+                        mediaContainerClass +
+                        '"><div role="application"><video width="100%" title="' +
+                        description +
+                        '" aria-label="' +
+                        description +
+                        '" height="380px" controls="controls" aria-describedby="' +
+                        videoIdentification +
+                        '" tabindex="0"><source src="' +
+                        mediaOption.URL +
+                        '"></video></div><figcaption id="' +
+                        videoIdentification +
+                        '">' +
+                        description +
+                        '</figcaption></figure>';
                 }
 
                 if (!htmlCode) {
@@ -153,8 +171,8 @@ $(function() {
                 src = mediaOption.URL.replace(/image\..+\./, 'image.');
 
                 $img.attr({
-                    'src': src,
-                    'alt': mediaOption.Description
+                    src: src,
+                    alt: mediaOption.Description
                 });
                 $figure.append($img);
 
