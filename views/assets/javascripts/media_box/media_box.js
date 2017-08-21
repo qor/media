@@ -362,6 +362,9 @@
                 if (maxItem == 1) {
                     setTimeout(function() {
                         _this.$bottomsheets.remove();
+                        if (!$('.qor-bottomsheets').is(':visible')) {
+                            $('body').removeClass('qor-bottomsheets-open');
+                        }
                     }, 1000);
                 }
                 return;
@@ -415,6 +418,9 @@
             if (isNewData || maxItem == 1) {
                 setTimeout(function() {
                     _this.$bottomsheets.remove();
+                    if (!$('.qor-bottomsheets').is(':visible')) {
+                        $('body').removeClass('qor-bottomsheets-open');
+                    }
                 }, 150);
             }
         },

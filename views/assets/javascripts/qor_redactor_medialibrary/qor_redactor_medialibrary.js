@@ -69,6 +69,9 @@ $(function() {
                 }
 
                 this.medialibrary.$bottomsheets.remove();
+                if (!$('.qor-bottomsheets').is(':visible')) {
+                    $('body').removeClass('qor-bottomsheets-open');
+                }
             },
 
             insertVideo: function(data) {
