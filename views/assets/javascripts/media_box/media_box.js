@@ -197,7 +197,7 @@
                 files = [],
                 item;
 
-            if ($items.size()) {
+            if ($items.length) {
                 $items.each(function() {
                     item = $(this).data();
 
@@ -236,7 +236,7 @@
 
         changeIcon: function($ele, isNew) {
             var $item = $ele.find('.qor-table--medialibrary-item'),
-                $target = $item.size() ? $item : $ele.find('td:first');
+                $target = $item.length ? $item : $ele.find('td:first');
 
             $ele.find(CLASS_SELECT_ICON).remove();
 
@@ -367,7 +367,7 @@
                 }
             }
 
-            if ($hiddenItem.size()) {
+            if ($hiddenItem.length) {
                 this.showHiddenItem($hiddenItem);
                 if (maxItem == 1) {
                     setTimeout(function() {
