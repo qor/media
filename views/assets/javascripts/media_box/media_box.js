@@ -60,13 +60,23 @@
         },
 
         bind: function() {
-            $document.on(EVENT_RELOAD, '.' + CLASS_MEDIABOX, this.reloadData.bind(this));
+            $document.on(EVENT_RELOAD, `.${CLASS_MEDIABOX}`, this.reloadData.bind(this));
 
             this.$element
                 .on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this))
                 .on(EVENT_CLICK, CLASS_CROPPER_DELETE, this.deleteSelected.bind(this))
                 .on(EVENT_CLICK, CLASS_CROPPER_UNDO, this.undoDeleteSelected.bind(this))
                 .on('change.qor.cropper', CLASS_CROPPER_OPTIONS, this.imageCrop.bind(this));
+        },
+
+        unbind: function() {
+            $document.off(EVENT_RELOAD, `.${CLASS_MEDIABOX}`);
+
+            this.$element
+                .off(EVENT_CLICK, '[data-mediabox-url]')
+                .off(EVENT_CLICK, CLASS_CROPPER_DELETE)
+                .off(EVENT_CLICK, CLASS_CROPPER_UNDO)
+                .off('change.qor.cropper', CLASS_CROPPER_OPTIONS);
         },
 
         deleteSelected: function(e) {
@@ -378,7 +388,9 @@
                 if (selectedType === 'video') {
                     $template = $(window.Mustache.render(this.TEMPLATE_UPLOADEDVIDEO, data));
                 } else if (selectedType === 'video_link') {
-                    data.VideoLink = `//www.youtube.com/embed/${getYoutubeID(data.MediaOption.Video)}?rel=0&fs=0&modestbranding=1&disablekb=1`;
+                    data.VideoLink = `//www.youtube.com/embed/${getYoutubeID(
+                        data.MediaOption.Video
+                    )}?rel=0&fs=0&modestbranding=1&disablekb=1`;
                     $template = $(window.Mustache.render(this.TEMPLATE_VIDEOLINK, data));
                 } else if (selectedType === 'file') {
                     $template = $(window.Mustache.render(this.TEMPLATE_FILE, data));
@@ -507,6 +519,11 @@
                 this.updateHint(this.getSelectedItemData());
             }
             this.updateMediaLibraryData(null, data);
+        },
+
+        destroy: function() {
+            this.unbind();
+            this.$element.removeData(NAMESPACE);
         }
     };
 
