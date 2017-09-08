@@ -60,9 +60,11 @@
         },
 
         bind: function() {
-            $document.on(EVENT_RELOAD, `.${CLASS_MEDIABOX}`, this.reloadData.bind(this));
+            $document.off(EVENT_RELOAD).on(EVENT_RELOAD, `.${CLASS_MEDIABOX}`, this.reloadData.bind(this));
 
             this.$element
+                .off(EVENT_CLICK)
+                .off('change.qor.cropper')
                 .on(EVENT_CLICK, '[data-mediabox-url]', this.openBottomSheets.bind(this))
                 .on(EVENT_CLICK, CLASS_CROPPER_DELETE, this.deleteSelected.bind(this))
                 .on(EVENT_CLICK, CLASS_CROPPER_UNDO, this.undoDeleteSelected.bind(this))
