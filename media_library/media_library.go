@@ -340,6 +340,10 @@ func (f File) IsVideo() bool {
 	return media.IsVideoFormat(f.Url)
 }
 
+func (f File) IsSVG() bool {
+	return media.IsSVGFormat(f.Url)
+}
+
 func (file File) URL(styles ...string) string {
 	if file.Url != "" && len(styles) > 0 {
 		ext := path.Ext(file.Url)

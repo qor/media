@@ -87,8 +87,7 @@
               {{end}}
             </span>
             <div class="qor-file__action">
-              <a href="{{$value.URL}}" class="qor-file__action-download" title="{{t "qor_media_library.form.download" "Download"}}"><i class="material-icons">file_download</i></a>
-              <a href="javascript://" class="qor-file__action-delete qor-cropper__toggle--delete" title="{{t "qor_media_library.form.Delete" "Delete"}}"><i class="material-icons">delete</i></a>
+              <a href="{{$value.URL}}" class="qor-file__action-download" download="{{$value.GetFileName}}" title="{{t "qor_media_library.form.download" "Download"}}"><i class="material-icons">file_download</i></a>
             </div>
           </div>
         {{end}}

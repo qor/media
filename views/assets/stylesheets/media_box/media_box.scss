@@ -22,6 +22,11 @@
 
 .qor-fieldset {
     .qor-field__file-item {
+        &.is-svg {
+            .qor-file__list > ul > li {
+                background-color: #fff;
+            }
+        }
         .qor-file__list > ul > li {
             background-color: rgba(0, 0, 0, 0.05);
         }

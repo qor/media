@@ -221,6 +221,10 @@ func (b Base) IsVideo() bool {
 	return IsVideoFormat(b.URL())
 }
 
+func (b Base) IsSVG() bool {
+	return IsSVGFormat(b.URL())
+}
+
 func init() {
 	admin.RegisterViewPath("github.com/qor/media/views")
 }

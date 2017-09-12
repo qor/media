@@ -48,6 +48,20 @@ func IsVideoFormat(name string) bool {
 	return false
 }
 
+func IsSVGFormat(name string) bool {
+	formats := []string{".svg", ".svgz"}
+
+	ext := strings.ToLower(regexp.MustCompile(`(\?.*?$)`).ReplaceAllString(filepath.Ext(name), ""))
+
+	for _, format := range formats {
+		if format == ext {
+			return true
+		}
+	}
+
+	return false
+}
+
 func parseTagOption(str string) *Option {
 	option := Option(utils.ParseTagOption(str))
 	return &option
