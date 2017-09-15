@@ -85,7 +85,11 @@
             var $target = $(e.target),
                 $selectFeild = $target.closest(CLASS_ITEM);
 
-            $selectFeild.addClass(CLASS_DELETE).append(this.SELECT_MEDIABOX_UNDO_TEMPLATE).find('.qor-file__list').hide();
+            $selectFeild
+                .addClass(CLASS_DELETE)
+                .append(this.SELECT_MEDIABOX_UNDO_TEMPLATE)
+                .find('.qor-file__list')
+                .hide();
             this.updateMediaLibraryData($target.closest(CLASS_LISTS));
             this.$element.find(CLASS_LISTS_DATA).data('isDeleted', true);
 
@@ -96,7 +100,10 @@
             var $target = $(e.target),
                 $selectFeild = $target.closest(CLASS_ITEM);
 
-            $selectFeild.removeClass(CLASS_DELETE).find('.qor-file__list').show();
+            $selectFeild
+                .removeClass(CLASS_DELETE)
+                .find('.qor-file__list')
+                .show();
             this.updateMediaLibraryData($target.closest(CLASS_LISTS));
             $target.closest('.qor-fieldset__alert').remove();
             this.$element.find(CLASS_LISTS_DATA).data('isDeleted', false);
@@ -233,7 +240,10 @@
             var $dataInput = $ele ? $ele.find(CLASS_LISTS_DATA) : this.$selectFeild.find(CLASS_LISTS_DATA),
                 fileData = this.getSelectedItemData($ele);
 
-            $dataInput.val(JSON.stringify(fileData.files)).data('mediaData', data).trigger('changed.medialibrary', [data]);
+            $dataInput
+                .val(JSON.stringify(fileData.files))
+                .data('mediaData', data)
+                .trigger('changed.medialibrary', [data]);
         },
 
         changeIcon: function($ele, isNew) {
@@ -244,7 +254,9 @@
 
             if (isNew) {
                 if (isNew == 'one') {
-                    $('.' + CLASS_MEDIABOX).find(CLASS_SELECT_ICON).remove();
+                    $('.' + CLASS_MEDIABOX)
+                        .find(CLASS_SELECT_ICON)
+                        .remove();
                 }
                 $target.prepend(this.SELECT_MANY_SELECTED_ICON);
             }
@@ -267,7 +279,7 @@
             $imgs.each(function() {
                 sizeData = $(this).data();
 
-                if (sizeData['data-size-resolution-width'] || sizeData['data-size-resolution']) {
+                if (sizeData['sizeResolutionWidth'] || sizeData['sizeResolution']) {
                     item['Sizes'][sizeData.sizeName] = {};
                     for (let i = 0; i < sizes.length; i++) {
                         sizeResolutionData = sizeData['sizeResolution' + sizes[i]];
@@ -298,7 +310,10 @@
         },
 
         showHiddenItem: function($hiddenItem) {
-            $hiddenItem.removeClass(CLASS_DELETE).find('.qor-file__list').show();
+            $hiddenItem
+                .removeClass(CLASS_DELETE)
+                .find('.qor-file__list')
+                .show();
             $hiddenItem.find('.qor-fieldset__alert').remove();
         },
 
@@ -383,16 +398,17 @@
             }
 
             if (maxItem == 1) {
-                this.$selectFeild.find(CLASS_ITEM).filter('.is_deleted').remove();
+                this.$selectFeild
+                    .find(CLASS_ITEM)
+                    .filter('.is_deleted')
+                    .remove();
             }
 
             if (!isSVG) {
                 if (selectedType === 'video') {
                     $template = $(window.Mustache.render(this.TEMPLATE_UPLOADEDVIDEO, data));
                 } else if (selectedType === 'video_link') {
-                    data.VideoLink = `//www.youtube.com/embed/${getYoutubeID(
-                        data.MediaOption.Video
-                    )}?rel=0&fs=0&modestbranding=1&disablekb=1`;
+                    data.VideoLink = `//www.youtube.com/embed/${getYoutubeID(data.MediaOption.Video)}?rel=0&fs=0&modestbranding=1&disablekb=1`;
                     $template = $(window.Mustache.render(this.TEMPLATE_VIDEOLINK, data));
                 } else if (selectedType === 'file') {
                     $template = $(window.Mustache.render(this.TEMPLATE_FILE, data));
@@ -406,7 +422,10 @@
             });
 
             if (isSVG) {
-                $template.addClass('is-svg').find('.qor-file__input').remove();
+                $template
+                    .addClass('is-svg')
+                    .find('.qor-file__input')
+                    .remove();
             }
             $template.appendTo(this.$selectFeild);
 
