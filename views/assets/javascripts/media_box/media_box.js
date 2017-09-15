@@ -471,11 +471,11 @@
                 cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
             }
 
-            $template.find('img').each(function() {
+            $template.find('img[data-size-name]').each(function() {
                 var $this = $(this),
                     sizeName = $this.data().sizeName;
 
-                if (sizeName && sizeName != 'original' && cropOptions[sizeName]) {
+                if (sizeName != 'original' && cropOptions[sizeName]) {
                     $this.prop('src', cropOptions[sizeName]['URL']);
                 }
             });
