@@ -20,29 +20,30 @@ product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{As
 }})
 ********************************* */
 
-$.Redactor.prototype.loadstyle = function() {
-    return {
-        init: function () {
-            this.loadstyle.loadStyle();
-        },
+$(function() {
+    $.Redactor.prototype.loadstyle = function() {
+        return {
+            init: function() {
+                this.loadstyle.loadStyle();
+            },
 
-        loadStyle: function () {
-            // loadStyleNamespace, loadStyleLink are required options
-            if (typeof this.opts.loadStyleLink === 'undefined' || typeof this.opts.loadStyleNamespace === 'undefined') {
-                return;
+            loadStyle: function() {
+                // loadStyleNamespace, loadStyleLink are required options
+                if (typeof this.opts.loadStyleLink === 'undefined' || typeof this.opts.loadStyleNamespace === 'undefined') {
+                    return;
+                }
+
+                var ss = document.createElement('link');
+
+                // insert stylesheet
+                ss.type = 'text/css';
+                ss.rel = 'stylesheet';
+                ss.href = this.opts.loadStyleLink;
+                document.getElementsByTagName('head')[0].appendChild(ss);
+
+                // add namespace class into editor
+                this.core.editor().addClass(this.opts.loadStyleNamespace);
             }
-
-            var ss = document.createElement('link');
-
-            // insert stylesheet
-            ss.type = 'text/css';
-            ss.rel = 'stylesheet';
-            ss.href = this.opts.loadStyleLink;
-            document.getElementsByTagName('head')[0].appendChild(ss);
-
-            // add namespace class into editor
-            this.core.editor().addClass(this.opts.loadStyleNamespace);
-
-        }
+        };
     };
-};
+});
