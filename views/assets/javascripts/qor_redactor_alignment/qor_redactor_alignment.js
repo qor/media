@@ -24,7 +24,9 @@ $(function() {
                 this.button.addDropdown(button, dropdown);
             },
             removeAlign: function() {
-                $(this.block.getBlocks()).css('text-align', '');
+                this.block.removeClass('rd-text-center');
+                this.block.removeClass('rd-text-right');
+                this.block.removeClass('rd-text-justify');
             },
             setLeft: function() {
                 this.buffer.set();
@@ -33,19 +35,19 @@ $(function() {
             setCenter: function() {
                 this.buffer.set();
                 this.alignment.removeAlign();
-                $(this.block.getBlocks()).css('text-align', 'center');
+                this.block.addClass('rd-text-center');
                 this.core.editor().focus();
             },
             setRight: function() {
                 this.buffer.set();
                 this.alignment.removeAlign();
-                $(this.block.getBlocks()).css('text-align', 'right');
+                this.block.addClass('rd-text-right');
                 this.core.editor().focus();
             },
             setJustify: function() {
                 this.buffer.set();
                 this.alignment.removeAlign();
-                $(this.block.getBlocks()).css('text-align', 'justify');
+                this.block.addClass('rd-text-justify');
                 this.core.editor().focus();
             }
         };
