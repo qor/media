@@ -49,7 +49,7 @@ type Base struct {
 	FileName    string
 	Url         string
 	CropOptions map[string]*CropOption `json:",omitempty"`
-	Delete      bool                   `json:",omitempty"`
+	Delete      bool                   `json:"-"`
 	Crop        bool                   `json:"-"`
 	FileHeader  FileHeader             `json:"-"`
 	Reader      io.Reader              `json:"-"`
@@ -72,9 +72,17 @@ func (b *Base) Scan(data interface{}) (err error) {
 	case []byte:
 		if string(values) != "" {
 			if err = json.Unmarshal(values, b); err == nil {
-				var doCrop struct{ Crop bool }
-				if err = json.Unmarshal(values, &doCrop); err == nil && doCrop.Crop {
-					b.Crop = true
+				var options struct {
+					Crop   bool
+					Delete bool
+				}
+				if err = json.Unmarshal(values, &options); err == nil {
+					if options.Crop {
+						b.Crop = true
+					}
+					if options.Delete {
+						b.Delete = true
+					}
 				}
 			}
 		}
