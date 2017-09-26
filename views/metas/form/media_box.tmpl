@@ -39,25 +39,38 @@
                   {{else if $file.VideoLink}}
                     <li>
                       <span class="qor-linkify-object" data-video-link="{{$file.Url}}">{{$file.Url}}</span>
+                      <div class="qor-cropper__toggle">
+                        <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+                      </div>
                     </li>
                   {{else if $file.IsSVG}}
                     <li>
-                      <img src="{{$file.URL}}" />
+                      <img src="{{$file.URL}}" class="is-svg" />
+                      <div class="qor-cropper__toggle">
+                          <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+                      </div>
                     </li>
                   {{else if $file.IsVideo}}
                       <li>
                         <video width=100% height=100% controls><source src="{{$file.Url}}"></video>
+                        <div class="qor-cropper__toggle">
+                          <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+                        </div>
                       </li>
                   {{else}}
-                  <li>
-                      <p><span>{{$file.FileName}}</span></p>
+                  <li class="qor-file__list-item">
+                      <span><span>{{$file.FileName}}</span></span>
+                      <div class="qor-cropper__toggle">
+                          <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+                          <div class="qor-cropper__toggle--download">
+                            <a href="{{$file.URL}}" class="qor-file__action-download" download="{{$file.FileName}}" title="{{t "qor_media_library.form.download" "Download"}}"><i class="material-icons">file_download</i></a>
+                          </div>
+                      </div>
                   </li>
                   {{end}}
                 </ul>
 
-                {{if $file.IsImage}}
                 <input type="file" class="qor-file__input visuallyhidden" />
-                {{end}}
 
               </div>
             </div>
@@ -112,10 +125,14 @@
       <div class="qor-file qor-field__mediabox-item qor-field__file-item" data-primary-key="[[primaryKey]]" data-file-name="[[MediaOption.FileName]]" data-original-url="[[MediaOption.URL]]">
         <div class="qor-file__list">
           <ul class="clearfix">
-            <li>
-              <p><span>"[[MediaOption.FileName]]"</span></p>
+            <li class="qor-file__list-item">
+              <span><span>"[[MediaOption.FileName]]"</span></span>
+              <div class="qor-cropper__toggle">
+                  <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+              </div>
             </li>
           </ul>
+          <span class="qor-file__input visuallyhidden"></span>
         </div>
       </div>
     [[/MediaOption]]
@@ -128,8 +145,12 @@
           <ul class="clearfix">
             <li>
               <video width=100% height=100% controls><source src="[[MediaOption.URL]]"></video>
+              <div class="qor-cropper__toggle">
+                  <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+              </div>
             </li>
           </ul>
+          <span class="qor-file__input visuallyhidden"></span>
         </div>
       </div>
     [[/MediaOption]]
@@ -142,8 +163,12 @@
           <ul class="clearfix">
             <li>
               <iframe width="100%" height="100%" src="[[VideoLink]]" frameborder="0" allowfullscreen></iframe>
+              <div class="qor-cropper__toggle">
+                  <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+              </div>
             </li>
           </ul>
+          <span class="qor-file__input visuallyhidden"></span>
         </div>
       </div>
     [[/MediaOption]]

@@ -12,7 +12,7 @@
     </label>
   </div>
 
-  <div class="qor-field__block qor-file">
+  <div class="qor-field__block qor-file {{if $value.IsImage}}qor-file__image{{end}}">
 
     <!-- Start: video link form -->
     <div class="qor-fieldset" data-tab-source="video_link" data-videourl="{{$value.Video}}" {{if not (eq $value.SelectedType "video_link")}} style="display: none;" {{end}}>
@@ -78,18 +78,23 @@
             <li><img src="{{$value.URL}}" data-original-url="{{$value.URL "original"}}" data-size-name="original" alt="{{$value.GetFileName}}"></li>
           </ul>
         {{else if $value.URL}}
-          <div class="qor-file__list-item">
-            <span>
-              {{if (eq $value.Ext ".svg")}}
-                <img src="{{$value.URL}}" alt="{{$value.GetFileName}}">
-              {{else}}
-                <span>{{$value.GetFileName}}</span>
-              {{end}}
-            </span>
-            <div class="qor-file__action">
-              <a href="{{$value.URL}}" class="qor-file__action-download" download="{{$value.GetFileName}}" title="{{t "qor_media_library.form.download" "Download"}}"><i class="material-icons">file_download</i></a>
-            </div>
-          </div>
+          <ul>
+            <li class="qor-file__list-item">
+              <span>
+                {{if (eq $value.Ext ".svg")}}
+                  <img src="{{$value.URL}}" class="is-svg" alt="{{$value.GetFileName}}">
+                {{else}}
+                  <span>{{$value.GetFileName}}</span>
+                {{end}}
+              </span>
+              <div class="qor-cropper__toggle">
+                <div class="qor-cropper__toggle--delete"><i class="material-icons">delete</i></div>
+                <div class="qor-cropper__toggle--download">
+                  <a href="{{$value.URL}}" class="qor-file__action-download" download="{{$value.GetFileName}}" title="{{t "qor_media_library.form.download" "Download"}}"><i class="material-icons">file_download</i></a>
+                </div>
+              </div>
+            </li>
+          </ul>
         {{end}}
 
       {{end}}
