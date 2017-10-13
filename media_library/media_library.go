@@ -311,9 +311,18 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 			if config.RemoteDataResource.Config.PageCount == 0 {
 				config.RemoteDataResource.Config.PageCount = admin.PaginationPageCount / 2 * 3
 			}
-			config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
-			config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "MediaOption")
-			config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "MediaOption")
+
+			config.RemoteDataResource.OverrideIndexAttrs(func() {
+				config.RemoteDataResource.IndexAttrs(config.RemoteDataResource.IndexAttrs(), "-MediaOption")
+			})
+
+			config.RemoteDataResource.OverrideNewAttrs(func() {
+				config.RemoteDataResource.NewAttrs(config.RemoteDataResource.NewAttrs(), "MediaOption")
+			})
+
+			config.RemoteDataResource.OverrideEditAttrs(func() {
+				config.RemoteDataResource.EditAttrs(config.RemoteDataResource.EditAttrs(), "MediaOption")
+			})
 
 			config.SelectManyConfig.RemoteDataResource = config.RemoteDataResource
 			config.SelectManyConfig.ConfigureQorMeta(meta)
