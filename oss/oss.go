@@ -66,3 +66,15 @@ var DefaultRetrieveHandler = func(path string) (*os.File, error) {
 func (OSS) Retrieve(path string) (*os.File, error) {
 	return DefaultRetrieveHandler(path)
 }
+
+// URL return file's url with given style
+func (o OSS) URL(styles ...string) string {
+	url := o.Base.URL(styles...)
+
+	newurl, err := Storage.GetURL(url)
+	if err != nil || len(newurl) == 0 {
+		return url
+	}
+
+	return newurl
+}
