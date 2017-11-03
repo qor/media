@@ -443,7 +443,7 @@
 
             // if not have crop options or have crop options but have anothre size name to crop
             if ((!cropOptions || needCropSize) && $input.data('qor.cropper') && !isSVG) {
-                $input.data('qor.cropper').load(data.MediaOption.URL, function() {
+                $input.data('qor.cropper').load(data.MediaOption.URL, true, function() {
                     _this.syncImageCrop($item, _this.resetImages);
                 });
             }
