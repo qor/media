@@ -14,7 +14,7 @@ func (bimgImageHandler) CouldHandle(media media.Media) bool {
 	return media.IsImage()
 }
 
-func (bimgImageHandler) Handle(media Media, file FileInterface, option *Option) (err error) {
+func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, option *media.Option) (err error) {
 	// Save Original Image
 	if err = media.Store(media.URL("original"), option, file); err == nil {
 		file.Seek(0, 0)
