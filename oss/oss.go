@@ -23,7 +23,7 @@ type OSS struct {
 }
 
 // DefaultURLTemplateHandler used to generate URL and save into database
-var DefaultURLTemplateHandler = func(option *media.Option) (url string) {
+var DefaultURLTemplateHandler = func(oss OSS, option *media.Option) (url string) {
 	if url = option.Get("URL"); url == "" {
 		url = URLTemplate
 	}
@@ -42,29 +42,29 @@ var DefaultURLTemplateHandler = func(option *media.Option) (url string) {
 }
 
 // GetURLTemplate URL's template
-func (OSS) GetURLTemplate(option *media.Option) (url string) {
-	return DefaultURLTemplateHandler(option)
+func (o OSS) GetURLTemplate(option *media.Option) (url string) {
+	return DefaultURLTemplateHandler(o, option)
 }
 
 // DefaultStoreHandler used to store reader with default Storage
-var DefaultStoreHandler = func(path string, option *media.Option, reader io.Reader) error {
+var DefaultStoreHandler = func(oss OSS, path string, option *media.Option, reader io.Reader) error {
 	_, err := Storage.Put(path, reader)
 	return err
 }
 
 // Store save reader's content with path
-func (OSS) Store(path string, option *media.Option, reader io.Reader) error {
-	return DefaultStoreHandler(path, option, reader)
+func (o OSS) Store(path string, option *media.Option, reader io.Reader) error {
+	return DefaultStoreHandler(o, path, option, reader)
 }
 
 // DefaultRetrieveHandler used to retrieve file
-var DefaultRetrieveHandler = func(path string) (*os.File, error) {
+var DefaultRetrieveHandler = func(oss OSS, path string) (*os.File, error) {
 	return Storage.Get(path)
 }
 
 // Retrieve retrieve file content with url
-func (OSS) Retrieve(path string) (*os.File, error) {
-	return DefaultRetrieveHandler(path)
+func (o OSS) Retrieve(path string) (*os.File, error) {
+	return DefaultRetrieveHandler(o, path)
 }
 
 // URL return file's url with given style
