@@ -53,6 +53,7 @@ type Base struct {
 	Crop        bool                   `json:"-"`
 	FileHeader  FileHeader             `json:"-"`
 	Reader      io.Reader              `json:"-"`
+	Options     map[string]string
 	cropped     bool
 }
 
