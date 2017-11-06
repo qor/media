@@ -26,7 +26,7 @@ type Media interface {
 	GetCropOption(name string) *image.Rectangle
 
 	Store(url string, option *Option, reader io.Reader) error
-	Retrieve(url string) (File, error)
+	Retrieve(url string) (FileInterface, error)
 
 	IsImage() bool
 

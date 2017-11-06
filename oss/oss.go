@@ -2,7 +2,6 @@ package oss
 
 import (
 	"io"
-	"os"
 	"strings"
 
 	"github.com/qor/media"
@@ -58,12 +57,12 @@ func (o OSS) Store(path string, option *media.Option, reader io.Reader) error {
 }
 
 // DefaultRetrieveHandler used to retrieve file
-var DefaultRetrieveHandler = func(oss OSS, path string) (*os.File, error) {
+var DefaultRetrieveHandler = func(oss OSS, path string) (media.FileInterface, error) {
 	return Storage.Get(path)
 }
 
 // Retrieve retrieve file content with url
-func (o OSS) Retrieve(path string) (*os.File, error) {
+func (o OSS) Retrieve(path string) (media.FileInterface, error) {
 	return DefaultRetrieveHandler(o, path)
 }
 
