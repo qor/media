@@ -6,7 +6,6 @@ import (
 	"image/draw"
 	"image/gif"
 	"io/ioutil"
-	"mime/multipart"
 
 	"github.com/disintegration/imaging"
 )
@@ -16,7 +15,7 @@ var mediaHandlers = make(map[string]MediaHandler)
 // MediaHandler media library handler interface, defined which files could be handled, and the handler
 type MediaHandler interface {
 	CouldHandle(media Media) bool
-	Handle(media Media, file multipart.File, option *Option) error
+	Handle(media Media, file FileInterface, option *Option) error
 }
 
 // RegisterMediaHandler register Media library handler
@@ -31,7 +30,7 @@ func (imageHandler) CouldHandle(media Media) bool {
 	return media.IsImage()
 }
 
-func (imageHandler) Handle(media Media, file multipart.File, option *Option) (err error) {
+func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err error) {
 	var fileBuffer bytes.Buffer
 	if fileBytes, err := ioutil.ReadAll(file); err == nil {
 		fileBuffer.Write(fileBytes)
