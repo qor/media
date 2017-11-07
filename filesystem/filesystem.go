@@ -8,6 +8,8 @@ import (
 	"github.com/qor/media"
 )
 
+var _ media.Media = &FileSystem{}
+
 // FileSystem defined a media library storage using file system
 type FileSystem struct {
 	media.Base
@@ -40,7 +42,7 @@ func (f FileSystem) Store(name string, option *media.Option, reader io.Reader) (
 }
 
 // Retrieve retrieve file content with url
-func (f FileSystem) Retrieve(url string) (*os.File, error) {
+func (f FileSystem) Retrieve(url string) (media.FileInterface, error) {
 	if fullpath, err := f.GetFullPath(url, nil); err == nil {
 		return os.Open(fullpath)
 	}

@@ -12,10 +12,11 @@ import (
 )
 
 var (
-	// Storage the storage used to save medias
-	Storage oss.StorageInterface = filesystem.New("public")
 	// URLTemplate default URL template
 	URLTemplate = "/system/{{class}}/{{primary_key}}/{{column}}/{{filename_with_hash}}"
+	// Storage the storage used to save medias
+	Storage oss.StorageInterface = filesystem.New("public")
+	_       media.Media          = &OSS{}
 )
 
 // OSS common storage interface
