@@ -1,7 +1,9 @@
 package oss
 
 import (
+	"bytes"
 	"io"
+	"io/ioutil"
 	"strings"
 
 	"github.com/qor/media"
@@ -58,7 +60,14 @@ func (o OSS) Store(path string, option *media.Option, reader io.Reader) error {
 
 // DefaultRetrieveHandler used to retrieve file
 var DefaultRetrieveHandler = func(oss OSS, path string) (media.FileInterface, error) {
-	return Storage.Get(path)
+	result, err := Storage.GetStream(path)
+	if f, ok := result.(media.FileInterface); ok {
+		return f, err
+	}
+
+	buf := []byte{}
+	io.ReadFull(result, buf)
+	return ioutil.NopCloser(bytes.NewReader(buf)).(media.FileInterface), err
 }
 
 // Retrieve retrieve file content with url
