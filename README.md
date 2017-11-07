@@ -61,15 +61,17 @@ oss.Storage := s3.New(s3.Config{AccessID: "access_id", AccessKey: "access_key", 
 
 ## Operate stored files
 
-The [OSS(Object Storage Service)](https://github.com/qor/oss) provides a pretty simple API
+The [OSS(Object Storage Service)](https://github.com/qor/oss) provides a pretty simple API to operate files on filesytem or cloud storage
 
 ```go
 type StorageInterface interface {
   Get(path string) (*os.File, error)
+  GetStream(path string) (io.ReadCloser, error)
   Put(path string, reader io.Reader) (*Object, error)
   Delete(path string) error
   List(path string) ([]*Object, error)
   GetEndpoint() string
+  GetURL(path string) (string, error)
 }
 ```
 
