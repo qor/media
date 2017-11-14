@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/draw"
 	"image/gif"
+	_ "image/jpeg"
 	"io/ioutil"
 
 	"github.com/disintegration/imaging"
@@ -82,7 +83,7 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 						}
 					}
 				} else {
-					if img, err := imaging.Decode(file); err == nil {
+					if img, _, err := image.Decode(file); err == nil {
 						// save original image
 						if cropOption := media.GetCropOption("original"); cropOption != nil {
 							img = imaging.Crop(img, *cropOption)
