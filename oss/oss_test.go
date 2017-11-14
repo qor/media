@@ -6,6 +6,7 @@ import (
 	"image/gif"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -33,12 +34,17 @@ var (
 
 func init() {
 	configor.Load(&S3Config)
-	oss.Storage = s3.New(&s3.Config{
-		AccessID:  S3Config.AccessKeyID,
-		AccessKey: S3Config.SecretAccessKey,
-		Region:    S3Config.Region,
-		Bucket:    S3Config.S3Bucket,
-	})
+	if S3Config.AccessKeyID != "" {
+		log.Println("Testing S3...")
+		oss.Storage = s3.New(&s3.Config{
+			AccessID:  S3Config.AccessKeyID,
+			AccessKey: S3Config.SecretAccessKey,
+			Region:    S3Config.Region,
+			Bucket:    S3Config.S3Bucket,
+		})
+	} else {
+		log.Println("Testing FileSystem, S3 Access Key need to be specfied to test S3...")
+	}
 }
 
 type MyOSS struct {
