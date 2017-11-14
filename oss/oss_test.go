@@ -17,11 +17,11 @@ import (
 
 var db = utils.TestDB()
 
-type MyFileSystem struct {
+type MyOSS struct {
 	oss.OSS
 }
 
-func (MyFileSystem) GetSizes() map[string]*media.Size {
+func (MyOSS) GetSizes() map[string]*media.Size {
 	return map[string]*media.Size{
 		"small1": {20, 10},
 		"small2": {20, 10},
@@ -32,8 +32,9 @@ func (MyFileSystem) GetSizes() map[string]*media.Size {
 
 type User struct {
 	gorm.Model
-	Name   string
-	Avatar MyFileSystem
+	Name    string
+	Avatar  MyOSS
+	Avatar2 oss.OSS `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
 }
 
 func init() {
@@ -93,10 +94,12 @@ func TestURLWithFile(t *testing.T) {
 	}
 }
 
-func TestSaveIntoFileSystem(t *testing.T) {
+func TestSaveIntoOSS(t *testing.T) {
 	var user = User{Name: "jinzhu"}
 	if avatar, err := os.Open("test/logo.png"); err == nil {
+		avatarStat, _ := avatar.Stat()
 		user.Avatar.Scan(avatar)
+
 		if err := db.Save(&user).Error; err == nil {
 			if _, err := os.Stat(filepath.Join("public", user.Avatar.URL())); err != nil {
 				t.Errorf("should find saved user avatar")
@@ -123,6 +126,13 @@ func TestSaveIntoFileSystem(t *testing.T) {
 			} else {
 				t.Errorf("Failed to decode croped image")
 			}
+
+			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar.URL("original")))
+			if stat, err := originalFile.Stat(); err != nil {
+				t.Errorf("original file should be there")
+			} else if avatarStat.Size() != stat.Size() {
+				t.Errorf("Original file should not be changed after crop")
+			}
 		} else {
 			t.Errorf("should saved user successfully")
 		}
@@ -131,9 +141,10 @@ func TestSaveIntoFileSystem(t *testing.T) {
 	}
 }
 
-func TestSaveGifIntoFileSystem(t *testing.T) {
+func TestSaveGifIntoOSS(t *testing.T) {
 	var user = User{Name: "jinzhu"}
 	if avatar, err := os.Open("test/test.gif"); err == nil {
+		avatarStat, _ := avatar.Stat()
 		var frames int
 		if g, err := gif.DecodeAll(avatar); err == nil {
 			frames = len(g.Image)
@@ -175,6 +186,60 @@ func TestSaveGifIntoFileSystem(t *testing.T) {
 				}
 			} else {
 				t.Errorf("Failed to decode croped gif image")
+			}
+
+			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar.URL("original")))
+			if stat, err := originalFile.Stat(); err != nil {
+				t.Errorf("original file should be there")
+			} else if avatarStat.Size() != stat.Size() {
+				t.Errorf("Original file should not be changed after crop")
+			}
+		} else {
+			t.Errorf("should saved user successfully")
+		}
+	} else {
+		panic("file doesn't exist")
+	}
+}
+
+func TestCropFileWithSameName(t *testing.T) {
+	var user = User{Name: "jinzhu"}
+	if avatar, err := os.Open("test/logo.png"); err == nil {
+		avatarStat, _ := avatar.Stat()
+		user.Avatar2.Scan(avatar)
+
+		if err := db.Save(&user).Error; err == nil {
+			if _, err := os.Stat(filepath.Join("public", user.Avatar2.URL())); err != nil {
+				t.Errorf("should find saved user avatar")
+			}
+
+			var newUser User
+			db.First(&newUser, user.ID)
+			newUser.Avatar2.Scan(`{"CropOptions": {"original": {"X": 5, "Y": 5, "Height": 10, "Width": 20}}, "Crop": true}`)
+			db.Save(&newUser)
+
+			if newUser.Avatar2.URL() != user.Avatar2.URL() {
+				t.Errorf("url should be same after crop")
+			}
+
+			file, err := os.Open(filepath.Join("public", newUser.Avatar2.URL()))
+			if err != nil {
+				t.Errorf("Failed open croped image")
+			}
+
+			if image, _, err := image.DecodeConfig(file); err == nil {
+				if image.Width != 20 || image.Height != 10 {
+					t.Errorf("image should be croped successfully")
+				}
+			} else {
+				t.Errorf("Failed to decode croped image")
+			}
+
+			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar2.URL("original")))
+			if stat, err := originalFile.Stat(); err != nil {
+				t.Errorf("original file should be there")
+			} else if avatarStat.Size() != stat.Size() {
+				t.Errorf("Original file should not be changed after crop")
 			}
 		} else {
 			t.Errorf("should saved user successfully")
