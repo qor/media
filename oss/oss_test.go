@@ -1,8 +1,12 @@
 package oss_test
 
 import (
+	"fmt"
 	"image"
 	"image/gif"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -79,6 +83,27 @@ func TestURLWithoutFile(t *testing.T) {
 	}
 }
 
+func getFile(filePath string) (*os.File, bool) {
+	if strings.HasPrefix(filePath, "//") {
+		filePath = fmt.Sprintf("http:%v", filePath)
+	}
+
+	if strings.HasPrefix(filePath, "http:") {
+		resp, err := http.Get(filePath)
+		if err != nil || resp.StatusCode != http.StatusOK {
+			return nil, false
+		}
+
+		file, err := ioutil.TempFile(os.TempDir(), "media")
+		_, err = io.Copy(file, resp.Body)
+		file.Seek(0, 0)
+		return file, err == nil
+	}
+
+	f, err := os.Open(filepath.Join("public", filePath))
+	return f, err == nil
+}
+
 func TestURLWithFile(t *testing.T) {
 	var filePath string
 	user := User{Name: "jinzhu"}
@@ -92,9 +117,8 @@ func TestURLWithFile(t *testing.T) {
 		panic(err)
 	}
 
-	filePath = user.Avatar.URL()
-	if _, err := os.Stat(filepath.Join("public", filePath)); err != nil {
-		t.Errorf(`media.Base#URL() == %q, it's an invalid path`, filePath)
+	if _, ok := getFile(user.Avatar.URL()); !ok {
+		t.Errorf("%v is an invalid path", user.Avatar.URL())
 	}
 
 	styleCases := []struct {
@@ -105,8 +129,8 @@ func TestURLWithFile(t *testing.T) {
 	}
 	for _, c := range styleCases {
 		filePath = user.Avatar.URL(c.styles...)
-		if _, err := os.Stat(filepath.Join("public", filePath)); err != nil {
-			t.Errorf(`media.Base#URL(%q) == %q, it's an invalid path`, strings.Join(c.styles, ","), filePath)
+		if _, ok := getFile(filePath); !ok {
+			t.Errorf("%v is an invalid path", user.Avatar.URL())
 		}
 		if strings.Split(path.Base(filePath), ".")[2] != c.styles[0] {
 			t.Errorf(`media.Base#URL(%q) == %q, it's a wrong path`, strings.Join(c.styles, ","), filePath)
@@ -121,7 +145,7 @@ func TestSaveIntoOSS(t *testing.T) {
 		user.Avatar.Scan(avatar)
 
 		if err := db.Save(&user).Error; err == nil {
-			if _, err := os.Stat(filepath.Join("public", user.Avatar.URL())); err != nil {
+			if _, ok := getFile(user.Avatar.URL()); !ok {
 				t.Errorf("should find saved user avatar")
 			}
 
@@ -134,8 +158,8 @@ func TestSaveIntoOSS(t *testing.T) {
 				t.Errorf("url should be different after crop")
 			}
 
-			file, err := os.Open(filepath.Join("public", newUser.Avatar.URL("small1")))
-			if err != nil {
+			file, hasFile := getFile(newUser.Avatar.URL("small1"))
+			if !hasFile {
 				t.Errorf("Failed open croped image")
 			}
 
@@ -144,10 +168,10 @@ func TestSaveIntoOSS(t *testing.T) {
 					t.Errorf("image should be croped successfully")
 				}
 			} else {
-				t.Errorf("Failed to decode croped image")
+				t.Errorf("Failed to decode croped image, got %v", err)
 			}
 
-			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar.URL("original")))
+			originalFile, hasFile := getFile(newUser.Avatar.URL("original"))
 			if stat, err := originalFile.Stat(); err != nil {
 				t.Errorf("original file should be there")
 			} else if avatarStat.Size() != stat.Size() {
@@ -173,7 +197,7 @@ func TestSaveGifIntoOSS(t *testing.T) {
 		avatar.Seek(0, 0)
 		user.Avatar.Scan(avatar)
 		if err := db.Save(&user).Error; err == nil {
-			if _, err := os.Stat(filepath.Join("public", user.Avatar.URL())); err != nil {
+			if _, ok := getFile(user.Avatar.URL()); !ok {
 				t.Errorf("should find saved user avatar")
 			}
 
@@ -186,8 +210,8 @@ func TestSaveGifIntoOSS(t *testing.T) {
 				t.Errorf("url should be different after crop")
 			}
 
-			file, err := os.Open(filepath.Join("public", newUser.Avatar.URL("small1")))
-			if err != nil {
+			file, hasFile := getFile(newUser.Avatar.URL("small1"))
+			if !hasFile {
 				t.Errorf("Failed open croped image")
 			}
 
@@ -208,7 +232,7 @@ func TestSaveGifIntoOSS(t *testing.T) {
 				t.Errorf("Failed to decode croped gif image")
 			}
 
-			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar.URL("original")))
+			originalFile, hasFile := getFile(newUser.Avatar.URL("original"))
 			if stat, err := originalFile.Stat(); err != nil {
 				t.Errorf("original file should be there")
 			} else if avatarStat.Size() != stat.Size() {
@@ -229,7 +253,7 @@ func TestCropFileWithSameName(t *testing.T) {
 		user.Avatar2.Scan(avatar)
 
 		if err := db.Save(&user).Error; err == nil {
-			if _, err := os.Stat(filepath.Join("public", user.Avatar2.URL())); err != nil {
+			if _, hasFile := getFile(user.Avatar2.URL()); !hasFile {
 				t.Errorf("should find saved user avatar")
 			}
 
@@ -242,8 +266,8 @@ func TestCropFileWithSameName(t *testing.T) {
 				t.Errorf("url should be same after crop")
 			}
 
-			file, err := os.Open(filepath.Join("public", newUser.Avatar2.URL()))
-			if err != nil {
+			file, hasFile := getFile(newUser.Avatar2.URL())
+			if !hasFile {
 				t.Errorf("Failed open croped image")
 			}
 
@@ -255,7 +279,7 @@ func TestCropFileWithSameName(t *testing.T) {
 				t.Errorf("Failed to decode croped image")
 			}
 
-			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar2.URL("original")))
+			originalFile, hasFile := getFile(newUser.Avatar2.URL("original"))
 			if stat, err := originalFile.Stat(); err != nil {
 				t.Errorf("original file should be there")
 			} else if avatarStat.Size() != stat.Size() {
