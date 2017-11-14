@@ -1,3 +1,4 @@
+*_env
 /public
 *.log
 *.sqlite3

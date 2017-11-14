@@ -9,13 +9,33 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jinzhu/configor"
 	"github.com/jinzhu/gorm"
 	"github.com/qor/media"
 	"github.com/qor/media/oss"
+	"github.com/qor/oss/s3"
 	"github.com/qor/qor/test/utils"
 )
 
-var db = utils.TestDB()
+var (
+	db       = utils.TestDB()
+	S3Config = struct {
+		AccessKeyID     string `env:"AWS_ACCESS_KEY_ID"`
+		SecretAccessKey string `env:"AWS_SECRET_ACCESS_KEY"`
+		Region          string `env:"AWS_Region"`
+		S3Bucket        string `env:"AWS_Bucket"`
+	}{}
+)
+
+func init() {
+	configor.Load(&S3Config)
+	oss.Storage = s3.New(&s3.Config{
+		AccessID:  S3Config.AccessKeyID,
+		AccessKey: S3Config.SecretAccessKey,
+		Region:    S3Config.Region,
+		Bucket:    S3Config.S3Bucket,
+	})
+}
 
 type MyOSS struct {
 	oss.OSS
