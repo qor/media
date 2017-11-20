@@ -74,11 +74,7 @@
         unbind: function() {
             $document.off(EVENT_RELOAD, `.${CLASS_MEDIABOX}`);
 
-            this.$element
-                .off(EVENT_CLICK, '[data-mediabox-url]')
-                .off(EVENT_CLICK, CLASS_CROPPER_DELETE)
-                .off(EVENT_CLICK, CLASS_CROPPER_UNDO)
-                .off('change.qor.cropper', CLASS_CROPPER_OPTIONS);
+            this.$element.off(EVENT_CLICK).off('change.qor.cropper');
         },
 
         deleteSelected: function(e) {
