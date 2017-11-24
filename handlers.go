@@ -70,7 +70,7 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 								if cropOption := media.GetCropOption(key); cropOption != nil {
 									img = imaging.Crop(g.Image[i], *cropOption)
 								}
-								img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
+								img = imaging.Resize(img, size.Width, size.Height, imaging.Lanczos)
 								g.Image[i] = image.NewPaletted(image.Rect(0, 0, size.Width, size.Height), g.Image[i].Palette)
 								draw.Draw(g.Image[i], image.Rect(0, 0, size.Width, size.Height), img, image.Pt(0, 0), draw.Src)
 							}
