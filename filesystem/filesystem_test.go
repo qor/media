@@ -38,12 +38,15 @@ type User struct {
 	Avatar2 filesystem.FileSystem `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
 }
 
-func init() {
+func TestMain(m *testing.M) {
+	os.RemoveAll("public")
 	if err := db.DropTableIfExists(&User{}).Error; err != nil {
 		panic(err)
 	}
 	db.AutoMigrate(&User{})
 	media.RegisterCallbacks(db)
+
+	m.Run()
 }
 
 func TestURLWithoutFile(t *testing.T) {
