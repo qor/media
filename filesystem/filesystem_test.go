@@ -23,12 +23,14 @@ type MyFileSystem struct {
 
 func (MyFileSystem) GetSizes() map[string]*media.Size {
 	return map[string]*media.Size{
-		"small1": {20, 10},
-		"small2": {20, 10},
-		"square": {30, 30},
-		"big":    {50, 50},
-		"large":  {500, 500},
-		"slarge": {800, 0},
+		"small1":   {20, 10},
+		"small2":   {20, 10},
+		"square":   {30, 30},
+		"big":      {50, 50},
+		"large":    {300, 300},
+		"slarge":   {400, 0},
+		"sslarge":  {0, 500},
+		"ssslarge": {0, 0},
 	}
 }
 
@@ -107,8 +109,11 @@ func checkUserAvatar(user *User, t *testing.T) {
 		}
 
 		if image, _, err := image.DecodeConfig(file); err == nil {
-			if image.Width != size.Width || image.Height != size.Height {
-				t.Errorf("image should be croped successfully")
+			if (size.Width != 0 && image.Width != size.Width) || (image.Width == 0) {
+				t.Errorf("image's width is not cropped correctly")
+			}
+			if (size.Height != 0 && image.Height != size.Height) || (image.Height == 0) {
+				t.Errorf("image's height is not cropped correctly")
 			}
 		} else {
 			t.Errorf("Failed to decode croped image")
@@ -128,7 +133,6 @@ func TestSaveIntoFileSystem(t *testing.T) {
 			}
 
 			checkUserAvatar(&user, t)
-			return
 
 			var newUser User
 			db.First(&newUser, user.ID)
