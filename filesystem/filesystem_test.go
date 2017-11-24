@@ -98,6 +98,23 @@ func TestURLWithFile(t *testing.T) {
 	}
 }
 
+func checkUserAvatar(user *User, t *testing.T) {
+	for name, size := range user.Avatar.GetSizes() {
+		file, err := os.Open(filepath.Join("public", user.Avatar.URL(name)))
+		if err != nil {
+			t.Errorf("Failed open croped image")
+		}
+
+		if image, _, err := image.DecodeConfig(file); err == nil {
+			if image.Width != size.Width || image.Height != size.Height {
+				t.Errorf("image should be croped successfully")
+			}
+		} else {
+			t.Errorf("Failed to decode croped image")
+		}
+	}
+}
+
 func TestSaveIntoFileSystem(t *testing.T) {
 	var user = User{Name: "jinzhu"}
 	if avatar, err := os.Open("test/logo.png"); err == nil {
@@ -109,6 +126,8 @@ func TestSaveIntoFileSystem(t *testing.T) {
 				t.Errorf("should find saved user avatar")
 			}
 
+			checkUserAvatar(&user, t)
+
 			var newUser User
 			db.First(&newUser, user.ID)
 			newUser.Avatar.Scan(`{"CropOptions": {"small1": {"X": 5, "Y": 5, "Height": 10, "Width": 20}, "small2": {"X": 0, "Y": 0, "Height": 10, "Width": 20}}, "Crop": true}`)
@@ -118,20 +137,7 @@ func TestSaveIntoFileSystem(t *testing.T) {
 				t.Errorf("url should be different after crop")
 			}
 
-			for name, size := range newUser.Avatar.GetSizes() {
-				file, err := os.Open(filepath.Join("public", newUser.Avatar.URL(name)))
-				if err != nil {
-					t.Errorf("Failed open croped image")
-				}
-
-				if image, _, err := image.DecodeConfig(file); err == nil {
-					if image.Width != size.Width || image.Height != size.Height {
-						t.Errorf("image should be croped successfully")
-					}
-				} else {
-					t.Errorf("Failed to decode croped image")
-				}
-			}
+			checkUserAvatar(&newUser, t)
 
 			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar.URL("original")))
 			if err != nil {
