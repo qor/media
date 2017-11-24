@@ -27,6 +27,7 @@ func (MyFileSystem) GetSizes() map[string]*media.Size {
 		"small2": {20, 10},
 		"square": {30, 30},
 		"big":    {50, 50},
+		"large":  {500, 500},
 	}
 }
 
@@ -114,20 +115,26 @@ func TestSaveIntoFileSystem(t *testing.T) {
 				t.Errorf("url should be different after crop")
 			}
 
-			file, err := os.Open(filepath.Join("public", newUser.Avatar.URL("small1")))
-			if err != nil {
-				t.Errorf("Failed open croped image")
-			}
-
-			if image, _, err := image.DecodeConfig(file); err == nil {
-				if image.Width != 20 || image.Height != 10 {
-					t.Errorf("image should be croped successfully")
+			for name, size := range newUser.Avatar.GetSizes() {
+				file, err := os.Open(filepath.Join("public", newUser.Avatar.URL(name)))
+				if err != nil {
+					t.Errorf("Failed open croped image")
 				}
-			} else {
-				t.Errorf("Failed to decode croped image")
+
+				if image, _, err := image.DecodeConfig(file); err == nil {
+					if image.Width != size.Width || image.Height != size.Height {
+						t.Errorf("image should be croped successfully")
+					}
+				} else {
+					t.Errorf("Failed to decode croped image")
+				}
 			}
 
 			originalFile, err := os.Open(filepath.Join("public", newUser.Avatar.URL("original")))
+			if err != nil {
+				t.Errorf("Failed open original image")
+			}
+
 			if stat, err := originalFile.Stat(); err != nil {
 				t.Errorf("original file should be there")
 			} else if avatarStat.Size() != stat.Size() {
