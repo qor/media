@@ -41,8 +41,14 @@ func resizeImageTo(img image.Image, size *Size) image.Image {
 		ratioY     = float64(size.Height) / float64(imgSize.Y)
 		// 100x200 -> 200x300  ==>  ratioX = 2,   ratioY = 1.5  ==> resize to (x1.5) = 150x300
 		// 100x200 -> 20x50    ==>  ratioX = 0.2, ratioY = 0.4  ==> resize to (x0.2) = 20x40
+		// 100x200 -> 50x0     ==>  ratioX = 0.5, ratioY = 0    ==> resize to (x0.5) = 50x100
 		minRatio = math.Min(ratioX, ratioY)
 	)
+
+	if minRatio == 0 {
+		minRatio = math.Max(ratioX, ratioY)
+	}
+
 	img = imaging.Resize(img, int(float64(imgSize.X)*minRatio), int(float64(imgSize.Y)*minRatio), imaging.CatmullRom)
 	return imaging.PasteCenter(background, img)
 }

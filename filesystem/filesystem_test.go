@@ -28,6 +28,7 @@ func (MyFileSystem) GetSizes() map[string]*media.Size {
 		"square": {30, 30},
 		"big":    {50, 50},
 		"large":  {500, 500},
+		"slarge": {800, 0},
 	}
 }
 
