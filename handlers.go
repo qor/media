@@ -3,10 +3,12 @@ package media
 import (
 	"bytes"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/gif"
 	_ "image/jpeg"
 	"io/ioutil"
+	"math"
 
 	"github.com/disintegration/imaging"
 )
@@ -101,7 +103,18 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 								newImage = imaging.Crop(newImage, *cropOption)
 							}
 
-							dst := imaging.Thumbnail(newImage, size.Width, size.Height, imaging.Lanczos)
+							background := imaging.New(size.Width, size.Height, color.NRGBA{0, 0, 0, 0})
+
+							newImageSize := newImage.Bounds().Size()
+							ratioX := float64(size.Width) / float64(newImageSize.X)
+							ratioY := float64(size.Height) / float64(newImageSize.Y)
+							// 100x200 -> 200x300  ==>  ratioX = 2,   ratioY = 1.5  ==> resize to (x1.5) = 150x300
+							// 100x200 -> 20x50    ==>  ratioX = 0.2, ratioY = 0.4  ==> resize to (x0.2) = 20x40
+							minRatio := math.Min(ratioX, ratioY)
+							newImage = imaging.Resize(newImage, int(float64(newImageSize.X)*minRatio), int(float64(newImageSize.Y)*minRatio), imaging.CatmullRom)
+
+							dst := imaging.PasteCenter(background, newImage)
+							// dst := imaging.Resize(newImage, size.Width, size.Height, imaging.CatmullRom)
 							var buffer bytes.Buffer
 							imaging.Encode(&buffer, dst, *format)
 							media.Store(media.URL(key), option, &buffer)

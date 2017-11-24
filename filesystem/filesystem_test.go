@@ -127,6 +127,7 @@ func TestSaveIntoFileSystem(t *testing.T) {
 			}
 
 			checkUserAvatar(&user, t)
+			return
 
 			var newUser User
 			db.First(&newUser, user.ID)
