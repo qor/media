@@ -33,6 +33,20 @@ func (imageHandler) CouldHandle(media Media) bool {
 	return media.IsImage()
 }
 
+func resizeImageTo(img image.Image, size *Size) image.Image {
+	var (
+		imgSize    = img.Bounds().Size()
+		background = imaging.New(size.Width, size.Height, color.NRGBA{0, 0, 0, 0})
+		ratioX     = float64(size.Width) / float64(imgSize.X)
+		ratioY     = float64(size.Height) / float64(imgSize.Y)
+		// 100x200 -> 200x300  ==>  ratioX = 2,   ratioY = 1.5  ==> resize to (x1.5) = 150x300
+		// 100x200 -> 20x50    ==>  ratioX = 0.2, ratioY = 0.4  ==> resize to (x0.2) = 20x40
+		minRatio = math.Min(ratioX, ratioY)
+	)
+	img = imaging.Resize(img, int(float64(imgSize.X)*minRatio), int(float64(imgSize.Y)*minRatio), imaging.CatmullRom)
+	return imaging.PasteCenter(background, img)
+}
+
 func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err error) {
 	var fileBuffer bytes.Buffer
 	if fileBytes, err := ioutil.ReadAll(file); err == nil {
@@ -72,7 +86,7 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 								if cropOption := media.GetCropOption(key); cropOption != nil {
 									img = imaging.Crop(g.Image[i], *cropOption)
 								}
-								img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
+								img = resizeImageTo(img, size)
 								g.Image[i] = image.NewPaletted(image.Rect(0, 0, size.Width, size.Height), g.Image[i].Palette)
 								draw.Draw(g.Image[i], image.Rect(0, 0, size.Width, size.Height), img, image.Pt(0, 0), draw.Src)
 							}
@@ -103,20 +117,8 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 								newImage = imaging.Crop(newImage, *cropOption)
 							}
 
-							background := imaging.New(size.Width, size.Height, color.NRGBA{0, 0, 0, 0})
-
-							newImageSize := newImage.Bounds().Size()
-							ratioX := float64(size.Width) / float64(newImageSize.X)
-							ratioY := float64(size.Height) / float64(newImageSize.Y)
-							// 100x200 -> 200x300  ==>  ratioX = 2,   ratioY = 1.5  ==> resize to (x1.5) = 150x300
-							// 100x200 -> 20x50    ==>  ratioX = 0.2, ratioY = 0.4  ==> resize to (x0.2) = 20x40
-							minRatio := math.Min(ratioX, ratioY)
-							newImage = imaging.Resize(newImage, int(float64(newImageSize.X)*minRatio), int(float64(newImageSize.Y)*minRatio), imaging.CatmullRom)
-
-							dst := imaging.PasteCenter(background, newImage)
-							// dst := imaging.Resize(newImage, size.Width, size.Height, imaging.CatmullRom)
 							var buffer bytes.Buffer
-							imaging.Encode(&buffer, dst, *format)
+							imaging.Encode(&buffer, resizeImageTo(newImage, size), *format)
 							media.Store(media.URL(key), option, &buffer)
 						}
 					} else {
