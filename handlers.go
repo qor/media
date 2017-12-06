@@ -36,7 +36,7 @@ func (imageHandler) CouldHandle(media Media) bool {
 func resizeImageTo(img image.Image, size *Size) image.Image {
 	var (
 		imgSize    = img.Bounds().Size()
-		background = imaging.New(size.Width, size.Height, color.NRGBA{256, 256, 256, 0})
+		background = imaging.New(size.Width, size.Height, color.NRGBA{255, 255, 255, 0})
 		ratioX     = float64(size.Width) / float64(imgSize.X)
 		ratioY     = float64(size.Height) / float64(imgSize.Y)
 		// 100x200 -> 200x300  ==>  ratioX = 2,   ratioY = 1.5  ==> resize to (x1.5) = 150x300
@@ -45,24 +45,32 @@ func resizeImageTo(img image.Image, size *Size) image.Image {
 		minRatio = math.Min(ratioX, ratioY)
 	)
 
+	fixFloat := func(x float64, y int) int {
+		if math.Abs(x-float64(y)) < 1 {
+			return y
+		}
+		return int(x)
+	}
+
 	if minRatio == 0 {
 		minRatio = math.Max(ratioX, ratioY)
 
 		if size.Width == 0 && size.Height != 0 {
 			// size 50x0, source 100x200 => crop to 50x100
 			newWidth := int(float64(imgSize.X) / float64(imgSize.Y) * float64(size.Height))
-			background = imaging.New(newWidth, size.Height, color.NRGBA{256, 256, 256, 0})
+			background = imaging.New(newWidth, size.Height, color.NRGBA{255, 255, 255, 0})
 		} else if size.Height == 0 && size.Width != 0 {
 			// size 0x50, source 100x200 => crop to 25x50
 			newHeight := int(float64(imgSize.Y) / float64(imgSize.X) * float64(size.Width))
-			background = imaging.New(size.Width, newHeight, color.NRGBA{256, 256, 256, 0})
+			background = imaging.New(size.Width, newHeight, color.NRGBA{255, 255, 255, 0})
 		} else if size.Height == 0 && size.Width == 0 {
 			minRatio = 1
-			background = imaging.New(imgSize.X, imgSize.Y, color.NRGBA{256, 256, 256, 0})
+			background = imaging.New(imgSize.X, imgSize.Y, color.NRGBA{255, 255, 255, 0})
 		}
 	}
 
-	img = imaging.Resize(img, int(float64(imgSize.X)*minRatio), int(float64(imgSize.Y)*minRatio), imaging.CatmullRom)
+	backgroundSize := background.Bounds().Size()
+	img = imaging.Resize(img, fixFloat(float64(imgSize.X)*minRatio, backgroundSize.X), fixFloat(float64(imgSize.Y)*minRatio, backgroundSize.Y), imaging.CatmullRom)
 	return imaging.PasteCenter(background, img)
 }
 
