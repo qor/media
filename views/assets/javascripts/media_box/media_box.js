@@ -323,15 +323,19 @@
         compareCropSizes: function(data) {
             let cropOptions = data.MediaOption.CropOptions,
                 needCropSizes = this.bottomsheetsData.cropSizes,
-                needCropSizesSize,
+                sizesLen,
                 cropOptionsKeys;
 
             if (!needCropSizes || data.SelectedType != 'image') {
                 return false;
             }
 
+            if (cropOptions === undefined) {
+                return true;
+            }
+
             needCropSizes = needCropSizes.split(',');
-            needCropSizesSize = needCropSizes.length - 1;
+            sizesLen = needCropSizes.length - 1;
 
             if (window._.isObject(cropOptions)) {
                 cropOptionsKeys = Object.keys(cropOptions);
@@ -340,7 +344,7 @@
             }
 
             if (cropOptionsKeys.length) {
-                for (let i = 0; i < needCropSizesSize; i++) {
+                for (let i = 0; i < sizesLen; i++) {
                     if (cropOptionsKeys.indexOf(needCropSizes[i]) == -1) {
                         return true;
                     }
@@ -358,7 +362,7 @@
                 maxItem = this.bottomsheetsData.maxItem,
                 selectedItem = this.getSelectedItemData().selectedNum,
                 cropOptions = data.MediaOption.CropOptions,
-                needCropSize = this.compareCropSizes(data),
+                hasNewCropSize = this.compareCropSizes(data),
                 selectedType = data.SelectedType,
                 isSVG = /.svg$/.test(data.MediaOption.FileName),
                 _this = this;
@@ -438,7 +442,7 @@
             $template.trigger('enable');
 
             // if not have crop options or have crop options but have anothre size name to crop
-            if ((!cropOptions || needCropSize) && $input.data('qor.cropper') && !isSVG) {
+            if (hasNewCropSize && $input.data('qor.cropper') && !isSVG) {
                 $input.data('qor.cropper').load(data.MediaOption.URL, true, function() {
                     _this.syncImageCrop($item, _this.resetImages);
                 });
