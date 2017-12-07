@@ -297,6 +297,7 @@
                 dataType: 'json',
                 success: function(data) {
                     syncData.MediaOption = JSON.parse(data.MediaOption);
+                    $ele.attr('data-original-url', syncData.MediaOption.OriginalURL);
 
                     if (callback && $.isFunction(callback)) {
                         callback(syncData, $ele);
@@ -493,20 +494,11 @@
         },
 
         onSelectResults: function(data) {
-            this.handleResults(data);
+            this.handleResultsData(data);
         },
 
         onSubmitResults: function(data) {
-            this.handleResults(data, true);
-        },
-
-        handleResults: function(data, isNewData) {
-            if (isNewData) {
-                data.MediaOption = JSON.parse(data.MediaOption);
-                this.handleResultsData(data, isNewData);
-            } else {
-                this.handleResultsData(data);
-            }
+            this.handleResultsData(data, true);
         },
 
         handleResultsData: function(data, isNewData) {
