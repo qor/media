@@ -197,21 +197,20 @@
         },
 
         getSelectedItemData: function($ele) {
-            var $selectFeild = $ele ? $ele : this.$selectFeild,
+            let $selectFeild = $ele ? $ele : this.$selectFeild,
                 $items = $selectFeild.find(CLASS_ITEM).not('.' + CLASS_DELETE),
-                files = [],
-                item;
+                files = [];
 
             if ($items.length) {
                 $items.each(function() {
-                    item = $(this).data();
+                    let data = $(this).data();
 
                     files.push({
-                        ID: item.primaryKey,
-                        Url: item.originalUrl.replace(/.original.(\w+)$/, '.$1'),
-                        Description: item.description,
-                        FileName: item.fileName,
-                        VideoLink: item.videolink
+                        ID: data.primaryKey,
+                        Url: data.originalUrl.replace(/.original.(\w+)$/, '.$1'),
+                        Description: data.description,
+                        FileName: data.fileName,
+                        VideoLink: data.videolink
                     });
                 });
             }
@@ -261,6 +260,7 @@
         syncImageCrop: function($ele, callback) {
             let item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
                 url = $ele.data().mediaLibraryUrl,
+                _this = this,
                 syncData = {},
                 sizes = ['Width', 'Height'],
                 sizeResolutionData,
@@ -297,7 +297,8 @@
                 dataType: 'json',
                 success: function(data) {
                     syncData.MediaOption = JSON.parse(data.MediaOption);
-                    $ele.attr('data-original-url', syncData.MediaOption.OriginalURL);
+                    $ele.data().originalUrl = syncData.MediaOption.OriginalURL;
+                    _this.updateMediaLibraryData($ele.closest(CLASS_LISTS), syncData);
 
                     if (callback && $.isFunction(callback)) {
                         callback(syncData, $ele);
