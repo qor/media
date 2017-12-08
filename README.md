@@ -115,7 +115,8 @@ type ProductIconImageStorage struct{
 
 func (ProductIconImageStorage) GetSizes() map[string]*media.Size {
   return map[string]*media.Size{
-    "small":    {Width: 60 * 2, Height: 60 * 2},
+    // Add padding to thumbnail if ratio doesn't match, by default, crop center
+    "small":    {Width: 60 * 2, Height: 60 * 2, Padding: true},
     "small@ld": {Width: 60, Height: 60},
 
     "middle":    {Width: 108 * 2, Height: 108 * 2},
