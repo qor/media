@@ -23,14 +23,14 @@ type MyFileSystem struct {
 
 func (MyFileSystem) GetSizes() map[string]*media.Size {
 	return map[string]*media.Size{
-		"small1":   {20, 10},
-		"small2":   {20, 10},
-		"square":   {30, 30},
-		"big":      {50, 50},
-		"large":    {300, 300},
-		"slarge":   {400, 0},
-		"sslarge":  {0, 500},
-		"ssslarge": {0, 0},
+		"small1":   {Width: 20, Height: 10},
+		"small2":   {Width: 20, Height: 10},
+		"square":   {Width: 30, Height: 30},
+		"big":      {Width: 50, Height: 50},
+		"large":    {Width: 300, Height: 300},
+		"slarge":   {Width: 400, Height: 0},
+		"sslarge":  {Width: 0, Height: 500},
+		"ssslarge": {Width: 0, Height: 0},
 	}
 }
 
@@ -116,7 +116,7 @@ func checkUserAvatar(user *User, t *testing.T) {
 				t.Errorf("image's height is not cropped correctly")
 			}
 		} else {
-			t.Errorf("Failed to decode croped image")
+			t.Errorf("Failed to decode croped image, got err %v when decoding %v", err, user.Avatar.URL(name))
 		}
 	}
 }
