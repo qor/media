@@ -3,6 +3,9 @@
 }
 
 .qor-field__mediabox-list {
+    .qor-field__mediabox-item {
+        margin-bottom: 16px;
+    }
     .is-svg {
         .qor-file__list > ul > li {
             line-height: 150px;
@@ -16,6 +19,7 @@
     .qor-file__list > ul {
         margin-top: 0;
         > li {
+            margin-bottom: 0;
         }
     }
 }
@@ -56,8 +60,22 @@
 }
 
 .qor-field__mediabox-item.is_deleted {
-    border: 1px solid rgba(0, 0, 0, .12);
+    border: 1px solid rgba(0, 0, 0, 0.12);
 }
+
+.qor-media-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding-top: 40px;
+    z-index: 9999;
+    box-sizing: border-box;
+}
+
 /* Firefox inline-flex bug */
 @-moz-document url-prefix() {
     .qor-bottomsheets__mediabox .qor-bottomsheets__body .qor-table--medialibrary tbody tr {

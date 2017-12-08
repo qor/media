@@ -289,6 +289,8 @@
 
             syncData.MediaOption = JSON.stringify(item);
 
+            this.addMediaLoading($ele);
+
             $.ajax({
                 type: 'PUT',
                 url: url,
@@ -303,6 +305,9 @@
                     if (callback && $.isFunction(callback)) {
                         callback(syncData, $ele);
                     }
+                },
+                complete: function() {
+                    $ele.find('.qor-media-loading').remove();
                 }
             });
         },
@@ -450,6 +455,8 @@
                 });
             }
 
+            this.$bottomsheets.find('.qor-media-loading').remove();
+
             if (isNewData || maxItem == 1) {
                 setTimeout(function() {
                     _this.$bottomsheets.remove();
@@ -485,8 +492,9 @@
 
         handleSelectMany: function($bottomsheets) {
             let options = {
-                onSelect: this.onSelectResults.bind(this), // render selected item after click item lists
-                onSubmit: this.onSubmitResults.bind(this) // render new items after new item form submitted
+                loading: this.addMediaLoading,
+                onSelect: this.onSelectResults.bind(this),
+                onSubmit: this.onSubmitResults.bind(this)
             };
 
             $bottomsheets.qorSelectCore(options).addClass(CLASS_MEDIABOX);
@@ -526,6 +534,12 @@
                 this.removeItem(data);
             }
             this.updateDatas(data);
+        },
+
+        addMediaLoading: function($ele) {
+            $('<div class="qor-media-loading"><div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div></div>')
+                .appendTo($ele)
+                .trigger('enable.qor.material');
         },
 
         updateDatas: function(data) {
