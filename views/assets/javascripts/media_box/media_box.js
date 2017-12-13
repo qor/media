@@ -109,7 +109,7 @@
 
         imageCrop: function(e) {
             var $parent = $(e.target).closest(CLASS_ITEM);
-            this.syncImageCrop($parent);
+            this.syncImageCrop($parent, this.resetImages);
         },
 
         openBottomSheets: function(e) {
