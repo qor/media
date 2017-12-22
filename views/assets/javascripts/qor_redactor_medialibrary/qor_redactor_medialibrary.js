@@ -13,7 +13,7 @@ $(function() {
 
             addMedialibrary: function() {
                 var $element = this.$element,
-                    data = { selectModal: 'mediabox', maxItem: '1' },
+                    data = {selectModal: 'mediabox', maxItem: '1'},
                     mediaboxUrl = $element.data().redactorSettings.medialibraryUrl,
                     BottomSheets;
 
@@ -24,8 +24,8 @@ $(function() {
 
             handleMediaLibrary: function($bottomsheets) {
                 var options = {
-                    onSelect: this.medialibrary.selectResults, // render selected item after click item lists
-                    onSubmit: this.medialibrary.submitResults // render new items after new item form submitted
+                    onSelect: this.medialibrary.handleResults, // render selected item after click item lists
+                    onSubmit: this.medialibrary.handleResults // render new items after new item form submitted
                 };
 
                 this.medialibrary.$bottomsheets = $bottomsheets;
@@ -49,16 +49,7 @@ $(function() {
                 });
             },
 
-            selectResults: function(data) {
-                this.medialibrary.handleResults(data);
-            },
-
-            submitResults: function(data) {
-                this.medialibrary.handleResults(data, true);
-            },
-
-            handleResults: function(data, isNew) {
-                isNew && (data.MediaOption = JSON.parse(data.MediaOption));
+            handleResults: function(data) {
                 var reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
                     mediaOption = data.MediaOption;
 
