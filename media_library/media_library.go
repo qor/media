@@ -216,7 +216,9 @@ func (mediaBox MediaBox) ConfigureQorMeta(metaor resource.Metaor) {
 
 		if meta.FormattedValuer == nil {
 			meta.FormattedValuer = func(record interface{}, context *qor.Context) interface{} {
-				if mediaBox, ok := meta.GetValuer()(record, context).(*MediaBox); ok {
+				if mediaBox, ok := meta.GetValuer()(record, context).(interface {
+					URL(styles ...string) string
+				}); ok {
 					return mediaBox.URL()
 				}
 				return ""
