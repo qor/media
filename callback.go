@@ -116,6 +116,10 @@ func saveAndCropImage(isCreate bool) func(scope *gorm.Scope) {
 
 // RegisterCallbacks register callback into GORM DB
 func RegisterCallbacks(db *gorm.DB) {
-	db.Callback().Update().Before("gorm:before_update").Register("media:save_and_crop", saveAndCropImage(false))
-	db.Callback().Create().After("gorm:after_create").Register("media:save_and_crop", saveAndCropImage(true))
+	if db.Callback().Create().Get("media:save_and_crop") == nil {
+		db.Callback().Create().After("gorm:after_create").Register("media:save_and_crop", saveAndCropImage(true))
+	}
+	if db.Callback().Update().Get("media:save_and_crop") == nil {
+		db.Callback().Update().Before("gorm:before_update").Register("media:save_and_crop", saveAndCropImage(false))
+	}
 }
