@@ -127,6 +127,10 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 
 					// save sizes image
 					for key, size := range media.GetSizes() {
+						if key == "original" {
+							continue
+						}
+
 						file.Seek(0, 0)
 						if g, err := gif.DecodeAll(file); err == nil {
 							for i := range g.Image {
@@ -160,6 +164,10 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 
 						// save sizes image
 						for key, size := range media.GetSizes() {
+							if key == "original" {
+								continue
+							}
+
 							newImage := img
 							if cropOption := media.GetCropOption(key); cropOption != nil {
 								newImage = imaging.Crop(newImage, *cropOption)
