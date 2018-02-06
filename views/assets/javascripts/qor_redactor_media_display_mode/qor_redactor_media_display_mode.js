@@ -47,30 +47,29 @@ $(function() {
                     </div></div>`;
             },
             init: function() {
+                let $editor = this.core.editor(),
+                    $imgs = $editor.find('img');
+
                 if (this.opts.type === 'pre' || this.opts.type === 'inline') {
                     return;
                 }
 
-                let button = this.button.add('mediaDisplayMode', this.lang.get('mediaDisplayMode')),
-                    that = this,
-                    $editor = this.core.editor();
-
-                $editor.on('click.mediadisplaymode', this.mediadisplaymode.removeButton);
-                $editor.find('img').each(function(i, img) {
-                    $(img).on('click.mediadisplaymode touchstart.mediadisplaymode', that.mediadisplaymode.setImageEditter.bind(that));
-                });
+                $editor.on('click.redactor-mediadisplaymode touchstart.redactor-mediadisplaymode', $imgs, this.mediadisplaymode.setImageEditter.bind(this));
             },
 
             insertButton: function($ele) {
-                $(this.mediadisplaymode.getEditterButton())
-                    .css(this.mediadisplaymode.buttonStyle)
+                let mode = this.mediadisplaymode;
+
+                $(mode.getEditterButton())
+                    .css(mode.buttonStyle)
                     .appendTo($ele.closest('#redactor-image-box'))
-                    .on('click.mediadisplaymode', this.mediadisplaymode.show);
+                    .on('click.redactor-mediadisplaymode', mode.show);
             },
 
             removeButton: function(e) {
                 if (!$(e.target).closest('#redactor-image-box').length) {
                     $('#redactor-image-displaymode').remove();
+                    $(document).off('click.redactor-mediadisplaymode');
                 }
             },
 
@@ -81,7 +80,9 @@ $(function() {
 
                 this.mediadisplaymode.$imageTag = $imageTag;
                 this.mediadisplaymode.$image = $image;
-                this.mediadisplaymode.displaymode = this.mediadisplaymode.getDisplayMode($imageTag.attr('class'));
+                this.mediadisplaymode.currentDisplaymode = this.mediadisplaymode.getDisplayMode($imageTag.attr('class'));
+
+                $(document).on('click.redactor-mediadisplaymode', this.mediadisplaymode.removeButton);
 
                 setTimeout(function() {
                     that.mediadisplaymode.insertButton($image);
@@ -89,10 +90,16 @@ $(function() {
             },
 
             getDisplayMode: function(className) {
-                // console.log(className);
+                let mode = className ? className.match(/rd-display-\w+/) : null;
+
+                if (mode) {
+                    mode = mode[0].replace('rd-display-', '');
+                }
+
+                return mode;
             },
             show: function() {
-                let displaymode = this.mediadisplaymode.displaymode;
+                let currentDisplaymode = this.mediadisplaymode.currentDisplaymode;
 
                 this.modal.addTemplate('mediadisplaymode', this.mediadisplaymode.getTemplate());
                 this.modal.load('mediadisplaymode', 'Media Display Mode', 600);
@@ -101,14 +108,17 @@ $(function() {
                 button.on('click', this.mediadisplaymode.save);
 
                 this.modal.show();
-                $('#modal-media-display-mode').val(displaymode ? displaymode : 0);
+                $('#modal-media-display-mode').val(currentDisplaymode ? currentDisplaymode : 0);
                 $('#redactor-image-preview').html(`<img src="${this.mediadisplaymode.$image.prop('src')}" style="max-width: 100%; opacity: 1">`);
             },
             save: function() {
                 let displayMode = $('#modal-media-display-mode').val(),
                     $imageTag = this.mediadisplaymode.$imageTag;
 
-                $imageTag.removeClass();
+                // remove all rd-display-* className
+                $imageTag.removeClass(function(index, className) {
+                    return (className.match(/rd-display-\w+/g) || []).join(' ');
+                });
 
                 if (displayMode != 0) {
                     $imageTag.addClass(`rd-display-${displayMode}`);
