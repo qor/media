@@ -94,3 +94,14 @@ func (o OSS) URL(styles ...string) string {
 
 	return newurl
 }
+
+func (o OSS) String() string {
+	url := o.Base.URL()
+
+	newurl, err := Storage.GetURL(url)
+	if err != nil || len(newurl) == 0 {
+		return url
+	}
+
+	return newurl
+}
