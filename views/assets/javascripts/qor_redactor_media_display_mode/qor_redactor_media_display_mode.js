@@ -35,7 +35,7 @@ $(function() {
                         <section>
                             <select id="modal-media-display-mode">
                                 <option value="0">Please select display mode</option>
-                                <option value="half-container">Half Container Width</option>
+                                <option value="halfcontainer">Half Container Width</option>
                                 <option value="container">Container Width</option>
                                 <option value="fullwidth">Full Width</option>
                             </select>
