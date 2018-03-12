@@ -1,5 +1,12 @@
 // Media display mode for redactor editor
 // By Jason weng @theplant
+// // product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{Plugins: []admin.RedactorPlugin{
+// 	{Name: "mediadisplaymode", Source: "/admin/assets/javascripts/qor_redactor_media_display_mode.js"},
+// },
+// 	Settings: map[string]interface{}{
+// 		"mediadisplaymodenames": "left|right|container width|full width",
+// 	},
+// }})
 //
 $(function() {
     $.Redactor.prototype.mediadisplaymode = function() {
@@ -35,9 +42,6 @@ $(function() {
                         <section>
                             <select id="modal-media-display-mode">
                                 <option value="0">Please select display mode</option>
-                                <option value="halfcontainer">Half Container Width</option>
-                                <option value="container">Container Width</option>
-                                <option value="fullwidth">Full Width</option>
                             </select>
                         </section>
                         <section>
@@ -48,11 +52,20 @@ $(function() {
             },
             init: function() {
                 let $editor = this.core.editor(),
+                    mediaDisplayModeOptions = this.opts.mediaDisplayModeOptions || '',
+                    $modes = '',
                     $imgs = $editor.find('img');
 
-                if (this.opts.type === 'pre' || this.opts.type === 'inline') {
+                if (this.opts.type === 'pre' || this.opts.type === 'inline' || mediaDisplayModeOptions === '') {
                     return;
                 }
+
+                mediaDisplayModeOptions.split(/\||,/).forEach(mode => {
+                    let value = mode.toLowerCase().replace(/\s/g, '');
+                    $modes = `${$modes}<option value="${value}">${mode}</option>`;
+                });
+
+                this.mediadisplaymode.$modes = $modes;
 
                 $editor.on('click.redactor-mediadisplaymode touchstart.redactor-mediadisplaymode', $imgs, this.mediadisplaymode.setImageEditter.bind(this));
             },
@@ -106,6 +119,8 @@ $(function() {
 
                 let button = this.modal.getActionButton().text(this.lang.get('save'));
                 button.on('click', this.mediadisplaymode.save);
+
+                $('#modal-media-display-mode').append(this.mediadisplaymode.$modes);
 
                 this.modal.show();
                 $('#modal-media-display-mode').val(currentDisplaymode ? currentDisplaymode : 0);
