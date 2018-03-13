@@ -19,21 +19,6 @@ $(function() {
                     mediaDisplayModeButton: 'Display mode'
                 }
             },
-            buttonStyle: {
-                position: 'absolute',
-                'z-index': '5',
-                top: '50%',
-                left: '50%',
-                'margin-top': '-11px',
-                'line-height': '1',
-                'background-color': 'rgba(0,0,0,.9)',
-                'border-radius': '3px',
-                color: '#fff',
-                'font-size': '12px',
-                padding: '7px 10px',
-                cursor: 'pointer',
-                'margin-left': '-120px'
-            },
             getEditterButton: function() {
                 return `<span id="redactor-image-displaymode" data-redactor="verified" contenteditable="false">${this.lang.get('mediaDisplayModeButton')}</span>`;
             },
@@ -76,8 +61,7 @@ $(function() {
                 let mode = this.mediadisplaymode;
 
                 $(mode.getEditterButton())
-                    .css(mode.buttonStyle)
-                    .appendTo($ele.closest('#redactor-image-box'))
+                    .prependTo($ele.closest('#redactor-image-box'))
                     .on('click.redactor-mediadisplaymode', mode.show);
             },
 
@@ -90,17 +74,17 @@ $(function() {
 
             setImageEditter: function(e) {
                 let $image = $(e.target),
-                    that = this,
+                    mediadisplaymode = this.mediadisplaymode,
                     $imageTag = $image.closest(this.opts.imageTag);
 
-                this.mediadisplaymode.$imageTag = $imageTag;
-                this.mediadisplaymode.$image = $image;
-                this.mediadisplaymode.currentDisplaymode = this.mediadisplaymode.getDisplayMode($imageTag.attr('class'));
+                mediadisplaymode.$imageTag = $imageTag;
+                mediadisplaymode.$image = $image;
+                mediadisplaymode.currentDisplaymode = mediadisplaymode.getDisplayMode($imageTag.attr('class'));
 
-                $(document).on('click.redactor-mediadisplaymode', this.mediadisplaymode.removeButton);
+                $(document).on('click.redactor-mediadisplaymode', mediadisplaymode.removeButton);
 
                 setTimeout(function() {
-                    that.mediadisplaymode.insertButton($image);
+                    mediadisplaymode.insertButton($image);
                 }, 10);
             },
 
