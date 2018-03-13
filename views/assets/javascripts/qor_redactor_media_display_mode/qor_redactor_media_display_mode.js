@@ -4,10 +4,12 @@
 // 	{Name: "mediadisplaymode", Source: "/admin/assets/javascripts/qor_redactor_media_display_mode.js"},
 // },
 // 	Settings: map[string]interface{}{
-// 		"mediadisplaymodenames": "left|right|container width|full width",
+// 		"mediaDisplayModeOptions": "Left|Right|Container Width|Full Width",
 // 	},
 // }})
-//
+// rendered classname:
+// rd-display-left, rd-display-right, rd-display-containerwidth, rd-display-fullwidth
+
 $(function() {
     $.Redactor.prototype.mediadisplaymode = function() {
         return {
