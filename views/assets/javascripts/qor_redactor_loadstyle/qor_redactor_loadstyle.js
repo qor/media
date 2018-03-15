@@ -20,30 +20,33 @@ product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{As
 }})
 ********************************* */
 
-$(function() {
-    $.Redactor.prototype.loadstyle = function() {
-        return {
-            init: function() {
-                this.loadstyle.loadStyle();
-            },
+$.Redactor.prototype.loadstyle = function() {
+    return {
+        init: function() {
+            this.loadstyle.loadStyle();
+        },
 
-            loadStyle: function() {
-                // loadStyleNamespace, loadStyleLink are required options
-                if (typeof this.opts.loadStyleLink === 'undefined' || typeof this.opts.loadStyleNamespace === 'undefined') {
-                    return;
-                }
-
-                var ss = document.createElement('link');
-
-                // insert stylesheet
-                ss.type = 'text/css';
-                ss.rel = 'stylesheet';
-                ss.href = this.opts.loadStyleLink;
-                document.getElementsByTagName('head')[0].appendChild(ss);
-
-                // add namespace class into editor
-                this.core.editor().addClass(this.opts.loadStyleNamespace);
+        loadStyle: function() {
+            // loadStyleNamespace, loadStyleLink are required options
+            if (typeof this.opts.loadStyleLink === 'undefined') {
+                window.alert('please define loadStyleLink setting in your config file!');
+                return;
             }
-        };
+            if (typeof this.opts.loadStyleNamespace === 'undefined') {
+                window.alert('please define loadStyleNamespace setting in your config file!');
+                return;
+            }
+
+            var ss = document.createElement('link');
+
+            // insert stylesheet
+            ss.type = 'text/css';
+            ss.rel = 'stylesheet';
+            ss.href = this.opts.loadStyleLink;
+            document.getElementsByTagName('head')[0].appendChild(ss);
+
+            // add namespace class into editor
+            this.core.editor().addClass(this.opts.loadStyleNamespace);
+        }
     };
-});
+};
