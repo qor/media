@@ -49,17 +49,17 @@ type MediaOption struct {
 }
 
 func (mediaLibrary *MediaLibrary) ScanMediaOptions(mediaOption MediaOption) error {
-	if bytes, err := json.Marshal(mediaOption); err == nil {
+	bytes, err := json.Marshal(mediaOption)
+	if err == nil {
 		return mediaLibrary.File.Scan(bytes)
-	} else {
-		return err
 	}
+	return err
 }
 
 func (mediaLibrary *MediaLibrary) GetMediaOption() MediaOption {
 	return MediaOption{
 		Video:        mediaLibrary.File.Video,
-		FileName:     mediaLibrary.File.FileName,
+		FileName:     mediaLibrary.File.GetFileName(),
 		URL:          mediaLibrary.File.URL(),
 		OriginalURL:  mediaLibrary.File.URL("original"),
 		CropOptions:  mediaLibrary.File.CropOptions,
