@@ -129,8 +129,8 @@
             data.url = data.mediaboxUrl;
 
             // select many templates
-            this.SELECT_MANY_SELECTED_ICON = $('[name="select-many-selected-icon"]').html();
-            this.SELECT_MANY_HINT = $('[name="select-many-hint"]').html();
+            this.SELECT_MANY_SELECTED_ICON = $('[name="media-box-select-many-selected-icon"]').html();
+            this.SELECT_MANY_HINT = $('[name="media-box-select-many-hint"]').html();
 
             this.TEMPLATE_IMAGE = $parent.find('[name="media-box-template"]').html();
             this.TEMPLATE_FILE = $parent.find('[name="media-box-file-template"]').html();
