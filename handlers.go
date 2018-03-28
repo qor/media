@@ -153,8 +153,10 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 				} else {
 					if img, _, err := image.Decode(file); err == nil {
 						// save original image
-						if cropOption := media.GetCropOption("original"); cropOption != nil {
-							img = imaging.Crop(img, *cropOption)
+						if len(media.GetSizes()) == 0 {
+							if cropOption := media.GetCropOption("original"); cropOption != nil {
+								img = imaging.Crop(img, *cropOption)
+							}
 						}
 
 						// Save default image
