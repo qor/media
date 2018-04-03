@@ -142,7 +142,10 @@ func (b Base) GetFileName() string {
 	if b.FileName != "" {
 		return b.FileName
 	}
-	return filepath.Base(b.Url)
+	if b.Url != "" {
+		return filepath.Base(b.Url)
+	}
+	return ""
 }
 
 // GetFileHeader get file's header, this value only exists when saving files
