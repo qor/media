@@ -114,7 +114,7 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 		if mediaLibraryStorage.Sizes == nil {
 			mediaLibraryStorage.Sizes = map[string]*media.Size{}
 		}
-		cropOptions := mediaLibraryStorage.CropOptions
+		// cropOptions := mediaLibraryStorage.CropOptions
 		sizeOptions := mediaLibraryStorage.Sizes
 
 		if string(values) != "" {
@@ -124,15 +124,17 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 					mediaLibraryStorage.CropOptions = map[string]*media.CropOption{}
 				}
 
-				for key, value := range cropOptions {
-					if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
-						mediaLibraryStorage.CropOptions[key] = value
-					}
-				}
+				// for key, value := range cropOptions {
+				// 	if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
+				// 		mediaLibraryStorage.CropOptions[key] = value
+				// 	}
+				// }
 
 				for key, value := range sizeOptions {
-					if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
-						mediaLibraryStorage.Sizes[key] = value
+					if key != "original" {
+						if _, ok := mediaLibraryStorage.Sizes[key]; !ok {
+							mediaLibraryStorage.Sizes[key] = value
+						}
 					}
 				}
 
