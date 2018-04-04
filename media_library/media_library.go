@@ -114,16 +114,16 @@ func (mediaLibraryStorage *MediaLibraryStorage) Scan(data interface{}) (err erro
 		if mediaLibraryStorage.Sizes == nil {
 			mediaLibraryStorage.Sizes = map[string]*media.Size{}
 		}
-		if mediaLibraryStorage.CropOptions == nil {
-			mediaLibraryStorage.CropOptions = map[string]*media.CropOption{}
-		}
 		cropOptions := mediaLibraryStorage.CropOptions
 		sizeOptions := mediaLibraryStorage.Sizes
 
 		if string(values) != "" {
 			mediaLibraryStorage.Base.Scan(values)
-
 			if err = json.Unmarshal(values, mediaLibraryStorage); err == nil {
+				if mediaLibraryStorage.CropOptions == nil {
+					mediaLibraryStorage.CropOptions = map[string]*media.CropOption{}
+				}
+
 				for key, value := range cropOptions {
 					if _, ok := mediaLibraryStorage.CropOptions[key]; !ok {
 						mediaLibraryStorage.CropOptions[key] = value
