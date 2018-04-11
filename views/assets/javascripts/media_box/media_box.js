@@ -468,7 +468,7 @@
         },
 
         resetImages: function(data, $template) {
-            var cropOptions = data.MediaOption.CropOptions,
+            let cropOptions = data.MediaOption.CropOptions,
                 keys = Object.keys(cropOptions),
                 url = data.MediaOption.OriginalURL;
 
@@ -476,16 +476,17 @@
                 return;
             }
 
-            for (var i = keys.length - 1; i >= 0; i--) {
+            for (let i = keys.length - 1; i >= 0; i--) {
                 cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
             }
 
             $template.find('img[data-size-name]').each(function() {
-                var $this = $(this),
+                let $this = $(this),
+                    randomString = (Math.random() + 1).toString(36).substring(7),
                     sizeName = $this.data().sizeName;
 
                 if (sizeName != 'original' && cropOptions[sizeName]) {
-                    $this.prop('src', cropOptions[sizeName]['URL']);
+                    $this.prop('src', `${cropOptions[sizeName]['URL']}?${randomString}`);
                 }
             });
         },
