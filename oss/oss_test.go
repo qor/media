@@ -53,10 +53,10 @@ type MyOSS struct {
 
 func (MyOSS) GetSizes() map[string]*media.Size {
 	return map[string]*media.Size{
-		"small1": {20, 10},
-		"small2": {20, 10},
-		"square": {30, 30},
-		"big":    {50, 50},
+		"small1": {20, 10, false},
+		"small2": {20, 10, false},
+		"square": {30, 30, false},
+		"big":    {50, 50, false},
 	}
 }
 
