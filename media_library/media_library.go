@@ -389,11 +389,18 @@ func (mediaBox MediaBox) Crop(res *admin.Resource, db *gorm.DB, mediaOption Medi
 	return
 }
 
+const (
+	ALLOW_TYPE_FILE  = "file"
+	ALLOW_TYPE_IMAGE = "image"
+	ALLOW_TYPE_VIDEO = "video"
+)
+
 // MediaBoxConfig configure MediaBox metas
 type MediaBoxConfig struct {
 	RemoteDataResource *admin.Resource
 	Sizes              map[string]*media.Size
 	Max                uint
+	AllowType          string
 	admin.SelectManyConfig
 }
 
