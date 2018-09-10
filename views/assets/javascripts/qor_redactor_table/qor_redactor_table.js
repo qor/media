@@ -162,11 +162,19 @@ $.Redactor.prototype.table = function() {
 
             // add customize className for table
             if (typeof this.opts.tableClassNames != 'undefined') {
-                var tableClassNames = this.opts.tableClassNames.split(',');
+                var tableClassNames = this.opts.tableClassNames.split(';');
+                this.table.tableClassNames = [];
+
                 tableClassNames.forEach(name => {
+                    name = name.split(',');
+                    if (name.length != 2) {
+                        return;
+                    }
+                    this.table.tableClassNames.push(name[0]);
+
                     var menuObj = {
-                        title: name,
-                        func: this.table.setTableComponent.bind(this, name),
+                        title: name[1],
+                        func: this.table.setTableComponent.bind(this, name[0]),
                         observe: {
                             element: 'table',
                             out: {
@@ -177,7 +185,7 @@ $.Redactor.prototype.table = function() {
                             }
                         }
                     };
-                    dropdown[name] = menuObj;
+                    dropdown[name[1]] = menuObj;
                 });
                 dropdown.clear_styles = {
                     title: 'Clear table styles',
@@ -210,7 +218,7 @@ $.Redactor.prototype.table = function() {
             if (!$table) {
                 return;
             }
-            $table.removeClass(this.opts.tableClassNames.replace(/,/g, ' '));
+            $table.removeClass(this.table.tableClassNames.toString().replace(/,/g, ' '));
         },
         insert: function() {
             if (this.table.getTable()) {
