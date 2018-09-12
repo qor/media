@@ -108,13 +108,24 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 					var buffer bytes.Buffer
 					if g, err := gif.DecodeAll(file); err == nil {
 						if cropOption := media.GetCropOption("original"); cropOption != nil {
+							var firstImage image.Image
 							for i := range g.Image {
-								img := imaging.Crop(g.Image[i], *cropOption)
-								g.Image[i] = image.NewPaletted(img.Rect, g.Image[i].Palette)
-								draw.Draw(g.Image[i], img.Rect, img, image.Pt(0, 0), draw.Src)
 								if i == 0 {
-									g.Config.Width = img.Rect.Dx()
-									g.Config.Height = img.Rect.Dy()
+									firstImage = g.Image[0]
+								}
+								var img image.Image = g.Image[i]
+								//use first image as backgroud for small image
+								if !img.Bounds().Min.Eq(firstImage.Bounds().Min) || !img.Bounds().Max.Eq(firstImage.Bounds().Max) {
+									firstImagePaletted := imaging.Clone(firstImage)
+									draw.Draw(firstImagePaletted, img.Bounds(), img, img.Bounds().Min, draw.Src)
+									img = firstImagePaletted
+								}
+								img = imaging.Crop(img, *cropOption)
+								g.Image[i] = image.NewPaletted(img.Bounds(), g.Image[i].Palette)
+								draw.Draw(g.Image[i], img.Bounds(), img, image.Pt(0, 0), draw.Src)
+								if i == 0 {
+									g.Config.Width = img.Bounds().Dx()
+									g.Config.Height = img.Bounds().Dy()
 								}
 							}
 						}
@@ -130,19 +141,35 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 						if key == "original" {
 							continue
 						}
-
 						file.Seek(0, 0)
 						if g, err := gif.DecodeAll(file); err == nil {
+							// Don't crop or resize when gif size equal to defined size
+							if g.Config.Width == size.Width && g.Config.Height == size.Height {
+								var result bytes.Buffer
+								gif.EncodeAll(&result, g)
+								media.Store(media.URL(key), option, &result)
+								continue
+							}
+							var firstImage image.Image
 							for i := range g.Image {
 								var img image.Image = g.Image[i]
-								if cropOption := media.GetCropOption(key); cropOption != nil {
-									img = imaging.Crop(g.Image[i], *cropOption)
+								if i == 0 {
+									firstImage = g.Image[0]
 								}
+								//use first image as backgroud for small image
+								if !img.Bounds().Min.Eq(firstImage.Bounds().Min) || !img.Bounds().Max.Eq(firstImage.Bounds().Max) {
+									firstImagePaletted := imaging.Clone(firstImage)
+									draw.Draw(firstImagePaletted, img.Bounds(), img, img.Bounds().Min, draw.Src)
+									img = firstImagePaletted
+								}
+								if cropOption := media.GetCropOption(key); cropOption != nil {
+									img = imaging.Crop(img, *cropOption)
+								}
+
 								img = resizeImageTo(img, size, *format)
 								g.Image[i] = image.NewPaletted(image.Rect(0, 0, size.Width, size.Height), g.Image[i].Palette)
 								draw.Draw(g.Image[i], image.Rect(0, 0, size.Width, size.Height), img, image.Pt(0, 0), draw.Src)
 							}
-
 							var result bytes.Buffer
 							g.Config.Width = size.Width
 							g.Config.Height = size.Height
