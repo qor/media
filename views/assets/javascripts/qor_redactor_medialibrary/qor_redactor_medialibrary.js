@@ -227,14 +227,16 @@
         });
         $figure.append($img);
 
+        
+
         if ($currentTag) {
           $currentTag.after($figure);
         } else {
-          this.$editor.prepend($figure);
+          $(thisApp.app.editor.$editor.nodes[0]).prepend($figure);
         }
 
-        this.image.setEditable($img);
-        this.code.sync();
+        //this.image.setEditable($img);
+        //this.code.sync();
 
         // trigger insertedVideo.redactor event after inserted images
         callbackData.description = mediaOption.Description;
@@ -242,7 +244,7 @@
         callbackData.$editor = this.$editor;
         callbackData.$element = this.$element;
 
-        this.$element.trigger("insertedImage.redactor", [callbackData]);
+        //this.$element.trigger("insertedImage.redactor", [callbackData]);
       };
     }
   });
