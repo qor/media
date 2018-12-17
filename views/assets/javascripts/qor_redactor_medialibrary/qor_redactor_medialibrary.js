@@ -21,6 +21,8 @@
       $button.setIcon('<i class="material-icons">photo_library</i>');
       this.buttonElement = $button.nodes[0];
 
+      this.$currentTag = false;
+
       $(document).on(
         "reload.qor.bottomsheets",
         ".qor-bottomsheets__mediabox",
@@ -29,6 +31,7 @@
     },
 
     addMedialibrary: function() {
+      this.$currentTag = this.app.selection.getCurrent();
       this.func.addMedialibrary();
     },
 
@@ -102,10 +105,13 @@
       };
 
       this.insertVideo = function(data) {
-        this.opts.mediaContainerClass =
-          typeof this.opts.mediaContainerClass === "undefined"
+        const $editor = $(thisApp.app.editor.$editor.nodes[0]);
+        const $rootElement = $(thisApp.app.rootElement);
+
+        thisApp.opts.mediaContainerClass =
+          typeof thisApp.opts.mediaContainerClass === "undefined"
             ? "qor-video-container"
-            : this.opts.mediaContainerClass;
+            : thisApp.opts.mediaContainerClass;
 
         var htmlCode,
           videoLink,
@@ -115,12 +121,11 @@
           $html,
           youkuID,
           callbackData = {},
-          mediaContainerClass = this.opts.mediaContainerClass,
-          reUrlYoutube = this.opts.regexps.linkyoutube,
-          reUrlVimeo = this.opts.regexps.linkvimeo,
+          mediaContainerClass = thisApp.opts.mediaContainerClass,
+          reUrlYoutube = thisApp.opts.regexps.linkyoutube,
+          reUrlVimeo = thisApp.opts.regexps.linkvimeo,
           reUrlYouku = /http?:\/\/(www\.)|(v\.)youku.com/,
           reUrlYoukuID = /(\/id_)(\w+)/,
-          $currentTag = this.selection.$currentTag,
           reVideo = /\.mp4$|\.m4p$|\.m4v$|\.m4v$|\.mov$|\.mpeg$|\.webm$|\.avi$|\.ogg$|\.ogv$/,
           randomString = (Math.random() + 1).toString(36).substring(7),
           videoIdentification = "qor-video-" + randomString,
@@ -191,29 +196,30 @@
 
         $html = $(htmlCode).addClass(videoIdentification);
 
-        if ($currentTag) {
-          $currentTag.after($html);
+        if (thisApp.$currentTag) {
+          thisApp.$currentTag.after($html);
         } else {
-          thisApp.$editor.prepend($html);
+          $editor.prepend($html);
         }
 
-        this.code.sync();
+        //this.code.sync();
 
         // trigger insertedVideo.redactor event after inserted videos
         callbackData.type = videoType;
         callbackData.videoLink = videoLink || mediaOption.URL;
         callbackData.videoIdentification = videoIdentification;
         callbackData.description = description;
-        callbackData.$editor = this.$editor;
-        callbackData.$element = this.$element;
+        callbackData.$editor = $editor;
+        callbackData.$element = $rootElement;
 
-        this.$element.trigger("insertedVideo.redactor", [callbackData]);
+        $rootElement.trigger("insertedVideo.redactor", [callbackData]);
       };
 
       this.insertImage = function(data) {
-        console.log(thisApp.app);
+        const $editor = $(thisApp.app.editor.$editor.nodes[0]);
+        const $rootElement = $(thisApp.app.rootElement);
+
         var src,
-          $currentTag = thisApp.app.selection.$currentTag,
           $img = $("<img>"),
           $figure = $("<figure>"),
           mediaOption = data.MediaOption,
@@ -227,24 +233,27 @@
         });
         $figure.append($img);
 
-        
-
-        if ($currentTag) {
-          $currentTag.after($figure);
+        if (thisApp.$currentTag) {
+          $(thisApp.$currentTag).after($figure);
         } else {
-          $(thisApp.app.editor.$editor.nodes[0]).prepend($figure);
+          $editor.prepend($figure);
         }
 
-        //this.image.setEditable($img);
-        //this.code.sync();
+        // set img editable
+        $figure.addClass("redactor-component");
+        $figure.attr({
+          "data-redactor-type": "image",
+          tabindex: "-1",
+          contenteditable: false
+        });
 
         // trigger insertedVideo.redactor event after inserted images
         callbackData.description = mediaOption.Description;
         callbackData.$img = $figure;
-        callbackData.$editor = this.$editor;
-        callbackData.$element = this.$element;
+        callbackData.$editor = $editor;
+        callbackData.$element = $rootElement;
 
-        //this.$element.trigger("insertedImage.redactor", [callbackData]);
+        $rootElement.trigger("insertedImage.redactor", [callbackData]);
       };
     }
   });
