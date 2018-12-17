@@ -19,34 +19,42 @@ product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{As
     }
 }})
 ********************************* */
+$R.add("plugin", "loadstyle", {
+  init: function(app) {
+    this.app = app;
+    this.opts = app.opts;
+    this.lang = app.lang;
+    this.block = app.block;
+    this.toolbar = app.toolbar;
+  },
+  start: function() {
+    this.loadStyle();
+  },
 
-$.Redactor.prototype.loadstyle = function() {
-    return {
-        init: function() {
-            this.loadstyle.loadStyle();
-        },
+  loadStyle: function() {
+    const $editor = $(this.app.editor.$editor.nodes[0]);
 
-        loadStyle: function() {
-            // loadStyleNamespace, loadStyleLink are required options
-            if (typeof this.opts.loadStyleLink === 'undefined') {
-                window.alert('please define loadStyleLink setting in your config file!');
-                return;
-            }
-            if (typeof this.opts.loadStyleNamespace === 'undefined') {
-                window.alert('please define loadStyleNamespace setting in your config file!');
-                return;
-            }
+    // loadStyleNamespace, loadStyleLink are required options
+    if (typeof this.opts.loadStyleLink === "undefined") {
+      window.alert("please define loadStyleLink setting in your config file!");
+      return;
+    }
+    if (typeof this.opts.loadStyleNamespace === "undefined") {
+      window.alert(
+        "please define loadStyleNamespace setting in your config file!"
+      );
+      return;
+    }
 
-            var ss = document.createElement('link');
+    var ss = document.createElement("link");
 
-            // insert stylesheet
-            ss.type = 'text/css';
-            ss.rel = 'stylesheet';
-            ss.href = this.opts.loadStyleLink;
-            document.getElementsByTagName('head')[0].appendChild(ss);
+    // insert stylesheet
+    ss.type = "text/css";
+    ss.rel = "stylesheet";
+    ss.href = this.opts.loadStyleLink;
+    document.getElementsByTagName("head")[0].appendChild(ss);
 
-            // add namespace class into editor
-            this.core.editor().addClass(this.opts.loadStyleNamespace);
-        }
-    };
-};
+    // add namespace class into editor
+    $editor.addClass(this.opts.loadStyleNamespace);
+  }
+});
