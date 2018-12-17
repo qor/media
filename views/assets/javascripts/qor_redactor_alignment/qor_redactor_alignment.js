@@ -56,7 +56,27 @@
         class: `rd-text-${type}`
       };
       this.block.clearClass();
-      this.block.set(args);
+      this.block.set(args, [
+        "p",
+        "figure",
+        "video",
+        "div",
+        "blockquote",
+        "dd",
+        "dl",
+        "dt",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "li",
+        "ol",
+        "ul",
+        "pre",
+        "section"
+      ]);
     },
 
     // private
