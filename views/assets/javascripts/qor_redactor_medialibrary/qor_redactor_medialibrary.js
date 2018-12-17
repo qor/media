@@ -202,8 +202,6 @@
           $editor.prepend($html);
         }
 
-        //this.code.sync();
-
         // trigger insertedVideo.redactor event after inserted videos
         callbackData.type = videoType;
         callbackData.videoLink = videoLink || mediaOption.URL;
