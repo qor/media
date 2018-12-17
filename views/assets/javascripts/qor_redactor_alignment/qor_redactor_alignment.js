@@ -53,15 +53,15 @@
       }
 
       var args = {
-        style: { "text-align": type }
+        class: `rd-text-${type}`
       };
-
-      this.block.toggle(args);
+      this.block.clearClass();
+      this.block.set(args);
     },
 
     // private
     _remove: function() {
-      this.block.remove({ style: "text-align" });
+      this.block.clearClass();
     }
   });
 })(Redactor);
