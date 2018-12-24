@@ -9,11 +9,9 @@
 /* ********************************* Usage in qor-example:
 product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{AssetManager: assetManager,
     Plugins: []admin.RedactorPlugin{
-        {Name: "medialibrary", Source: "/admin/assets/javascripts/qor_redactor_medialibrary.js"},
         {Name: "loadstyle", Source: "/admin/assets/javascripts/qor_redactor_loadstyle.js"},
     },
     Settings: map[string]interface{}{
-        "medialibraryUrl": "/admin/product_images",
         "loadStyleNamespace": "yourNamespace",
         "loadStyleLink": "http://your_stylesheets_file_path",
     }
@@ -23,9 +21,6 @@ $R.add("plugin", "loadstyle", {
   init: function(app) {
     this.app = app;
     this.opts = app.opts;
-    this.lang = app.lang;
-    this.block = app.block;
-    this.toolbar = app.toolbar;
   },
   start: function() {
     this.loadStyle();
