@@ -17,9 +17,7 @@ $R.add("plugin", "mediadisplaymode", {
     }
   },
   getEditterButton: function() {
-    return `<span id="redactor-image-displaymode" data-redactor="verified" contenteditable="false">${this.lang.get(
-      "mediaDisplayModeButton"
-    )}</span>`;
+    return `<a href="#"><span id="redactor-image-displaymode" data-redactor="verified" contenteditable="false">mediaDisplayModeButton</span></a>`;
   },
   getTemplate: function() {
     return `${String()}<div class="redactor-modal-tab redactor-group">
@@ -75,12 +73,20 @@ $R.add("plugin", "mediadisplaymode", {
   },
 
   insertButton: function($ele) {
-    $(this.getEditterButton())
-      .prependTo($ele.closest("#redactor-image-box"))
-      .on("click.redactor-mediadisplaymode", this.show);
+    let self = this;
+    if ($ele.is("img")) {
+      let $button = $(self.getEditterButton()).prependTo(
+        $(".redactor-context-toolbar.open")
+      );
+
+      $button.on("click.redactor-mediadisplaymode", function() {
+        self.show.bind(self)($button);
+      });
+    }
   },
 
   removeButton: function(e) {
+    // todo
     if (!$(e.target).closest("#redactor-image-box").length) {
       $("#redactor-image-displaymode").remove();
       $(document).off("click.redactor-mediadisplaymode");
@@ -90,12 +96,11 @@ $R.add("plugin", "mediadisplaymode", {
   setImageEditter: function(e) {
     let self = this,
       $image = $(e.target),
-      mediadisplaymode = this.mediadisplaymode,
-      $imageTag = $image.closest(this.opts.imageTag);
+      $imageTag = $image.closest("figure");
 
-    mediadisplaymode.$imageTag = $imageTag;
-    mediadisplaymode.$image = $image;
-    mediadisplaymode.currentDisplaymode = this.getDisplayMode(
+    this.mediadisplaymode.$imageTag = $imageTag;
+    this.mediadisplaymode.$image = $image;
+    this.mediadisplaymode.currentDisplaymode = this.getDisplayMode(
       $imageTag.attr("class")
     );
 
@@ -115,18 +120,34 @@ $R.add("plugin", "mediadisplaymode", {
 
     return mode;
   },
-  show: function() {
+  modals: {
+    mediaModal: `<div class="redactor-modal-tab redactor-group">
+    <div id="redactor-image-preview" class="redactor-modal-tab-side"></div>
+    <div class="redactor-modal-tab-area" id="redactor-modal-displaymode">
+        <section>
+            <select id="modal-media-display-mode">
+                <option value="0">Please select display mode</option>
+            </select>
+        </section>
+    </div></div>`
+  },
+  show: function($button) {
     let currentDisplaymode = this.mediadisplaymode.currentDisplaymode;
 
-    this.modal.addTemplate("mediadisplaymode", this.getTemplate());
-    this.modal.load("mediadisplaymode", "Media Display Mode", 600);
-
-    let button = this.modal.getActionButton().text(this.lang.get("save"));
-    button.on("click", this.save);
+    var options = {
+      name: "mediaModal",
+      title: "Media Display Mode",
+      handle: "save", // optional, command which will be fired on enter pressed
+      // optional object
+      commands: {
+        save: { title: "Save" },
+        cancel: { title: "Cancel" }
+      }
+    };
+    this.app.api("module.modal.build", options);
 
     $("#modal-media-display-mode").append(this.mediadisplaymode.$modes);
 
-    this.modal.show();
     $("#modal-media-display-mode").val(
       currentDisplaymode ? currentDisplaymode : 0
     );
@@ -136,18 +157,23 @@ $R.add("plugin", "mediadisplaymode", {
       )}" style="max-width: 100%; opacity: 1">`
     );
   },
-  save: function() {
-    let displayMode = $("#modal-media-display-mode").val(),
-      $imageTag = this.mediadisplaymode.$imageTag;
 
-    // remove all rd-display-* className
-    $imageTag.removeClass(function(index, className) {
-      return (className.match(/rd-display-\w+/g) || []).join(" ");
-    });
+  onmodal: {
+    mediaModal: {
+      save: function($modal, $form) {
+        let displayMode = $("#modal-media-display-mode").val(),
+          $imageTag = this.mediadisplaymode.$imageTag;
 
-    if (displayMode != 0) {
-      $imageTag.addClass(`rd-display-${displayMode}`);
+        // remove all rd-display-* className
+        $imageTag.removeClass(function(index, className) {
+          return (className.match(/rd-display-\w+/g) || []).join(" ");
+        });
+
+        if (displayMode != 0) {
+          $imageTag.addClass(`rd-display-${displayMode}`);
+        }
+        this.app.api("module.modal.close");
+      }
     }
-    this.modal.close();
   }
 });
