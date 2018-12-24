@@ -19,21 +19,6 @@ $R.add("plugin", "mediadisplaymode", {
   getEditterButton: function() {
     return `<a href="#"><span id="redactor-image-displaymode" data-redactor="verified" contenteditable="false">mediaDisplayModeButton</span></a>`;
   },
-  getTemplate: function() {
-    return `${String()}<div class="redactor-modal-tab redactor-group">
-                <div id="redactor-image-preview" class="redactor-modal-tab-side"></div>
-                <div class="redactor-modal-tab-area" id="redactor-modal-displaymode">
-                    <section>
-                        <select id="modal-media-display-mode">
-                            <option value="0">Please select display mode</option>
-                        </select>
-                    </section>
-                    <section>
-                        <button id="redactor-modal-button-action">Save</button>
-                        <button id="redactor-modal-button-cancel">Cancel</button>
-                    </section>
-                </div></div>`;
-  },
   init: function(app) {
     this.app = app;
     this.opts = app.opts;
