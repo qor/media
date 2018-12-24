@@ -132,8 +132,6 @@ $R.add("plugin", "mediadisplaymode", {
     </div></div>`
   },
   show: function($button) {
-    let currentDisplaymode = this.mediadisplaymode.currentDisplaymode;
-
     var options = {
       name: "mediaModal",
       title: "Media Display Mode",
@@ -145,21 +143,24 @@ $R.add("plugin", "mediadisplaymode", {
       }
     };
     this.app.api("module.modal.build", options);
-
-    $("#modal-media-display-mode").append(this.mediadisplaymode.$modes);
-
-    $("#modal-media-display-mode").val(
-      currentDisplaymode ? currentDisplaymode : 0
-    );
-    $("#redactor-image-preview").html(
-      `<img src="${this.mediadisplaymode.$image.prop(
-        "src"
-      )}" style="max-width: 100%; opacity: 1">`
-    );
   },
 
   onmodal: {
     mediaModal: {
+      open: function($modal, $form) {
+        let currentDisplaymode = this.mediadisplaymode.currentDisplaymode;
+
+        $("#modal-media-display-mode").append(this.mediadisplaymode.$modes);
+
+        $("#modal-media-display-mode").val(
+          currentDisplaymode ? currentDisplaymode : 0
+        );
+        $("#redactor-image-preview").html(
+          `<img src="${this.mediadisplaymode.$image.prop(
+            "src"
+          )}" style="max-width: 100%; opacity: 1">`
+        );
+      },
       save: function($modal, $form) {
         let displayMode = $("#modal-media-display-mode").val(),
           $imageTag = this.mediadisplaymode.$imageTag;
