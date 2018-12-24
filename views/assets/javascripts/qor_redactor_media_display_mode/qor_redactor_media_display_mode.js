@@ -42,6 +42,8 @@ $R.add("plugin", "mediadisplaymode", {
     this.lang = app.lang;
     this.block = app.block;
     this.toolbar = app.toolbar;
+
+    this.mediadisplaymode = {};
   },
   start: function() {
     const $editor = $(this.app.editor.$editor.nodes[0]);
@@ -68,16 +70,14 @@ $R.add("plugin", "mediadisplaymode", {
     $editor.on(
       "click.redactor-mediadisplaymode touchstart.redactor-mediadisplaymode",
       $imgs,
-      this.mediadisplaymode.setImageEditter.bind(this)
+      this.setImageEditter.bind(this)
     );
   },
 
   insertButton: function($ele) {
-    let mode = this.mediadisplaymode;
-
-    $(mode.getEditterButton())
+    $(this.getEditterButton())
       .prependTo($ele.closest("#redactor-image-box"))
-      .on("click.redactor-mediadisplaymode", mode.show);
+      .on("click.redactor-mediadisplaymode", this.show);
   },
 
   removeButton: function(e) {
@@ -88,23 +88,21 @@ $R.add("plugin", "mediadisplaymode", {
   },
 
   setImageEditter: function(e) {
-    let $image = $(e.target),
+    let self = this,
+      $image = $(e.target),
       mediadisplaymode = this.mediadisplaymode,
       $imageTag = $image.closest(this.opts.imageTag);
 
     mediadisplaymode.$imageTag = $imageTag;
     mediadisplaymode.$image = $image;
-    mediadisplaymode.currentDisplaymode = mediadisplaymode.getDisplayMode(
+    mediadisplaymode.currentDisplaymode = this.getDisplayMode(
       $imageTag.attr("class")
     );
 
-    $(document).on(
-      "click.redactor-mediadisplaymode",
-      mediadisplaymode.removeButton
-    );
+    $(document).on("click.redactor-mediadisplaymode", this.removeButton);
 
     setTimeout(function() {
-      mediadisplaymode.insertButton($image);
+      self.insertButton($image);
     }, 10);
   },
 
@@ -120,14 +118,11 @@ $R.add("plugin", "mediadisplaymode", {
   show: function() {
     let currentDisplaymode = this.mediadisplaymode.currentDisplaymode;
 
-    this.modal.addTemplate(
-      "mediadisplaymode",
-      this.mediadisplaymode.getTemplate()
-    );
+    this.modal.addTemplate("mediadisplaymode", this.getTemplate());
     this.modal.load("mediadisplaymode", "Media Display Mode", 600);
 
     let button = this.modal.getActionButton().text(this.lang.get("save"));
-    button.on("click", this.mediadisplaymode.save);
+    button.on("click", this.save);
 
     $("#modal-media-display-mode").append(this.mediadisplaymode.$modes);
 
