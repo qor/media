@@ -79,11 +79,7 @@ $R.add("plugin", "product", {
         );
 
         this.app.api("module.modal.close");
-        // this.placeholder.hide();
         this.insertion.insertHtml("<p></p><p></p>");
-
-        // // buffer
-        // this.buffer.set();
       }
     }
   }
