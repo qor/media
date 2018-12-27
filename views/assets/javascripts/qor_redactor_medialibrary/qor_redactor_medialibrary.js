@@ -197,7 +197,7 @@
         $html = $(htmlCode).addClass(videoIdentification);
 
         if (thisApp.$currentTag) {
-          thisApp.$currentTag.after($html);
+          $(thisApp.$currentTag).after($html);
         } else {
           $editor.prepend($html);
         }
