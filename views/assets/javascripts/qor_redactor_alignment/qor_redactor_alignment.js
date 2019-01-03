@@ -51,6 +51,14 @@
       var args = {
         class: `rd-text-${type}`
       };
+      this.block.remove(
+        {
+          class: `rd-text-left rd-text-right rd-text-center rd-text-justify`
+        },
+        ["figure"]
+      );
+      this.block.add(args, ["figure"]);
+
       this.block.set(args, [
         "p",
         "video",
