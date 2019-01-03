@@ -48,17 +48,11 @@
       $button.setDropdown(dropdown);
     },
     set: function(type) {
-      if (type === "left" && this.opts.direction === "ltr") {
-        return this._remove();
-      }
-
       var args = {
         class: `rd-text-${type}`
       };
-      this.block.clearClass();
       this.block.set(args, [
         "p",
-        "figure",
         "video",
         "div",
         "blockquote",
@@ -77,11 +71,6 @@
         "pre",
         "section"
       ]);
-    },
-
-    // private
-    _remove: function() {
-      this.block.clearClass();
     }
   });
 })(Redactor);
