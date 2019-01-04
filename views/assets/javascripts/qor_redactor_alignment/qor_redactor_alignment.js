@@ -14,6 +14,7 @@
       this.opts = app.opts;
       this.lang = app.lang;
       this.block = app.block;
+      this.selection = app.selection;
       this.toolbar = app.toolbar;
     },
     // public
@@ -48,37 +49,15 @@
       $button.setDropdown(dropdown);
     },
     set: function(type) {
-      var args = {
-        class: `rd-text-${type}`
-      };
-      this.block.remove(
-        {
-          class: `rd-text-left rd-text-right rd-text-center rd-text-justify`
-        },
-        ["figure"]
-      );
-      this.block.add(args, ["figure"]);
-
-      this.block.set(args, [
-        "p",
-        "video",
-        "div",
-        "blockquote",
-        "dd",
-        "dl",
-        "dt",
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "li",
-        "ol",
-        "ul",
-        "pre",
-        "section"
-      ]);
+      var currentBlocks = this.selection.getBlocks();
+      currentBlocks.forEach(function(currentBlock) {
+        $R
+          .dom(currentBlock)
+          .removeClass(
+            `rd-text-left rd-text-right rd-text-center rd-text-justify`
+          )
+          .addClass(`rd-text-${type}`);
+      });
     }
   });
 })(Redactor);
