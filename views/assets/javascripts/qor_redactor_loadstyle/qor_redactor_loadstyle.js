@@ -27,29 +27,33 @@ $R.add("plugin", "loadstyle", {
   },
 
   loadStyle: function() {
-    const $editor = $(this.app.editor.$editor.nodes[0]);
+    var $editor = $(this.app.editor.$editor.nodes[0]);
 
     // loadStyleNamespace, loadStyleLink are required options
-    if (typeof this.opts.loadStyleLink === "undefined") {
-      window.alert("please define loadStyleLink setting in your config file!");
-      return;
-    }
+    // namespace is needed, but loadStyleLink is not
     if (typeof this.opts.loadStyleNamespace === "undefined") {
       window.alert(
         "please define loadStyleNamespace setting in your config file!"
       );
-      return;
+    } else {
+      // add namespace class into editor
+      $editor.addClass(this.opts.loadStyleNamespace);
     }
 
-    var ss = document.createElement("link");
+    if (typeof this.opts.loadStyleLink === "undefined") {
+      if (typeof this.opts.loadStyleNamespace === "undefined") {
+        window.alert(
+          "please define loadStyleLink setting in your config file!"
+        );
+      }
+    } else {
+      var ss = document.createElement("link");
 
-    // insert stylesheet
-    ss.type = "text/css";
-    ss.rel = "stylesheet";
-    ss.href = this.opts.loadStyleLink;
-    document.getElementsByTagName("head")[0].appendChild(ss);
-
-    // add namespace class into editor
-    $editor.addClass(this.opts.loadStyleNamespace);
+      // insert stylesheet
+      ss.type = "text/css";
+      ss.rel = "stylesheet";
+      ss.href = this.opts.loadStyleLink;
+      document.getElementsByTagName("head")[0].appendChild(ss);
+    }
   }
 });
