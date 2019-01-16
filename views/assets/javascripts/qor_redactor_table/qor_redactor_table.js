@@ -13,9 +13,50 @@
         "delete-column": "Delete column",
         "delete-row": "Delete row",
         "delete-table": "Delete table",
-        "clear-table-style": "Clear table style"
+        "set-table-theme": "Set table theme",
+        "merge-cell": "Merge cell"
       }
     },
+    modals: {
+      setTableThemeModal: `<form action=""></form>`
+    },
+    onmodal: {
+      setTableThemeModal: {
+        open: function($modal, $form) {
+          // add customize className for table
+          if (
+            !this.opts.setTableThemeModal &&
+            typeof this.opts.tableClassNames != "undefined"
+          ) {
+            var tableClassNames = this.opts.tableClassNames.split(";");
+            var optionsHtml = tableClassNames.reduce(function(memo, data) {
+              const classArr = data.split(",");
+              if (classArr && classArr.length === 2) {
+                const classTitle = classArr[1];
+                const classValue = classArr[0];
+                return (
+                  memo + `<option value="${classValue}">${classTitle}</option>`
+                );
+              }
+            }, "");
+            optionsHtml = `<option value="">No Theme</option>` + optionsHtml;
+
+            this.opts.setTableThemeModal = `<div class="form-item"><label>Select Theme</label><select name="theme">${optionsHtml}
+            </select></div>`;
+          }
+          $form.append(this.opts.setTableThemeModal);
+        },
+        save: function($modal, $form) {
+          var data = $form.getData();
+          if (data && data.theme != undefined) {
+            this.app.api("plugin.table.setTableTheme", {
+              classValue: data.theme
+            });
+          }
+        }
+      }
+    },
+
     init: function(app) {
       this.app = app;
       this.lang = app.lang;
@@ -89,35 +130,26 @@
           classname: "redactor-table-item-observable",
           api: "plugin.table.deleteRow"
         },
+
         "delete-table": {
           title: this.lang.get("delete-table"),
           classname: "redactor-table-item-observable",
           api: "plugin.table.deleteTable"
+        },
+        "merge-cell": {
+          title: this.lang.get("merge-cell"),
+          classname: "redactor-table-item-observable",
+          api: "plugin.table.mergeCell"
         }
       };
 
-      // add customize className for table
-
+      this.opts.tableClassNames =
+        "table-asics-blue,ASICS Blue;table-asics-light-blue,ASICS Light Blue;table-asics-light-green,ASICS Light Green;table-asics-coral,ASICS Carol";
       if (typeof this.opts.tableClassNames != "undefined") {
-        var tableClassNames = this.opts.tableClassNames.split(";");
-        tableClassNames.map(function(data) {
-          const classArr = data.split(",");
-          if (classArr && classArr.length === 2) {
-            const classTitle = classArr[1];
-            const classValue = classArr[0];
-            dropdown["set-table-style--" + classValue] = {
-              title: classTitle,
-              classname: "redactor-table-item-observable",
-              api: "plugin.table.setTableStyle",
-              args: classValue
-            };
-          }
-        });
-
-        dropdown["clear-table-style"] = {
-          title: this.lang.get("clear-table-style"),
+        dropdown["set-table-theme"] = {
+          title: this.lang.get("set-table-theme"),
           classname: "redactor-table-item-observable",
-          api: "plugin.table.clearTableStyle"
+          api: "plugin.table.setTableThemeModal"
         };
       }
 
@@ -128,6 +160,219 @@
       var $button = this.toolbar.addButtonBefore("link", "table", obj);
       $button.setIcon('<i class="re-icon-table"></i>');
       $button.setDropdown(dropdown);
+
+      var isMouseUp = false,
+        isMouseDown = false;
+      var startElement, $tdParent;
+      var $$editor = $(this.app.editor.$editor.nodes[0]);
+      $$editor.on("focus", "td,th", function() {
+        $$editor
+          .find("td[data-active],th[data-active]")
+          .removeAttr("data-active");
+        $(this).attr("data-active", "");
+
+        startElement = this;
+        $tdParent = $(this).closest("thead,tbody");
+      });
+
+      $("body").on("click", function(e) {
+        var isInTable = $(e.target).closest("table").length > 0;
+        var isInToolbar = $(e.target).closest(".redactor-toolbar").length > 0;
+        var isInDropDown = $(e.target).closest(".redactor-dropdown").length > 0;
+        if (!isInTable && !isInToolbar && !isInDropDown) {
+          $$editor
+            .find("td[data-active],th[data-active]")
+            .removeAttr("data-active");
+        }
+      });
+
+      $$editor.on("mousedown", "td, th", function() {
+        isMouseUp = false;
+        isMouseDown = true;
+        var $currentTdParent = $(this).closest("thead,tbody");
+        _this.calcTableElementPosition($currentTdParent);
+      });
+
+      $$editor.on("mouseup", "td, th", function() {
+        isMouseUp = true;
+        isMouseDown = false;
+        console.log("show context bar");
+      });
+
+      var _this = this;
+
+      $$editor.on("mouseenter", "td, th", function() {
+        var endElement = this;
+        var $currentTdParent = $(this).closest("thead,tbody");
+        if (isMouseDown && $currentTdParent[0] === $tdParent[0]) {
+          $currentTdParent
+            .find("td[data-active],th[data-active]")
+            .removeAttr("data-active");
+          _this.calcCellMergeRange(startElement, endElement);
+          _this.renderCellMergeRange(_this.finalRange);
+        }
+      });
+    },
+
+    calcCellMergeRange: function(startElement, endElement) {
+      var _this = this;
+      var startPoint = {
+        firstPoint: JSON.parse(startElement.firstPoint),
+        lastPoint: JSON.parse(startElement.lastPoint)
+      };
+      var endPoint = {
+        firstPoint: JSON.parse(endElement.firstPoint),
+        lastPoint: JSON.parse(endElement.lastPoint)
+      };
+
+      var minRow = Math.min(
+          startPoint.firstPoint.row,
+          startPoint.lastPoint.row,
+          endPoint.firstPoint.row,
+          endPoint.lastPoint.row
+        ),
+        minCol = Math.min(
+          startPoint.firstPoint.col,
+          startPoint.lastPoint.col,
+          endPoint.firstPoint.col,
+          endPoint.lastPoint.col
+        ),
+        maxRow = Math.max(
+          startPoint.firstPoint.row,
+          startPoint.lastPoint.row,
+          endPoint.firstPoint.row,
+          endPoint.lastPoint.row
+        ),
+        maxCol = Math.max(
+          startPoint.firstPoint.col,
+          startPoint.lastPoint.col,
+          endPoint.firstPoint.col,
+          endPoint.lastPoint.col
+        );
+
+      function loop(minRow, minCol, maxRow, maxCol) {
+        var newMinRow = minRow;
+        var newMinCol = minCol;
+        var newMaxRow = maxRow;
+        var newMaxCol = maxCol;
+        for (var x = minRow; x <= maxRow; x++) {
+          for (var y = minCol; y <= maxCol; y++) {
+            var currentElement = _this.tableElements[x][y];
+            var currentStartPoint = JSON.parse(currentElement.firstPoint);
+            var currentEndPoint = JSON.parse(currentElement.lastPoint);
+
+            newMinRow = Math.min(
+              parseInt(currentStartPoint.row),
+              parseInt(currentEndPoint.row),
+              newMinRow
+            );
+            newMinCol = Math.min(
+              currentStartPoint.col,
+              currentEndPoint.col,
+              newMinCol
+            );
+            newMaxRow = Math.max(
+              currentStartPoint.row,
+              currentEndPoint.row,
+              newMaxRow
+            );
+            newMaxCol = Math.max(
+              currentStartPoint.col,
+              currentEndPoint.col,
+              newMaxCol
+            );
+          }
+        }
+
+        if (
+          newMinRow == minRow &&
+          newMinCol == minCol &&
+          newMaxRow == maxRow &&
+          newMaxCol == maxCol
+        ) {
+          return {
+            minRow,
+            minCol,
+            maxRow,
+            maxCol
+          };
+        } else {
+          return loop(newMinRow, newMinCol, newMaxRow, newMaxCol);
+        }
+      }
+
+      _this.finalRange = loop(minRow, minCol, maxRow, maxCol);
+      _this.selectedRowRange = maxRow - minRow + 1;
+      _this.selectedColRange = maxCol - minCol + 1;
+    },
+
+    renderCellMergeRange: function({ minRow, minCol, maxRow, maxCol }) {
+      var _this = this;
+
+      for (var x = minRow; x <= maxRow; x++) {
+        for (var y = minCol; y <= maxCol; y++) {
+          var currentElement = _this.tableElements[x][y];
+          $(currentElement).attr("data-active", "");
+        }
+      }
+    },
+
+    savePosition: function(element, point) {
+      if (!element.lastPoint) {
+        element.firstPoint = point;
+      }
+      element.lastPoint = point;
+    },
+
+    calcTableElementPosition: function($parent) {
+      var _this = this;
+      this.tableElements = [];
+
+      function fill(element, indexTr, tdIndex, rowSpanLength, colSpanLength) {
+        var maxIndexTr = parseInt(indexTr) + parseInt(rowSpanLength);
+        var maxTdIndex = parseInt(colSpanLength) + parseInt(tdIndex);
+
+        for (var i = indexTr; i < maxIndexTr; i++) {
+          for (var j = tdIndex; j < maxTdIndex; j++) {
+            _this.tableElements[i] = _this.tableElements[i] || [];
+            _this.tableElements[i][j] = element;
+          }
+        }
+      }
+
+      $parent.find("tr").each(function(indexTr) {
+        var $currentRow = $(this);
+        _this.tableElements[indexTr] = _this.tableElements[indexTr] || [];
+
+        var tdIndex = 0;
+        $currentRow.find("td,th").each(function() {
+          var rowSpanLength = $(this).attr("rowspan") || 1;
+          var colSpanLength = $(this).attr("colspan") || 1;
+
+          if (!_this.tableElements[indexTr][tdIndex]) {
+            if (rowSpanLength > 1 || colSpanLength > 1) {
+              fill(this, indexTr, tdIndex, rowSpanLength, colSpanLength);
+            } else {
+              _this.tableElements[indexTr][tdIndex] = this;
+            }
+          } else {
+            tdIndex = _this.tableElements[indexTr].length;
+            _this.tableElements[indexTr].push(this);
+            if (rowSpanLength > 1 || colSpanLength > 1) {
+              fill(this, indexTr, tdIndex, rowSpanLength, colSpanLength);
+            }
+          }
+          tdIndex++;
+        });
+
+        _this.tableElements.forEach(function(tableTr, row) {
+          tableTr.forEach(function(tableTd, col) {
+            _this.savePosition(tableTd, JSON.stringify({ row, col }));
+            // debug code
+            // tableTd.innerHTML = `${tableTd.firstPoint},${tableTd.lastPoint}`;
+          });
+        });
+      });
     },
     insert: function() {
       var rows = 2;
@@ -235,6 +480,39 @@
         else this.deleteTable();
       }
     },
+    mergeCell: function() {
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
+        var $component = this._getComponent();
+        if ($component) {
+          var current = this.selection.getCurrent();
+
+          var $tdParent = $(current).closest("tbody,thead");
+
+          var { minRow, minCol, maxRow, maxCol } = _this.finalRange;
+          var $firstCell = $(_this.tableElements[minRow][minCol]);
+          var rowSpanLength = $firstCell.attr("rowspan") || 1;
+          var colSpanLength = $firstCell.attr("colspan") || 1;
+
+          rowSpanLength = Math.max(rowSpanLength - 1, _this.selectedRowRange);
+          $firstCell.attr("rowspan", rowSpanLength);
+          colSpanLength = Math.max(colSpanLength - 1, _this.selectedColRange);
+          $firstCell.attr("colspan", colSpanLength);
+
+          for (var x = minRow; x <= maxRow; x++) {
+            for (var y = minCol; y <= maxCol; y++) {
+              var currentElement = _this.tableElements[x][y];
+              if (currentElement != $firstCell[0]) {
+                $(currentElement).remove();
+              }
+              _this.tableElements[x][y] = $firstCell[0];
+              _this.savePosition($tdParent[0], JSON.stringify({ x, y }));
+            }
+          }
+        }
+      }
+    },
     deleteTable: function() {
       var table = this._getTable();
       if (table) {
@@ -242,7 +520,7 @@
       }
     },
 
-    clearTableStyle: function() {
+    clearTableTheme: function() {
       var table = this._getTable();
       if (table) {
         $R
@@ -253,12 +531,28 @@
       }
     },
 
-    setTableStyle: function(type) {
+    setTableTheme: function(argus) {
       var table = this._getTable();
       if (table) {
-        this.clearTableStyle();
-        $R.dom(table).addClass(type);
+        this.clearTableTheme();
+        $R.dom(table).addClass(argus.classValue);
+        this.app.api("module.modal.close");
       }
+    },
+
+    setTableThemeModal: function() {
+      var options = {
+        name: "setTableThemeModal",
+        title: "Set table theme",
+        handle: "save", // optional, command which will be fired on enter pressed
+        // optional object
+        commands: {
+          save: { title: "Save" },
+          cancel: { title: "Cancel" }
+        }
+      };
+
+      this.app.api("module.modal.build", options);
     },
 
     // private
