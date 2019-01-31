@@ -9,11 +9,19 @@ import (
 	"github.com/qor/serializable_meta"
 )
 
+var (
+	// set MediaLibraryURL to change the default url /system/{{class}}/{{primary_key}}/{{column}}.{{extension}}
+	MediaLibraryURL = ""
+)
+
 func cropField(field *gorm.Field, scope *gorm.Scope) (cropped bool) {
 	if field.Field.CanAddr() {
 		// TODO Handle scanner
 		if media, ok := field.Field.Addr().Interface().(Media); ok && !media.Cropped() {
 			option := parseTagOption(field.Tag.Get("media_library"))
+			if MediaLibraryURL != "" {
+				option.Set("url", MediaLibraryURL)
+			}
 			if media.GetFileHeader() != nil || media.NeedCrop() {
 				var mediaFile FileInterface
 				var err error

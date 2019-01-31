@@ -56,7 +56,13 @@ type URLTemplater interface {
 // Option media library option
 type Option map[string]string
 
-// Get used to get option with name
+// get option with name
 func (option Option) Get(key string) string {
 	return option[strings.ToUpper(key)]
+}
+
+// set option
+func (option Option) Set(key string, val string) {
+	option[strings.ToUpper(key)] = val
+	return
 }

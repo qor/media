@@ -164,7 +164,8 @@ func (b Base) GetURLTemplate(option *Option) (path string) {
 var urlReplacer = regexp.MustCompile("(\\s|\\+)+")
 
 func getFuncMap(scope *gorm.Scope, field *gorm.Field, filename string) template.FuncMap {
-	hash := func() string { return strings.Replace(time.Now().Format("20060102150506.000000000"), ".", "", -1) }
+	hash := func() string { return strings.Replace(time.Now().Format("20060102150405.000000"), ".", "", -1) }
+	shortHash := func() string { return time.Now().Format("20060102150405") }
 	return template.FuncMap{
 		"class":       func() string { return inflection.Plural(utils.ToParamString(scope.GetModelStruct().ModelType.Name())) },
 		"primary_key": func() string { return fmt.Sprintf("%v", scope.PrimaryKeyValue()) },
@@ -172,8 +173,12 @@ func getFuncMap(scope *gorm.Scope, field *gorm.Field, filename string) template.
 		"filename":    func() string { return filename },
 		"basename":    func() string { return strings.TrimSuffix(path.Base(filename), path.Ext(filename)) },
 		"hash":        hash,
+		"short_hash":  shortHash,
 		"filename_with_hash": func() string {
 			return urlReplacer.ReplaceAllString(fmt.Sprintf("%s.%v%v", slug.Make(strings.TrimSuffix(path.Base(filename), path.Ext(filename))), hash(), path.Ext(filename)), "-")
+		},
+		"filename_with_short_hash": func() string {
+			return urlReplacer.ReplaceAllString(fmt.Sprintf("%s.%v%v", slug.Make(strings.TrimSuffix(path.Base(filename), path.Ext(filename))), shortHash(), path.Ext(filename)), "-")
 		},
 		"extension": func() string { return strings.TrimPrefix(path.Ext(filename), ".") },
 	}
