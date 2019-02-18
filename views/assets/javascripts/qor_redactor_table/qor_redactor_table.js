@@ -179,8 +179,8 @@
 
       this.minCellWidth = 40;
       var isMouseUp = false,
-        isMouseDown = false;
-      isCursorResize = false;
+        isMouseDown = false,
+        isCursorResize = false;
       var startElement, $tdParent;
       var $$editor = $(this.app.editor.$editor.nodes[0]);
       $$editor.on("focus", "td,th", function() {
@@ -220,7 +220,7 @@
           _this.colResizeStartPositionX = e.target.offsetLeft + e.offsetX;
           // get init left point position
           e.preventDefault();
-          $tableLine = $('<div class="redactor-component-table-line"></div>');
+          var $tableLine = $('<div class="redactor-component-table-line"></div>');
           $tableLine.css("left", _this.colResizeStartPositionX);
           $tableComponent.append($tableLine);
         } else {
@@ -228,11 +228,11 @@
           isMouseDown = true;
         }
       });
-      $("body").on("mouseup", function(e) {
+      $("body").on("mouseup", function() {
         // clear helper element
         $(".redactor-component-table-line").remove();
       });
-      $$editor.on("mouseup", "td, th", function(e) {
+      $$editor.on("mouseup", "td, th", function() {
         isMouseUp = true;
         isMouseDown = false;
         //console.log("show context bar");
@@ -510,7 +510,7 @@
             }
           }
 
-          widthPercent = width / tableWidth * 100;
+          var widthPercent = width / tableWidth * 100;
 
           return memo + `<col width="${widthPercent.toFixed(2)}%">`;
         }, "");
@@ -1204,8 +1204,6 @@
       }
     }
   });
-})(Redactor);
-(function($R) {
   $R.add("class", "table.component", {
     mixins: ["dom", "component"],
     init: function(app, el) {
@@ -1356,4 +1354,4 @@
       });
     }
   });
-})(Redactor);
+})(window.Redactor);
