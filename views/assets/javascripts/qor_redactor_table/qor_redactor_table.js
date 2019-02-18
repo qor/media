@@ -71,6 +71,29 @@
       this.block = app.block;
     },
     // messages
+    oncontextbar: function(e, contextbar) {
+      var data = this.inspector.parse(e.target);
+      if (data.isComponentType("table")) {
+        var node = data.getComponent();
+        var buttons = {};
+
+        var selectedCells = $R.dom(node).find("[data-active]");
+        if (selectedCells.length > 1) {
+          buttons["merge-cell"] = {
+            title: this.lang.get("merge-cell"),
+            api: "plugin.table.mergeCell",
+            args: node
+          };
+        }
+
+        if (Object.keys(buttons).length) {
+          contextbar.set(e, node, buttons);
+        } else {
+          contextbar.close();
+        }
+      }
+    },
+    // messages
     ondropdown: {
       table: {
         observe: function(dropdown) {
@@ -135,16 +158,9 @@
           title: this.lang.get("delete-table"),
           classname: "redactor-table-item-observable",
           api: "plugin.table.deleteTable"
-        },
-        "merge-cell": {
-          title: this.lang.get("merge-cell"),
-          classname: "redactor-table-item-observable",
-          api: "plugin.table.mergeCell"
         }
       };
 
-      this.opts.tableClassNames =
-        "table-asics-blue,ASICS Blue;table-asics-light-blue,ASICS Light Blue;table-asics-light-green,ASICS Light Green;table-asics-coral,ASICS Carol";
       if (typeof this.opts.tableClassNames != "undefined") {
         dropdown["set-table-theme"] = {
           title: this.lang.get("set-table-theme"),
@@ -161,8 +177,10 @@
       $button.setIcon('<i class="re-icon-table"></i>');
       $button.setDropdown(dropdown);
 
+      this.minCellWidth = 40;
       var isMouseUp = false,
         isMouseDown = false;
+      isCursorResize = false;
       var startElement, $tdParent;
       var $$editor = $(this.app.editor.$editor.nodes[0]);
       $$editor.on("focus", "td,th", function() {
@@ -186,18 +204,152 @@
         }
       });
 
-      $$editor.on("mousedown", "td, th", function() {
-        isMouseUp = false;
-        isMouseDown = true;
-        var $currentTdParent = $(this).closest("thead,tbody");
-        _this.calcTableElementPosition($currentTdParent);
-      });
+      $$editor.on("mousedown", "td, th", function(e) {
+        isCursorResize = $(this).css("cursor") == "col-resize";
+        var $currentTable = $(this).closest("table");
+        var $tableComponent = $(this).closest(
+          ".redactor-component[data-redactor-type='table']"
+        );
+        _this.calcTableElementPosition($currentTable);
 
-      $$editor.on("mouseup", "td, th", function() {
+        if (isCursorResize) {
+          // show resize
+          _this.isColResize = true;
+          _this.colResizeStartX = e.clientX;
+          _this.colResizeStartElement = e.target;
+          _this.colResizeStartPositionX = e.target.offsetLeft + e.offsetX;
+          // get init left point position
+          e.preventDefault();
+          $tableLine = $('<div class="redactor-component-table-line"></div>');
+          $tableLine.css("left", _this.colResizeStartPositionX);
+          $tableComponent.append($tableLine);
+        } else {
+          isMouseUp = false;
+          isMouseDown = true;
+        }
+      });
+      $("body").on("mouseup", function(e) {
+        // clear helper element
+        $(".redactor-component-table-line").remove();
+      });
+      $$editor.on("mouseup", "td, th", function(e) {
         isMouseUp = true;
         isMouseDown = false;
-        console.log("show context bar");
+        //console.log("show context bar");
+        var $tableComponent = $(this).closest(
+          ".redactor-component[data-redactor-type='table']"
+        );
+
+        if (_this.isColResize) {
+          // get end point and calc with
+
+          _this.isColResize = false;
+          var changeColIndex = _this.colResizeStartElement.lastPoint.col;
+          _this.renderColGroup(
+            $(this).closest("table"),
+            changeColIndex,
+            _this.changeColWidth
+          );
+          $tableComponent.find(".redactor-component-table-line").remove();
+        }
       });
+
+      $$editor.on("mousemove", "td, th", function(e) {
+        if (e.target.offsetWidth - e.offsetX < 10 && !isMouseDown) {
+          $(this).css("cursor", "col-resize");
+        } else {
+          $(this).css("cursor", "");
+        }
+
+        if (_this.isColResize) {
+          var colWidth;
+          var travelWidth = _this.colResizeStartX - e.clientX;
+          var $tableComponent = $(this).closest(
+            ".redactor-component[data-redactor-type='table']"
+          );
+
+          var $tableBody = $tableComponent.find("thead,tbody");
+          var tableWidth = $tableBody.outerWidth();
+          var changeColIndex = _this.colResizeStartElement.lastPoint.col;
+
+          // 记录 当前索引 cell 的 colspan 并计算最小值，最小值不是1 则需要重新计算travel宽度
+          var minColSpansLeft = null;
+          var minColSpansRight = null;
+
+          for (var i = 0; i < _this.tableHeadElements.length; i++) {
+            var cell = _this.tableHeadElements[i][changeColIndex];
+            minColSpansLeft = minColSpansLeft || cell;
+            if (minColSpansLeft.colSpan < cell.colSpan) {
+              minColSpansLeft = cell;
+            }
+
+            var nextCell = _this.tableHeadElements[i][changeColIndex + 1];
+            minColSpansRight = minColSpansRight || nextCell;
+            if (minColSpansRight.colSpan < nextCell.colSpan) {
+              minColSpansRight = nextCell;
+            }
+          }
+          for (var i = 0; i < _this.tableBodyElements.length; i++) {
+            var cell = _this.tableBodyElements[i][changeColIndex];
+            minColSpansLeft = minColSpansLeft || cell;
+            if (minColSpansLeft.colSpan > cell.colSpan) {
+              minColSpansLeft = cell;
+            }
+
+            var nextCell = _this.tableBodyElements[i][changeColIndex + 1];
+            minColSpansRight = minColSpansRight || nextCell;
+            if (minColSpansRight.colSpan > nextCell.colSpan) {
+              minColSpansRight = nextCell;
+            }
+          }
+
+          var $colGroupCols = $tableComponent.find("colgroup").find("col");
+          if (travelWidth > 0) {
+            // left current cell
+            var $col = $colGroupCols.eq(changeColIndex);
+            if ($col.length) {
+              colWidth = $col.attr("width").split("%")[0] / 100 * tableWidth;
+              if (minColSpansLeft.colSpan > 1) {
+                colWidth = minColSpansLeft.offsetWidth;
+              }
+            } else {
+              colWidth = e.target.offsetWidth / e.target.colSpan;
+              if (minColSpansLeft.colSpan > 1) {
+                // if this col is take full rows and cols, colWidth should update
+                colWidth = minColSpansLeft.offsetWidth;
+              }
+            }
+          } else {
+            // right cell
+            var $col = $colGroupCols.eq(changeColIndex + 1);
+
+            if ($col.length) {
+              colWidth = $col.attr("width").split("%")[0] / 100 * tableWidth;
+
+              if (minColSpansRight.colSpan > 1) {
+                colWidth = minColSpansRight.offsetWidth;
+              }
+            } else {
+              colWidth = e.target.offsetWidth / e.target.colSpan;
+              if (minColSpansRight.colSpan > 1) {
+                colWidth = minColSpansRight.offsetWidth;
+              }
+            }
+          }
+
+          if (colWidth - _this.minCellWidth >= Math.abs(travelWidth) > 0) {
+            var changeColWidth = e.clientX - _this.colResizeStartX;
+
+            $tableComponent
+              .find(".redactor-component-table-line")
+              .css("left", _this.colResizeStartPositionX + changeColWidth);
+
+            _this.changeColWidth = changeColWidth;
+          }
+        }
+      });
+
+      $$editor.on("mouseout", "td, th", function() {});
 
       var _this = this;
 
@@ -209,20 +361,180 @@
             .find("td[data-active],th[data-active]")
             .removeAttr("data-active");
           _this.calcCellMergeRange(startElement, endElement);
-          _this.renderCellMergeRange(_this.finalRange);
+          _this.renderCellMergeRange(this.tagName, _this.finalRange);
         }
       });
     },
 
+    renderColGroup: function($table, changeColIndex, changeColWidth) {
+      var _this = this;
+      var $colGroup = $table.find("colgroup");
+      var tableWidth = $table.find("thead,tbody").outerWidth();
+      var minColWidthPercent = (_this.minCellWidth / tableWidth * 100).toFixed(
+        2
+      );
+      var minColWidth = tableWidth * minColWidthPercent / 100;
+
+      if (changeColIndex != undefined) {
+        // 记录 当前索引 cell 的 colspan 并计算最小值，最小值不是1 则需要重新计算travel宽度
+        var minColSpansLeft = null;
+        var minColSpansRight = null;
+
+        for (var i = 0; i < _this.tableHeadElements.length; i++) {
+          var cell = _this.tableHeadElements[i][changeColIndex];
+          minColSpansLeft = minColSpansLeft || cell;
+          if (minColSpansLeft.colSpan < cell.colSpan) {
+            minColSpansLeft = cell;
+          }
+
+          var nextCell = _this.tableHeadElements[i][changeColIndex + 1];
+          minColSpansRight = minColSpansRight || nextCell;
+          if (minColSpansRight.colSpan < nextCell.colSpan) {
+            minColSpansRight = nextCell;
+          }
+        }
+        for (var i = 0; i < _this.tableBodyElements.length; i++) {
+          var cell = _this.tableBodyElements[i][changeColIndex];
+          minColSpansLeft = minColSpansLeft || cell;
+          if (minColSpansLeft.colSpan > cell.colSpan) {
+            minColSpansLeft = cell;
+          }
+
+          var nextCell = _this.tableBodyElements[i][changeColIndex + 1];
+          minColSpansRight = minColSpansRight || nextCell;
+          if (minColSpansRight.colSpan > nextCell.colSpan) {
+            minColSpansRight = nextCell;
+          }
+        }
+      }
+
+      if (
+        changeColIndex != undefined &&
+        changeColWidth != undefined &&
+        $colGroup.length
+      ) {
+        var $cols = $colGroup.find("col");
+        var currentCol = $colGroup.find("col").eq(changeColIndex);
+        var nextChangeColIndex = changeColIndex + 1;
+        var nextCol = $colGroup.find("col").eq(nextChangeColIndex);
+
+        var currentWidth =
+          currentCol.attr("width").split("%")[0] / 100 * tableWidth;
+        var currentChangeWidth =
+          currentWidth * minColSpansLeft.colSpan + changeColWidth;
+        var nextWidth = nextCol.attr("width").split("%")[0] / 100 * tableWidth;
+        var nextChangeWidth =
+          nextWidth * minColSpansRight.colSpan - changeColWidth;
+
+        // range limit detect
+
+        if (currentChangeWidth < minColWidth) {
+          currentChangeWidth = minColWidth;
+
+          changeColWidth = minColWidth - currentWidth * minColSpansLeft.colSpan;
+        }
+
+        if (nextChangeWidth < minColWidth) {
+          nextChangeWidth = minColWidth;
+
+          changeColWidth = nextWidth * minColSpansRight.colSpan - minColWidth;
+        }
+
+        // re calc
+        var currentWidthPercent =
+          (currentWidth * minColSpansLeft.colSpan + changeColWidth) /
+          tableWidth *
+          100;
+        var nextWidthPercent =
+          (nextWidth * minColSpansRight.colSpan - changeColWidth) /
+          tableWidth *
+          100;
+
+        // support currentCol or nextCol is big cell (more then 2colspan)
+        //
+        var minColSpanLeftNumber = minColSpansLeft.colSpan;
+        var minColSpanRightNumber = minColSpansRight.colSpan;
+
+        while (minColSpanLeftNumber--) {
+          var index = changeColIndex - minColSpanLeftNumber;
+          $cols
+            .eq(index)
+            .attr(
+              "width",
+              (currentWidthPercent / minColSpansLeft.colSpan).toFixed(2) + "%"
+            );
+        }
+
+        while (minColSpanRightNumber--) {
+          var index = changeColIndex + minColSpanRightNumber + 1;
+          $cols
+            .eq(index)
+            .attr(
+              "width",
+              (nextWidthPercent / minColSpansRight.colSpan).toFixed(2) + "%"
+            );
+        }
+      } else {
+        $colGroup.remove();
+        // calc all cell
+        var colgroupCol = _this.tableBodyElements[0].reduce(function(
+          memo,
+          tableElement,
+          tableElementIndex
+        ) {
+          var colspan = $(tableElement).attr("colspan") || 1;
+          var width = $(tableElement).outerWidth();
+          width = width / colspan;
+
+          //  if bigcell  update changedWidth
+          if (changeColIndex != undefined) {
+            if (
+              changeColIndex - minColSpansLeft.colSpan + 1 <=
+                tableElementIndex &&
+              tableElementIndex <= changeColIndex
+            ) {
+              width =
+                (Number(width * minColSpansLeft.colSpan) +
+                  Number(changeColWidth)) /
+                minColSpansLeft.colSpan;
+            }
+            if (
+              changeColIndex + 1 <= tableElementIndex &&
+              tableElementIndex <=
+                changeColIndex + 1 + -1 + minColSpansRight.colSpan
+            ) {
+              width =
+                (Number(width * minColSpansRight.colSpan) -
+                  Number(changeColWidth)) /
+                minColSpansRight.colSpan;
+            }
+          }
+
+          widthPercent = width / tableWidth * 100;
+
+          return memo + `<col width="${widthPercent.toFixed(2)}%">`;
+        }, "");
+
+        var colGroupHtml = `<colgroup>${colgroupCol}</colgroup>`;
+        $table.prepend(colGroupHtml);
+      }
+    },
+
     calcCellMergeRange: function(startElement, endElement) {
       var _this = this;
+
+      var _tableElements = _this.tableBodyElements;
+      if (startElement.tagName === "TH") {
+        _tableElements = _this.tableHeadElements;
+      }
+
       var startPoint = {
-        firstPoint: JSON.parse(startElement.firstPoint),
-        lastPoint: JSON.parse(startElement.lastPoint)
+        firstPoint: startElement.firstPoint,
+        lastPoint: startElement.lastPoint
       };
       var endPoint = {
-        firstPoint: JSON.parse(endElement.firstPoint),
-        lastPoint: JSON.parse(endElement.lastPoint)
+        firstPoint: endElement.firstPoint,
+        lastPoint: endElement.lastPoint
       };
 
       var minRow = Math.min(
@@ -257,9 +569,9 @@
         var newMaxCol = maxCol;
         for (var x = minRow; x <= maxRow; x++) {
           for (var y = minCol; y <= maxCol; y++) {
-            var currentElement = _this.tableElements[x][y];
-            var currentStartPoint = JSON.parse(currentElement.firstPoint);
-            var currentEndPoint = JSON.parse(currentElement.lastPoint);
+            var currentElement = _tableElements[x][y];
+            var currentStartPoint = currentElement.firstPoint;
+            var currentEndPoint = currentElement.lastPoint;
 
             newMinRow = Math.min(
               parseInt(currentStartPoint.row),
@@ -306,12 +618,19 @@
       _this.selectedColRange = maxCol - minCol + 1;
     },
 
-    renderCellMergeRange: function({ minRow, minCol, maxRow, maxCol }) {
+    renderCellMergeRange: function(
+      tagName,
+      { minRow, minCol, maxRow, maxCol }
+    ) {
       var _this = this;
+      var _tableElements = _this.tableBodyElements;
+      if (tagName === "TH") {
+        _tableElements = _this.tableHeadElements;
+      }
 
       for (var x = minRow; x <= maxRow; x++) {
         for (var y = minCol; y <= maxCol; y++) {
-          var currentElement = _this.tableElements[x][y];
+          var currentElement = _tableElements[x][y];
           $(currentElement).attr("data-active", "");
         }
       }
@@ -324,52 +643,106 @@
       element.lastPoint = point;
     },
 
-    calcTableElementPosition: function($parent) {
+    calcTableElementPosition: function($table) {
+      // set style  cursor: text !important; for last td
       var _this = this;
-      this.tableElements = [];
+      this.tableBodyElements = [];
+      this.tableHeadElements = [];
+      var $thead = $table.find("thead"),
+        $tbody = $table.find("tbody");
 
       function fill(element, indexTr, tdIndex, rowSpanLength, colSpanLength) {
+        var tagName = element.tagName;
+        var tableElement = _this.tableBodyElements;
+        if (tagName === "TH") {
+          tableElement = _this.tableHeadElements;
+        }
         var maxIndexTr = parseInt(indexTr) + parseInt(rowSpanLength);
         var maxTdIndex = parseInt(colSpanLength) + parseInt(tdIndex);
 
         for (var i = indexTr; i < maxIndexTr; i++) {
           for (var j = tdIndex; j < maxTdIndex; j++) {
-            _this.tableElements[i] = _this.tableElements[i] || [];
-            _this.tableElements[i][j] = element;
+            tableElement[i] = tableElement[i] || [];
+            tableElement[i][j] = element;
           }
         }
       }
 
-      $parent.find("tr").each(function(indexTr) {
-        var $currentRow = $(this);
-        _this.tableElements[indexTr] = _this.tableElements[indexTr] || [];
+      [$thead, $tbody].map(function($tableTHTB) {
+        var _tableElement = _this.tableBodyElements;
+        if ($tableTHTB === $thead) {
+          _tableElement = _this.tableHeadElements;
+        }
+        $tableTHTB.find("tr").each(function(indexTr) {
+          var $currentRow = $(this);
+          _tableElement[indexTr] = _tableElement[indexTr] || [];
 
-        var tdIndex = 0;
-        $currentRow.find("td,th").each(function() {
-          var rowSpanLength = $(this).attr("rowspan") || 1;
-          var colSpanLength = $(this).attr("colspan") || 1;
+          var tdIndex = 0;
+          var $findTdThs = $currentRow.find("td,th");
+          $findTdThs.each(function() {
+            var rowSpanLength = $(this).attr("rowspan") || 1;
+            var colSpanLength = $(this).attr("colspan") || 1;
 
-          if (!_this.tableElements[indexTr][tdIndex]) {
-            if (rowSpanLength > 1 || colSpanLength > 1) {
-              fill(this, indexTr, tdIndex, rowSpanLength, colSpanLength);
+            function getInserCell(indexTr, tdIndex) {
+              var currentElement = _tableElement[indexTr][tdIndex];
+              var currentRowSpanLength = $(currentElement).attr("rowspan") || 1;
+              var currentColSpanLength = $(currentElement).attr("colspan") || 1;
+              if (currentRowSpanLength > 1 || currentColSpanLength > 1) {
+                tdIndex += Number(currentColSpanLength);
+                return getInserCell(indexTr, tdIndex);
+              } else {
+                return { indexTr, tdIndex };
+              }
+            }
+
+            if (!_tableElement[indexTr][tdIndex]) {
+              if (rowSpanLength > 1 || colSpanLength > 1) {
+                fill(this, indexTr, tdIndex, rowSpanLength, colSpanLength);
+                tdIndex += Number(colSpanLength);
+              } else {
+                _tableElement[indexTr][tdIndex] = this;
+                tdIndex++;
+              }
             } else {
-              _this.tableElements[indexTr][tdIndex] = this;
+              var currentElement = _tableElement[indexTr][tdIndex];
+              var currentRowSpanLength = $(currentElement).attr("rowspan") || 1;
+              var currentColSpanLength = $(currentElement).attr("colspan") || 1;
+              if (currentRowSpanLength > 1 || currentColSpanLength > 1) {
+                var getInsertPoint = getInserCell(indexTr, tdIndex);
+                tdIndex = Number(getInsertPoint.tdIndex);
+
+                if (rowSpanLength > 1 || colSpanLength > 1) {
+                  // 若待插入的元素也是big cell 执行 fill
+                  fill(this, indexTr, tdIndex, rowSpanLength, colSpanLength);
+                  tdIndex += Number(colSpanLength);
+                } else {
+                  _tableElement[indexTr][tdIndex] = this;
+                  tdIndex++;
+                }
+              } else {
+                tdIndex++;
+              }
             }
-          } else {
-            tdIndex = _this.tableElements[indexTr].length;
-            _this.tableElements[indexTr].push(this);
-            if (rowSpanLength > 1 || colSpanLength > 1) {
-              fill(this, indexTr, tdIndex, rowSpanLength, colSpanLength);
-            }
-          }
-          tdIndex++;
+          });
+        });
+      });
+
+      [_this.tableBodyElements, _this.tableHeadElements].map(function(
+        tableElements
+      ) {
+        tableElements.forEach(function(tableTr, row) {
+          tableTr.forEach(function(tableTd, col) {
+            tableTd.lastPoint = undefined;
+          });
         });
 
-        _this.tableElements.forEach(function(tableTr, row) {
+        tableElements.forEach(function(tableTr, row) {
           tableTr.forEach(function(tableTd, col) {
-            _this.savePosition(tableTd, JSON.stringify({ row, col }));
+            _this.savePosition(tableTd, { row, col });
             // debug code
-            // tableTd.innerHTML = `${tableTd.firstPoint},${tableTd.lastPoint}`;
+            // tableTd.innerHTML = `${JSON.stringify(
+            //   tableTd.firstPoint
+            // )},${JSON.stringify(tableTd.lastPoint)}`;
           });
         });
       });
@@ -388,41 +761,212 @@
       this.caret.setStart($component);
     },
     addRowAbove: function() {
-      var $component = this._getComponent();
-      if ($component) {
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
         var current = this.selection.getCurrent();
-        var $row = $component.addRowTo(current, "before");
+        var $currentTd = $(current).closest("td,th");
+        var currentTd = $currentTd[0];
+        var appendTableTag = `td`;
+        var _tableElements = _this.tableBodyElements;
+        if (currentTd.tagName === "TH") {
+          _tableElements = _this.tableHeadElements;
+          appendTableTag = `th`;
+        }
 
-        this.caret.setStart($row);
+        var currentRow = currentTd.firstPoint.row;
+        var allColsLength = _tableElements[0].length;
+
+        var $addRow = $("<tr></tr>");
+
+        for (var i = 0; i < allColsLength; i++) {
+          var cell = _tableElements[currentRow][i];
+          var colspan = parseInt($(cell).attr("colspan") || 1);
+          var rowspan = parseInt($(cell).attr("rowspan") || 1);
+          if (cell.firstPoint.row == currentRow) {
+            $addRow.append(
+              `<${appendTableTag} contenteditable="true"></${appendTableTag}>`
+            );
+          } else {
+            // bigcell  is not on this row
+            if (colspan > 1 || rowspan > 1) {
+              //  big cell
+              if (!$(cell).attr("data-spanupdated")) {
+                if (rowspan > 1) {
+                  $(cell).attr("rowspan", rowspan + 1);
+                  $(cell).attr("data-spanupdated", "true");
+                }
+              }
+            }
+          }
+        }
+        $addRow.insertBefore($(current).closest("tr"));
+        $(table).find("[data-spanupdated]").removeAttr("data-spanupdated");
+        _this.calcTableElementPosition($(table));
+        _this.renderColGroup($(table));
       }
     },
     addRowBelow: function() {
-      var $component = this._getComponent();
-      if ($component) {
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
         var current = this.selection.getCurrent();
-        var $row = $component.addRowTo(current, "after");
+        var $currentTd = $(current).closest("td,th");
+        var currentTd = $currentTd[0];
+        var _tableElements = _this.tableBodyElements;
+        var appendTableTag = `td`;
+        if (currentTd.tagName === "TH") {
+          _tableElements = _this.tableHeadElements;
+          appendTableTag = `th`;
+        }
+        var currentRow = currentTd.lastPoint.row;
+        var allColsLength = _tableElements[0].length;
 
-        this.caret.setStart($row);
+        var $addRow = $("<tr></tr>");
+
+        for (var i = 0; i < allColsLength; i++) {
+          var cell = _tableElements[currentRow][i];
+          var colspan = parseInt($(cell).attr("colspan") || 1);
+          var rowspan = parseInt($(cell).attr("rowspan") || 1);
+          if (cell.lastPoint.row == currentRow) {
+            $addRow.append(
+              `<${appendTableTag} contenteditable="true"></${appendTableTag}>`
+            );
+          } else {
+            // bigcell  is not on this row
+            if (colspan > 1 || rowspan > 1) {
+              //  big cell
+              if (!$(cell).attr("data-spanupdated")) {
+                if (rowspan > 1) {
+                  $(cell).attr("rowspan", rowspan + 1);
+                  $(cell).attr("data-spanupdated", "true");
+                }
+              }
+            }
+          }
+        }
+
+        // get big cell right insert position
+        var targetTdTh = _tableElements[
+          currentTd.lastPoint.row
+        ].filter(function(element) {
+          return element.colSpan == 1 && element.rowSpan == 1;
+        });
+        if (targetTdTh.length > 0) {
+          $addRow.insertAfter($(targetTdTh[0]).closest("tr"));
+          $(table).find("[data-spanupdated]").removeAttr("data-spanupdated");
+          _this.calcTableElementPosition($(table));
+          _this.renderColGroup($(table));
+        }
       }
     },
     addColumnLeft: function() {
-      var $component = this._getComponent();
-      if ($component) {
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
         var current = this.selection.getCurrent();
+        var $currentTd = $(current).closest("td,th");
 
-        this.selection.save();
-        $component.addColumnTo(current, "left");
-        this.selection.restore();
+        var currentTd = $currentTd[0];
+        var currentCol = currentTd.firstPoint.col;
+
+        [_this.tableBodyElements, _this.tableHeadElements].map(function(
+          tableElements
+        ) {
+          var allRowsLength = tableElements.length;
+          var insertTag = `td`;
+          if (tableElements === _this.tableHeadElements) {
+            insertTag = `th`;
+          }
+
+          for (var i = 0; i < allRowsLength; i++) {
+            var cell = tableElements[i][currentCol];
+            var colspan = parseInt($(cell).attr("colspan") || 1);
+            var rowspan = parseInt($(cell).attr("rowspan") || 1);
+
+            if (currentCol == 0) {
+              $(cell)
+                .closest("thead,tbody")
+                .find("tr")
+                .eq(i)
+                .prepend(
+                  `<${insertTag} contenteditable="true"></${insertTag}>`
+                );
+            } else {
+              if (cell.firstPoint.row == i) {
+                if (colspan > 1 || rowspan > 1) {
+                  //  big cell
+                  if (!$(cell).attr("data-spanupdated")) {
+                    $(cell).attr("colspan", colspan + 1);
+                    $(cell).attr("data-spanupdated", "true");
+                  }
+                } else {
+                  $(
+                    `<${insertTag} contenteditable="true"></${insertTag}>`
+                  ).insertBefore(cell);
+                }
+              }
+            }
+          }
+        });
+
+        $(table).find("[data-spanupdated]").removeAttr("data-spanupdated");
+        _this.calcTableElementPosition($(table));
+        _this.renderColGroup($(table));
       }
     },
     addColumnRight: function() {
-      var $component = this._getComponent();
-      if ($component) {
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
         var current = this.selection.getCurrent();
+        var $currentTd = $(current).closest("td,th");
+        var currentTd = $currentTd[0];
+        var currentCol = currentTd.lastPoint.col;
 
-        this.selection.save();
-        $component.addColumnTo(current, "right");
-        this.selection.restore();
+        [_this.tableBodyElements, _this.tableHeadElements].map(function(
+          tableElements
+        ) {
+          var allRowsLength = tableElements.length;
+          var insertTag = `td`;
+          if (tableElements === _this.tableHeadElements) {
+            insertTag = `th`;
+          }
+
+          var allColsLength = tableElements[0].length;
+
+          for (var i = 0; i < allRowsLength; i++) {
+            var cell = tableElements[i][currentCol];
+            var colspan = parseInt($(cell).attr("colspan") || 1);
+            var rowspan = parseInt($(cell).attr("rowspan") || 1);
+
+            if (currentCol == allColsLength - 1) {
+              $(cell)
+                .closest("thead,tbody")
+                .find("tr")
+                .eq(i)
+                .append(`<${insertTag} contenteditable="true"></${insertTag}>`);
+            } else {
+              if (cell.lastPoint.row == i) {
+                if (colspan > 1 || rowspan > 1) {
+                  //  big cell
+                  if (!$(cell).attr("data-spanupdated")) {
+                    $(cell).attr("colspan", colspan + 1);
+                    $(cell).attr("data-spanupdated", "true");
+                  }
+                } else {
+                  $(
+                    `<${insertTag} contenteditable="true"></${insertTag}>`
+                  ).insertAfter(cell);
+                }
+              }
+            }
+          }
+        });
+
+        $(table).find("[data-spanupdated]").removeAttr("data-spanupdated");
+        _this.calcTableElementPosition($(table));
+        _this.renderColGroup($(table));
       }
     },
     addHead: function() {
@@ -449,35 +993,98 @@
       }
     },
     deleteColumn: function() {
-      var $component = this._getComponent();
-      if ($component) {
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
         var current = this.selection.getCurrent();
+        var $currentTd = $(current).closest("td,th");
+        var currentTd = $currentTd[0];
+        var currentCol = currentTd.firstPoint.col;
 
-        var $currentCell = $R.dom(current).closest("td, th");
-        var nextCell = $currentCell.nextElement().get();
-        var prevCell = $currentCell.prevElement().get();
+        [_this.tableBodyElements, _this.tableHeadElements].map(function(
+          tableElements
+        ) {
+          var allRowsLength = tableElements.length;
 
-        $component.removeColumn(current);
+          for (var i = 0; i < allRowsLength; i++) {
+            var cell = tableElements[i][currentCol];
+            var colspan = parseInt($(cell).attr("colspan") || 1);
+            var rowspan = parseInt($(cell).attr("rowspan") || 1);
+            if (cell.firstPoint.row == i) {
+              if (colspan > 1 || rowspan > 1) {
+                //  big cell
+                if (!$(cell).attr("data-spanupdated")) {
+                  if (colspan > 1) {
+                    $(cell).attr("colspan", colspan - 1);
+                    $(cell).attr("data-spanupdated", "true");
+                  } else {
+                    $(cell).remove();
+                  }
+                }
+              } else {
+                $(cell).remove();
+              }
+            }
+          }
+        });
 
-        if (nextCell) this.caret.setStart(nextCell);
-        else if (prevCell) this.caret.setEnd(prevCell);
-        else this.deleteTable();
+        $(table).find("[data-spanupdated]").removeAttr("data-spanupdated");
+        _this.calcTableElementPosition($(table));
+        _this.renderColGroup($(table));
       }
     },
     deleteRow: function() {
-      var $component = this._getComponent();
-      if ($component) {
+      // todo big cell
+      var _this = this;
+      var table = this._getTable();
+      if (table) {
         var current = this.selection.getCurrent();
+        var $currentTd = $(current).closest("td,th");
+        var currentTd = $currentTd[0];
+        var _tableElements = _this.tableBodyElements;
+        if (currentTd.tagName === "TH") {
+          _tableElements = _this.tableHeadElements;
+        }
+        var $currentTr = $currentTd.closest("tr");
+        var currentRow = currentTd.firstPoint.row;
+        var allColsLength = _tableElements[0].length;
+        for (var i = 0; i < allColsLength; i++) {
+          var cell = _tableElements[currentRow][i];
+          var colspan = parseInt($(cell).attr("colspan") || 1);
+          var rowspan = parseInt($(cell).attr("rowspan") || 1);
+          if (cell.firstPoint.col == i) {
+            if (colspan > 1 || rowspan > 1) {
+              //  big cell
+              if (!$(cell).attr("data-spanupdated")) {
+                if (rowspan > 1) {
+                  $(cell).attr("rowspan", rowspan - 1);
+                  $(cell).attr("data-spanupdated", "true");
 
-        var $currentRow = $R.dom(current).closest("tr");
-        var nextRow = $currentRow.nextElement().get();
-        var prevRow = $currentRow.prevElement().get();
+                  if (cell.firstPoint.row == currentRow) {
+                    //  move to next line
+                    if (i - 1 < 0) {
+                      $currentTr.next().prepend(cell);
+                    } else {
+                      $(cell).insertAfter(
+                        _tableElements[currentRow + 1][i - 1]
+                      );
+                    }
+                  }
+                }
+              } else {
+                $(cell).remove();
+              }
+            } else {
+              // may be is th
+              $(cell).remove();
+            }
+          }
+        }
+        $currentTr.remove();
 
-        $component.removeRow(current);
-
-        if (nextRow) this.caret.setStart(nextRow);
-        else if (prevRow) this.caret.setEnd(prevRow);
-        else this.deleteTable();
+        $(table).find("[data-spanupdated]").removeAttr("data-spanupdated");
+        _this.calcTableElementPosition($(table));
+        _this.renderColGroup($(table));
       }
     },
     mergeCell: function() {
@@ -490,8 +1097,13 @@
 
           var $tdParent = $(current).closest("tbody,thead");
 
+          var _tableElements = _this.tableBodyElements;
+          if ($tdParent[0].tagName === "THEAD") {
+            _tableElements = _this.tableHeadElements;
+          }
+
           var { minRow, minCol, maxRow, maxCol } = _this.finalRange;
-          var $firstCell = $(_this.tableElements[minRow][minCol]);
+          var $firstCell = $(_tableElements[minRow][minCol]);
           var rowSpanLength = $firstCell.attr("rowspan") || 1;
           var colSpanLength = $firstCell.attr("colspan") || 1;
 
@@ -502,14 +1114,16 @@
 
           for (var x = minRow; x <= maxRow; x++) {
             for (var y = minCol; y <= maxCol; y++) {
-              var currentElement = _this.tableElements[x][y];
+              var currentElement = _tableElements[x][y];
               if (currentElement != $firstCell[0]) {
                 $(currentElement).remove();
               }
-              _this.tableElements[x][y] = $firstCell[0];
-              _this.savePosition($tdParent[0], JSON.stringify({ x, y }));
+              _tableElements[x][y] = $firstCell[0];
+              _this.savePosition(_tableElements[x][y], { x, y });
             }
           }
+
+          _this.renderColGroup($(table));
         }
       }
     },
@@ -596,7 +1210,6 @@
     mixins: ["dom", "component"],
     init: function(app, el) {
       this.app = app;
-
       // init
       return el && el.cmnt !== undefined ? el : this._init(el);
     },
@@ -605,7 +1218,12 @@
     addHead: function() {
       this.removeHead();
 
-      var columns = this.$element.find("tr").first().children("td, th").length;
+      var $thtds = this.$element.find("tr").first().children("td, th");
+      var columns = 0;
+      $thtds.each(function(thtd) {
+        columns += thtd.colSpan;
+      });
+      //var columns = $thtds.length;
       var $head = $R.dom("<thead>");
       var $row = this._buildRow(columns, "<th>");
 
