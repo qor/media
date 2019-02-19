@@ -220,7 +220,9 @@
           _this.colResizeStartPositionX = e.target.offsetLeft + e.offsetX;
           // get init left point position
           e.preventDefault();
-          var $tableLine = $('<div class="redactor-component-table-line"></div>');
+          var $tableLine = $(
+            '<div class="redactor-component-table-line"></div>'
+          );
           $tableLine.css("left", _this.colResizeStartPositionX);
           $tableComponent.append($tableLine);
         } else {
@@ -232,27 +234,30 @@
         // clear helper element
         $(".redactor-component-table-line").remove();
       });
-      $$editor.on("mouseup", "td, th", function() {
-        isMouseUp = true;
-        isMouseDown = false;
-        //console.log("show context bar");
-        var $tableComponent = $(this).closest(
-          ".redactor-component[data-redactor-type='table']"
-        );
 
-        if (_this.isColResize) {
-          // get end point and calc with
+      $$editor.on(
+        "mouseup",
+        '.redactor-component[data-redactor-type="table"]',
+        function(e) {
+          isMouseUp = true;
+          isMouseDown = false;
+          //console.log("show context bar");
+          var $tableComponent = $(this);
 
-          _this.isColResize = false;
-          var changeColIndex = _this.colResizeStartElement.lastPoint.col;
-          _this.renderColGroup(
-            $(this).closest("table"),
-            changeColIndex,
-            _this.changeColWidth
-          );
-          $tableComponent.find(".redactor-component-table-line").remove();
+          if (_this.isColResize) {
+            // get end point and calc with
+
+            _this.isColResize = false;
+            var changeColIndex = _this.colResizeStartElement.lastPoint.col;
+            _this.renderColGroup(
+              $(this).find("table"),
+              changeColIndex,
+              _this.changeColWidth
+            );
+            $tableComponent.find(".redactor-component-table-line").remove();
+          }
         }
-      });
+      );
 
       $$editor.on("mousemove", "td, th", function(e) {
         if (e.target.offsetWidth - e.offsetX < 10 && !isMouseDown) {
