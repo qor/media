@@ -18,45 +18,43 @@ product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{As
 }})
 ********************************* */
 
-$(function() {
-  $R.add("plugin", "loadstyle", {
-    init: function(app) {
-      this.app = app;
-      this.opts = app.opts;
-    },
-    start: function() {
-      this.loadStyle();
-    },
+$R.add("plugin", "loadstyle", {
+  init: function(app) {
+    this.app = app;
+    this.opts = app.opts;
+  },
+  start: function() {
+    this.loadStyle();
+  },
 
-    loadStyle: function() {
-      var $editor = $(this.app.editor.$editor.nodes[0]);
+  loadStyle: function() {
+    var $editor = $(this.app.editor.$editor.nodes[0]);
 
-      // loadStyleNamespace, loadStyleLink are required options
-      // namespace is needed, but loadStyleLink is not
+    // loadStyleNamespace, loadStyleLink are required options
+    // namespace is needed, but loadStyleLink is not
+    if (typeof this.opts.loadStyleNamespace === "undefined") {
+      window.alert(
+        "please define loadStyleNamespace setting in your config file!"
+      );
+    } else {
+      // add namespace class into editor
+      $editor.addClass(this.opts.loadStyleNamespace);
+    }
+
+    if (typeof this.opts.loadStyleLink === "undefined") {
       if (typeof this.opts.loadStyleNamespace === "undefined") {
         window.alert(
-          "please define loadStyleNamespace setting in your config file!"
+          "please define loadStyleLink setting in your config file!"
         );
-      } else {
-        // add namespace class into editor
-        $editor.addClass(this.opts.loadStyleNamespace);
       }
+    } else {
+      var ss = document.createElement("link");
 
-      if (typeof this.opts.loadStyleLink === "undefined") {
-        if (typeof this.opts.loadStyleNamespace === "undefined") {
-          window.alert(
-            "please define loadStyleLink setting in your config file!"
-          );
-        }
-      } else {
-        var ss = document.createElement("link");
-
-        // insert stylesheet
-        ss.type = "text/css";
-        ss.rel = "stylesheet";
-        ss.href = this.opts.loadStyleLink;
-        document.getElementsByTagName("head")[0].appendChild(ss);
-      }
+      // insert stylesheet
+      ss.type = "text/css";
+      ss.rel = "stylesheet";
+      ss.href = this.opts.loadStyleLink;
+      document.getElementsByTagName("head")[0].appendChild(ss);
     }
-  });
+  }
 });
