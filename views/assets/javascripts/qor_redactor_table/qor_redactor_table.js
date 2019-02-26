@@ -163,11 +163,13 @@ $R.add("plugin", "table", {
       "delete-row": "Delete row",
       "delete-table": "Delete table",
       "set-table-theme": "Set table theme",
+      "set-cell-background": "Set cell background",
       "merge-cell": "Merge cell"
     }
   },
   modals: {
-    setTableThemeModal: `<form action=""></form>`
+    setTableThemeModal: `<form action=""></form>`,
+    setCellBackgroundModal: `<form action=""></form>`
   },
   onmodal: {
     setTableThemeModal: {
@@ -199,6 +201,40 @@ $R.add("plugin", "table", {
         var data = $form.getData();
         if (data && data.theme != undefined) {
           this.app.api("plugin.table.setTableTheme", {
+            classValue: data.theme
+          });
+        }
+      }
+    },
+    setCellBackgroundModal: {
+      open: function($modal, $form) {
+        // add customize className for table
+        if (
+          !this.opts.setCellBackgroundModal &&
+          typeof this.opts.cellBackgroundNames != "undefined"
+        ) {
+          var cellBackgroundNames = this.opts.cellBackgroundNames.split(";");
+          var optionsHtml = cellBackgroundNames.reduce(function(memo, data) {
+            const classArr = data.split(",");
+            if (classArr && classArr.length === 2) {
+              const classTitle = classArr[1];
+              const classValue = classArr[0];
+              return (
+                memo + `<option value="${classValue}">${classTitle}</option>`
+              );
+            }
+          }, "");
+          optionsHtml = `<option value="">No Background</option>` + optionsHtml;
+
+          this.opts.setCellBackgroundModal = `<div class="form-item"><label>Select Theme</label><select name="theme">${optionsHtml}
+          </select></div>`;
+        }
+        $form.append(this.opts.setCellBackgroundModal);
+      },
+      save: function($modal, $form) {
+        var data = $form.getData();
+        if (data && data.theme != undefined) {
+          this.app.api("plugin.table.setCellBackground", {
             classValue: data.theme
           });
         }
@@ -315,6 +351,16 @@ $R.add("plugin", "table", {
         title: this.lang.get("set-table-theme"),
         classname: "redactor-table-item-observable",
         api: "plugin.table.setTableThemeModal"
+      };
+    }
+
+    this.opts.cellBackgroundNames =
+      "table-cell-asics-blue,ASICS Blue;table-cell-asics-light-blue,ASICS Light Blue;table-cell-asics-light-green,ASICS Light Green;table-cell-asics-coral,ASICS Carol";
+    if (typeof this.opts.cellBackgroundNames != "undefined") {
+      dropdown["set-cell-background"] = {
+        title: this.lang.get("set-cell-background"),
+        classname: "redactor-table-item-observable",
+        api: "plugin.table.setCellBackgroundModal"
       };
     }
 
@@ -1287,6 +1333,19 @@ $R.add("plugin", "table", {
     }
   },
 
+  clearCellBackground: function() {
+    var table = this._getTable();
+    var current = this.selection.getCurrent();
+    var cell = $(current).closest("td,th");
+    if (table) {
+      $R
+        .dom(cell)
+        .removeClass(
+          this.opts.cellBackgroundNames.toString().replace(/[,;]/g, " ")
+        );
+    }
+  },
+
   setTableTheme: function(argus) {
     var table = this._getTable();
     if (table) {
@@ -1296,10 +1355,36 @@ $R.add("plugin", "table", {
     }
   },
 
+  setCellBackground: function(argus) {
+    var table = this._getTable();
+    var current = this.selection.getCurrent();
+    var cell = $(current).closest("td,th");
+    if (table) {
+      this.clearCellBackground();
+      $R.dom(cell).addClass(argus.classValue);
+      this.app.api("module.modal.close");
+    }
+  },
+
   setTableThemeModal: function() {
     var options = {
       name: "setTableThemeModal",
       title: "Set table theme",
+      handle: "save", // optional, command which will be fired on enter pressed
+      // optional object
+      commands: {
+        save: { title: "Save" },
+        cancel: { title: "Cancel" }
+      }
+    };
+
+    this.app.api("module.modal.build", options);
+  },
+
+  setCellBackgroundModal: function() {
+    var options = {
+      name: "setCellBackgroundModal",
+      title: "Set cell background",
       handle: "save", // optional, command which will be fired on enter pressed
       // optional object
       commands: {
