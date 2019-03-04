@@ -396,7 +396,8 @@ $R.add("plugin", "table", {
       var isInTable = $(e.target).closest("table").length > 0;
       var isInToolbar = $(e.target).closest(".redactor-toolbar").length > 0;
       var isInDropDown = $(e.target).closest(".redactor-dropdown").length > 0;
-      if (!isInTable && !isInToolbar && !isInDropDown) {
+      var isModalShow = $(".redactor-modal.open").length > 0;
+      if (!isInTable && !isInToolbar && !isInDropDown && !isModalShow) {
         $$editor
           .find("td[data-active],th[data-active]")
           .removeAttr("data-active");
@@ -1339,11 +1340,10 @@ $R.add("plugin", "table", {
 
   clearCellBackground: function() {
     var table = this._getTable();
-    var current = this.selection.getCurrent();
-    var cell = $(current).closest("td,th");
     if (table) {
       $R
-        .dom(cell)
+        .dom(table)
+        .find("[data-active]")
         .removeClass(
           this.opts.cellBackgroundNames.toString().replace(/[,;]/g, " ")
         );
@@ -1361,11 +1361,13 @@ $R.add("plugin", "table", {
 
   setCellBackground: function(argus) {
     var table = this._getTable();
-    var current = this.selection.getCurrent();
-    var cell = $(current).closest("td,th");
+
     if (table) {
+      var cells = $R.dom(table).find("[data-active]");
+
       this.clearCellBackground();
-      $R.dom(cell).addClass(argus.classValue);
+      cells.addClass(argus.classValue);
+
       this.app.api("module.modal.close");
     }
   },
