@@ -13,6 +13,10 @@ $R.add("plugin", "fontsize", {
 
     // local
     this.sizes = [10, 11, 12, 14, 16, 18, 20, 24, 28, 30];
+
+    if (typeof this.opts.fontsizes != "undefined") {
+      this.sizes = this.opts.fontsizes.split(",");
+    }
   },
   // public
   start: function() {
