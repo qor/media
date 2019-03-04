@@ -12,7 +12,7 @@ $R.add("plugin", "fontsize", {
     this.toolbar = app.toolbar;
 
     // local
-    this.sizes = [10, 11, 12, 14, 16, 18, 20, 24, 28, 30];
+    this.sizes = [12, 16, 18, 34];
 
     if (typeof this.opts.fontsizes != "undefined") {
       this.sizes = this.opts.fontsizes.split(",");
