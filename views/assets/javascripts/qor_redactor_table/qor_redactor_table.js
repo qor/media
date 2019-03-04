@@ -347,9 +347,7 @@ $R.add("plugin", "table", {
     };
 
     this.opts.tableClassNames =
-      this.opts.tableClassNames ||
       "table-asics-blue,ASICS Blue;table-asics-light-blue,ASICS Light Blue;table-asics-light-green,ASICS Light Green;table-asics-coral,ASICS Carol";
-
     if (typeof this.opts.tableClassNames != "undefined") {
       dropdown["set-table-theme"] = {
         title: this.lang.get("set-table-theme"),
@@ -572,11 +570,15 @@ $R.add("plugin", "table", {
   renderColGroup: function($table, changeColIndex, changeColWidth) {
     var _this = this;
     var $colGroup = $table.find("colgroup");
+    var $cols = $colGroup.find("col");
     var tableWidth = $table.find("thead,tbody").outerWidth();
     var minColWidthPercent = (_this.minCellWidth / tableWidth * 100).toFixed(2);
     var minColWidth = tableWidth * minColWidthPercent / 100;
 
-    if (changeColIndex != undefined) {
+    if (
+      changeColIndex != undefined ||
+      $cols.length != _this.tableBodyElements[0].length
+    ) {
       // 记录 当前索引 cell 的 colspan 并计算最小值，最小值不是1 则需要重新计算travel宽度
       var minColSpansLeft = null;
       var minColSpansRight = null;
@@ -610,11 +612,11 @@ $R.add("plugin", "table", {
     }
 
     if (
+      $colGroup.length &&
+      $cols.length == _this.tableBodyElements[0].length &&
       changeColIndex != undefined &&
-      changeColWidth != undefined &&
-      $colGroup.length
+      changeColWidth != undefined
     ) {
-      var $cols = $colGroup.find("col");
       var currentCol = $colGroup.find("col").eq(changeColIndex);
       var nextChangeColIndex = changeColIndex + 1;
       var nextCol = $colGroup.find("col").eq(nextChangeColIndex);
