@@ -10,6 +10,7 @@ $R.add("plugin", "fontsize", {
     this.lang = app.lang;
     this.inline = app.inline;
     this.toolbar = app.toolbar;
+    this.opts = app.opts;
 
     // local
     this.sizes = [12, 16, 18, 34];

@@ -347,6 +347,7 @@ $R.add("plugin", "table", {
     };
 
     this.opts.tableClassNames =
+      this.opts.tableClassNames ||
       "table-asics-blue,ASICS Blue;table-asics-light-blue,ASICS Light Blue;table-asics-light-green,ASICS Light Green;table-asics-coral,ASICS Carol";
     if (typeof this.opts.tableClassNames != "undefined") {
       dropdown["set-table-theme"] = {
