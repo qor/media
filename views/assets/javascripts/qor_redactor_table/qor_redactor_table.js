@@ -257,12 +257,15 @@ $R.add("plugin", "table", {
   },
   // messages
   oncontextbar: function(e, contextbar) {
+    var _this = this;
+    _this.selectedCells = null;
     var data = this.inspector.parse(e.target);
     if (data.isComponentType("table")) {
       var node = data.getComponent();
       var buttons = {};
 
       var selectedCells = $R.dom(node).find("[data-active]");
+      _this.selectedCells = selectedCells;
       if (selectedCells.length > 1) {
         buttons["merge-cell"] = {
           title: this.lang.get("merge-cell"),
@@ -1344,12 +1347,9 @@ $R.add("plugin", "table", {
   clearCellBackground: function() {
     var table = this._getTable();
     if (table) {
-      $R
-        .dom(table)
-        .find("[data-active]")
-        .removeClass(
-          this.opts.cellBackgroundNames.toString().replace(/[,;]/g, " ")
-        );
+      this.selectedCells.removeClass(
+        this.opts.cellBackgroundNames.toString().replace(/[,;]/g, " ")
+      );
     }
   },
 
@@ -1366,7 +1366,7 @@ $R.add("plugin", "table", {
     var table = this._getTable();
 
     if (table) {
-      var cells = $R.dom(table).find("[data-active]");
+      var cells = this.selectedCells;
 
       this.clearCellBackground();
       cells.addClass(argus.classValue);
