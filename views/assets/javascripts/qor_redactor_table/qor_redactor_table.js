@@ -164,11 +164,13 @@ $R.add("plugin", "table", {
       "delete-table": "Delete table",
       "set-table-theme": "Set table theme",
       "set-cell-background": "Set cell background",
+      "set-cell-font-size": "Set cell font size",
       "merge-cell": "Merge cell"
     }
   },
   modals: {
     setTableThemeModal: `<form action=""></form>`,
+    setCellFontSizeModal: `<form action=""></form>`,
     setCellBackgroundModal: `<form action=""></form>`
   },
   onmodal: {
@@ -206,6 +208,32 @@ $R.add("plugin", "table", {
         }
       }
     },
+    setCellFontSizeModal: {
+      open: function($modal, $form) {
+        if (
+          !this.opts.setCellFontSizeModal &&
+          typeof this.cellFontSizes != "undefined"
+        ) {
+          var optionsHtml = this.cellFontSizes.reduce(function(memo, data) {
+            return memo + `<option value="${data}">${data}px</option>`;
+          }, "");
+          optionsHtml =
+            `<option value="">Remove Font Size</option>` + optionsHtml;
+
+          this.opts.setCellFontSizeModal = `<div class="form-item"><label>Select Size</label><select name="theme">${optionsHtml}
+          </select></div>`;
+        }
+        $form.append(this.opts.setCellFontSizeModal);
+      },
+      save: function($modal, $form) {
+        var data = $form.getData();
+        if (data && data.theme != undefined) {
+          this.app.api("plugin.table.setCellFontSize", {
+            classValue: data.theme
+          });
+        }
+      }
+    },
     setCellBackgroundModal: {
       open: function($modal, $form) {
         // add customize className for table
@@ -226,7 +254,7 @@ $R.add("plugin", "table", {
           }, "");
           optionsHtml = `<option value="">No Background</option>` + optionsHtml;
 
-          this.opts.setCellBackgroundModal = `<div class="form-item"><label>Select Theme</label><select name="theme">${optionsHtml}
+          this.opts.setCellBackgroundModal = `<div class="form-item"><label>Select Background</label><select name="theme">${optionsHtml}
           </select></div>`;
         }
         $form.append(this.opts.setCellBackgroundModal);
@@ -257,15 +285,12 @@ $R.add("plugin", "table", {
   },
   // messages
   oncontextbar: function(e, contextbar) {
-    var _this = this;
-    _this.selectedCells = null;
     var data = this.inspector.parse(e.target);
     if (data.isComponentType("table")) {
       var node = data.getComponent();
       var buttons = {};
 
       var selectedCells = $R.dom(node).find("[data-active]");
-      _this.selectedCells = selectedCells;
       if (selectedCells.length > 1) {
         buttons["merge-cell"] = {
           title: this.lang.get("merge-cell"),
@@ -346,6 +371,12 @@ $R.add("plugin", "table", {
         title: this.lang.get("delete-table"),
         classname: "redactor-table-item-observable",
         api: "plugin.table.deleteTable"
+      },
+
+      "set-cell-font-size": {
+        title: this.lang.get("set-cell-font-size"),
+        classname: "redactor-table-item-observable",
+        api: "plugin.table.setCellFontSizeModal"
       }
     };
 
@@ -443,6 +474,9 @@ $R.add("plugin", "table", {
         isMouseDown = false;
         //console.log("show context bar");
         var $tableComponent = $(this);
+
+        var selectedCells = $tableComponent.find("[data-active]");
+        _this.selectedCells = selectedCells;
 
         if (_this.isColResize) {
           // get end point and calc with
@@ -1375,6 +1409,21 @@ $R.add("plugin", "table", {
     }
   },
 
+  setCellFontSize: function(argus) {
+    var table = this._getTable();
+    if (table) {
+      var cells = this.selectedCells;
+      var size = argus.classValue;
+      if (size) {
+        cells.css({ "font-size": size + "px" });
+      } else {
+        cells.css({ "font-size": "" });
+      }
+
+      this.app.api("module.modal.close");
+    }
+  },
+
   setTableThemeModal: function() {
     var options = {
       name: "setTableThemeModal",
@@ -1394,6 +1443,26 @@ $R.add("plugin", "table", {
     var options = {
       name: "setCellBackgroundModal",
       title: "Set cell background",
+      handle: "save", // optional, command which will be fired on enter pressed
+      // optional object
+      commands: {
+        save: { title: "Save" },
+        cancel: { title: "Cancel" }
+      }
+    };
+
+    this.app.api("module.modal.build", options);
+  },
+
+  setCellFontSizeModal: function() {
+    this.cellFontSizes = [12, 16, 18, 34];
+
+    if (typeof this.opts.cellFontSizes != "undefined") {
+      this.cellFontSizes = this.opts.cellFontSizes.split(",");
+    }
+    var options = {
+      name: "setCellFontSizeModal",
+      title: "Set cell font size",
       handle: "save", // optional, command which will be fired on enter pressed
       // optional object
       commands: {
