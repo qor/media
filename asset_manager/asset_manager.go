@@ -25,9 +25,9 @@ func (*AssetManager) ConfigureQorResource(res resource.Resourcer) {
 		router := res.GetAdmin().GetRouter()
 		router.Post(fmt.Sprintf("/%v/upload", res.ToParam()), func(context *admin.Context) {
 			result := AssetManager{}
-			result.File.Scan(context.Request.MultipartForm.File["file"])
+			result.File.Scan(context.Request.MultipartForm.File["file[]"])
 			context.GetDB().Save(&result)
-			bytes, _ := json.Marshal(map[string]string{"filelink": result.File.URL(), "filename": result.File.GetFileName()})
+			bytes, _ := json.Marshal(map[string]interface{}{"file-0": map[string]string{"url": result.File.URL(), "id": result.File.GetFileName()}})
 			context.Writer.Write(bytes)
 		})
 
@@ -47,7 +47,7 @@ func (*AssetManager) ConfigureQorResource(res resource.Resourcer) {
 					if err = context.GetDB().Find(result, matches[1]).Error; err == nil {
 						if err = result.File.Scan(buf.Bytes()); err == nil {
 							if err = context.GetDB().Save(result).Error; err == nil {
-								bytes, _ := json.Marshal(map[string]string{"url": result.File.URL(), "filename": result.File.GetFileName()})
+								bytes, _ := json.Marshal(map[string]interface{}{"file-0": map[string]string{"url": result.File.URL(), "id": result.File.GetFileName()}})
 								context.Writer.Write(bytes)
 								return
 							}
