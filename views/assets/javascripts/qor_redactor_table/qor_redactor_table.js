@@ -613,10 +613,7 @@ $R.add("plugin", "table", {
     var minColWidthPercent = (_this.minCellWidth / tableWidth * 100).toFixed(2);
     var minColWidth = tableWidth * minColWidthPercent / 100;
 
-    if (
-      changeColIndex != undefined ||
-      $cols.length != _this.tableBodyElements[0].length
-    ) {
+    if (changeColIndex != undefined) {
       // 记录 当前索引 cell 的 colspan 并计算最小值，最小值不是1 则需要重新计算travel宽度
       var minColSpansLeft = null;
       var minColSpansRight = null;
@@ -1168,7 +1165,7 @@ $R.add("plugin", "table", {
           insertTag = `th`;
         }
 
-        var allColsLength = tableElements[0].length;
+        var allColsLength = tableElements[0] instanceof Array ? tableElements[0].length : 0;
 
         for (var i = 0; i < allRowsLength; i++) {
           var cell = tableElements[i][currentCol];
