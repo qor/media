@@ -1416,6 +1416,7 @@ $R.add("plugin", "table", {
       } else {
         cells.css({ "font-size": "" });
       }
+      cells.attr('data-redactor-style-cache', true);
 
       this.app.api("module.modal.close");
     }
