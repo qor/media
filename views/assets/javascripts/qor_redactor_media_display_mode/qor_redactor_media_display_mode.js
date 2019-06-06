@@ -72,10 +72,10 @@ $R.add("plugin", "mediadisplaymode", {
   },
 
   removeButton: function(e) {
-    // todo
     if (!$(e.target).closest("#redactor-image-box").length) {
       $("#redactor-image-displaymode").remove();
       $(document).off("click.redactor-mediadisplaymode");
+      $("#modal-media-display-mode").closest("#redactor-modal").remove();
     }
   },
 
