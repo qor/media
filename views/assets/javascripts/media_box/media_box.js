@@ -415,7 +415,9 @@
                 if (selectedType === 'video') {
                     $template = $(window.Mustache.render(this.TEMPLATE_UPLOADEDVIDEO, data));
                 } else if (selectedType === 'video_link') {
-                    data.VideoLink = `//www.youtube.com/embed/${getYoutubeID(data.MediaOption.Video)}?rel=0&fs=0&modestbranding=1&disablekb=1`;
+                    let externalVideoLink = getYoutubeID(data.MediaOption.Video);
+
+                    data.VideoLink = externalVideoLink ? `//www.youtube.com/embed/${externalVideoLink}?rel=0&fs=0&modestbranding=1&disablekb=1` : data.MediaOption.Video;
                     $template = $(window.Mustache.render(this.TEMPLATE_VIDEOLINK, data));
                 } else if (selectedType === 'file') {
                     $template = $(window.Mustache.render(this.TEMPLATE_FILE, data));
