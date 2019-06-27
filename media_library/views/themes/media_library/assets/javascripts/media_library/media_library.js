@@ -18,7 +18,7 @@
   var EVENT_KEYUP = "keyup." + NAMESPACE;
   var EVENT_SWITCHED = "switched.qor.tabbar.radio";
   var EVENT_SWITCHED_TARGET = '[data-toggle="qor.tab.radio"]';
-  var EVENT_BOTTOMSHEETS_RELOAD = "reload.qor.bottomsheets";
+  var EVENT_BOTTOMSHEETS_RELOAD = "reload.qor.bottomsheets bottomsheetLoaded.qor.bottomsheets";
   var CLASS_MEDIA_DATA = '[name="QorResource.SelectedType"]';
   var CLASS_VIDEO_TAB = '[data-tab-source="video_link"]';
   var CLASS_VIDEO = ".qor-video__link";
@@ -182,15 +182,22 @@
                 youtubeID +
                 '?rel=0" frameborder="0" allowfullscreen></iframe>'
             );
-        }
-
-        if (youkuID) {
+        } else if (youkuID) {
           $this
             .parent()
             .addClass("qor-table--video qor-table--video-external")
             .html(
               '<iframe width=100% height=100% src="http://player.youku.com/embed/' +
                 youkuID +
+                '" frameborder=0 "allowfullscreen"></iframe>'
+            );
+        } else {
+          $this
+            .parent()
+            .addClass("qor-table--video qor-table--video-external")
+            .html(
+              '<iframe width=100% height=100% src="' +
+                url +
                 '" frameborder=0 "allowfullscreen"></iframe>'
             );
         }
@@ -230,6 +237,12 @@
               '" frameborder=0 "allowfullscreen"></iframe>'
           );
         }
+      } else {
+        $parent.append(
+            '<iframe width=100% height=400 src="' +
+              url +
+              '" frameborder=0 "allowfullscreen"></iframe>'
+          );
       }
     },
 
@@ -279,11 +292,16 @@
             youtubeID +
             '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowfullscreen></iframe>'
         );
-      }
-      if (youkuID) {
+      } else if (youkuID) {
         $render.append(
           '<iframe width=100% height=400 src="http://player.youku.com/embed/' +
             youkuID +
+            '" frameborder=0 "allowfullscreen"></iframe>'
+        );
+      } else {
+        $render.append(
+          '<iframe width=100% height=400 src="' +
+            url +
             '" frameborder=0 "allowfullscreen"></iframe>'
         );
       }
