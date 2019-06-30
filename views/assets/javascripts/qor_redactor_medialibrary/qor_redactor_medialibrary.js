@@ -149,22 +149,24 @@ $R.add("plugin", "medialibrary", {
             reUrlYoutube,
             iframeStart + "//www.youtube.com/embed/$1" + iframeEnd
           );
-        }
-
-        if (videoLink.match(reUrlVimeo)) {
+        }else if (videoLink.match(reUrlVimeo)) {
           videoType = "vimeo";
           htmlCode = videoLink.replace(
             reUrlVimeo,
             iframeStart + "//player.vimeo.com/video/$2" + iframeEnd
           );
-        }
-
-        if (videoLink.match(reUrlYouku) && reUrlYoukuID.test(videoLink)) {
+        }else if (videoLink.match(reUrlYouku) && reUrlYoukuID.test(videoLink)) {
           videoType = "youku";
           youkuID = videoLink.match(reUrlYoukuID)[2];
           htmlCode =
             '<iframe width=100% height=400 src="http://player.youku.com/embed/' +
             youkuID +
+            '" frameborder=0 "allowfullscreen"></iframe>';
+        } else {
+          videoType = "others";
+          htmlCode =
+            '<iframe width=100% height=400 src="' +
+            videoLink +
             '" frameborder=0 "allowfullscreen"></iframe>';
         }
       } else if (mediaOption.URL.match(reVideo)) {
