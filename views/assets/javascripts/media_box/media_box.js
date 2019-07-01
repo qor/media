@@ -259,6 +259,7 @@
 
         syncImageCrop: function($ele, callback) {
             let item = JSON.parse($ele.find(CLASS_CROPPER_OPTIONS).val()),
+                $btn = $ele.closest("form").find(":submit"),
                 url = $ele.data().mediaLibraryUrl,
                 _this = this,
                 syncData = {},
@@ -297,6 +298,9 @@
                 data: JSON.stringify(syncData),
                 contentType: 'application/json',
                 dataType: 'json',
+                beforeSend: function(){
+                    $btn.attr("disabled", true);
+                },
                 success: function(data) {
                     syncData.MediaOption = JSON.parse(data.MediaOption);
                     $ele.data().originalUrl = syncData.MediaOption.OriginalURL;
@@ -307,6 +311,7 @@
                     }
                 },
                 complete: function() {
+                    $btn.attr("disabled", false);
                     $ele.find('.qor-media-loading').remove();
                 }
             });
