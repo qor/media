@@ -370,6 +370,7 @@
             let $template = $(window.Mustache.render(this.TEMPLATE_IMAGE, data)),
                 $input = $template.find('.qor-file__input'),
                 $item = $input.closest(CLASS_ITEM),
+                $btn = $item.closest("form").find(":submit"),
                 $hiddenItem = this.$selectFeild.find('[data-primary-key="' + data.primaryKey + '"]'),
                 maxItem = this.bottomsheetsData.maxItem,
                 selectedItem = this.getSelectedItemData().selectedNum,
@@ -378,6 +379,8 @@
                 selectedType = data.SelectedType,
                 isSVG = /.svg$/.test(data.MediaOption.FileName),
                 _this = this;
+
+            $btn.attr("disabled", true);
 
             if (!isNewData) {
                 if (maxItem == 1) {
