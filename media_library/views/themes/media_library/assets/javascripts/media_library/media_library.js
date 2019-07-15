@@ -221,6 +221,8 @@
 
       this.setMediaData($form, fileOption);
 
+      $parent.find("iframe").remove();
+
       if (youtubeID || youkuID) {
         $iframe.length && $iframe.remove();
         if (youtubeID) {
