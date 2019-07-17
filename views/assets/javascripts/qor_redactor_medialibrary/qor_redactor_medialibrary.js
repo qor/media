@@ -105,6 +105,9 @@ $R.add("plugin", "medialibrary", {
       const $editor = $(thisApp.app.editor.$editor.nodes[0]);
       const $rootElement = $(thisApp.app.rootElement);
 
+
+      console.log(data)
+
       thisApp.opts.mediaContainerClass =
         typeof thisApp.opts.mediaContainerClass === "undefined"
           ? "qor-video-container"
@@ -130,13 +133,10 @@ $R.add("plugin", "medialibrary", {
         description = mediaOption.Description;
 
       iframeStart =
-        '<figure class="' +
-        mediaContainerClass +
-        '"><iframe title="' +
-        description +
-        '" width="100%" height="380px" src="';
+        `<figure class="${mediaContainerClass}"><iframe title="${description}" data-media-id="${data.ID || data.primaryKey}" width="100%" height="380px" src="`;
+
       iframeEnd =
-        '" frameborder="0" allowfullscreen></iframe><figcaption>' +
+        '" frameborder="0" allowfullscreen="true"></iframe><figcaption>' +
         description +
         "</figcaption></figure>";
 
@@ -159,15 +159,11 @@ $R.add("plugin", "medialibrary", {
           videoType = "youku";
           youkuID = videoLink.match(reUrlYoukuID)[2];
           htmlCode =
-            '<iframe width=100% height=400 src="http://player.youku.com/embed/' +
-            youkuID +
-            '" frameborder=0 "allowfullscreen"></iframe>';
+            `<iframe width=100% height=400 data-media-id="${data.ID || data.primaryKey}" src="http://player.youku.com/embed/${youkuID}" frameborder=0 allowfullscreen="true"></iframe>`;
         } else {
           videoType = "others";
           htmlCode =
-            '<iframe width=100% height=400 src="' +
-            videoLink +
-            '" frameborder=0 "allowfullscreen"></iframe>';
+            `<iframe data-media-id="${data.ID || data.primaryKey}" width=100% height=400 src="${videoLink}" frameborder=0 allowfullscreen="true"></iframe>`;
         }
       } else if (mediaOption.URL.match(reVideo)) {
         videoType = "uploadedVideo";
@@ -222,11 +218,15 @@ $R.add("plugin", "medialibrary", {
         mediaOption = data.MediaOption,
         callbackData = {};
 
+
+      var imageFile = data.File && JSON.parse(data.File);
+
+
       src = mediaOption.URL.replace(/image\..+\./, "image.");
 
       $img.attr({
         src: src,
-        alt: mediaOption.Description
+        alt: mediaOption.Description || imageFile.Description
       });
       $figure.append($img);
 

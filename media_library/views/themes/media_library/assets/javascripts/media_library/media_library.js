@@ -180,7 +180,7 @@
             .html(
               '<iframe width="100%" height="100%" src="//www.youtube.com/embed/' +
                 youtubeID +
-                '?rel=0" frameborder="0" allowtransparency="true" allowfullscreen></iframe>'
+                '?rel=0" frameborder="0" allowtransparency="true" allowfullscreen="true"></iframe>'
             );
         } else if (youkuID) {
           $this
@@ -189,7 +189,7 @@
             .html(
               '<iframe width=100% height=100% src="http://player.youku.com/embed/' +
                 youkuID +
-                '" frameborder=0 allowtransparency="true" allowfullscreen></iframe>'
+                '" frameborder=0 allowtransparency="true" allowfullscreen="true"></iframe>'
             );
         } else {
           $this
@@ -198,7 +198,7 @@
             .html(
               '<iframe width=100% height=100% src="' +
                 url +
-                '" frameborder=0 allowtransparency="true" allowfullscreen></iframe>'
+                '" frameborder=0 allowtransparency="true" allowfullscreen="true"></iframe>'
             );
         }
       });
@@ -229,21 +229,21 @@
           $parent.append(
             '<iframe width="100%" height="400" src="//www.youtube.com/embed/' +
               youtubeID +
-              '?rel=0" frameborder="0" allowtransparency="true" allowfullscreen></iframe>'
+              '?rel=0" frameborder="0" allowtransparency="true" allowfullscreen="true"></iframe>'
           );
         }
         if (youkuID) {
           $parent.append(
             '<iframe width=100% height=400 src="http://player.youku.com/embed/' +
               youkuID +
-              '" frameborder=0 allowtransparency="true" allowfullscreen></iframe>'
+              '" frameborder=0 allowtransparency="true" allowfullscreen="true"></iframe>'
           );
         }
       } else {
         $parent.append(
             '<iframe width=100% height=400 src="' +
               url +
-              '" frameborder=0  allowtransparency="true" allowfullscreen></iframe>'
+              '" frameborder=0  allowtransparency="true" allowfullscreen="true"></iframe>'
           );
       }
     },
@@ -292,19 +292,19 @@
         $render.append(
           '<iframe width="100%" height="400" src="//www.youtube.com/embed/' +
             youtubeID +
-            '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowtransparency="true" allowfullscreen></iframe>'
+            '?rel=0&fs=0&modestbranding=1&disablekb=1" frameborder="0" allowtransparency="true" allowfullscreen="true"></iframe>'
         );
       } else if (youkuID) {
         $render.append(
           '<iframe width=100% height=400 src="http://player.youku.com/embed/' +
             youkuID +
-            '" frameborder=0 allowtransparency="true" allowfullscreen></iframe>'
+            '" frameborder=0 allowtransparency="true" allowfullscreen="true"></iframe>'
         );
       } else {
         $render.append(
           '<iframe width=100% height=400 src="' +
             url +
-            '" frameborder=0 allowtransparency="true" allowfullscreen></iframe>'
+            '" frameborder=0 allowtransparency="true" allowfullscreen="true"></iframe>'
         );
       }
     }
