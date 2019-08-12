@@ -136,9 +136,7 @@ $R.add("plugin", "medialibrary", {
         `<figure class="${mediaContainerClass}"><iframe title="${description}" data-media-id="${data.ID || data.primaryKey}" width="100%" height="380px" src="`;
 
       iframeEnd =
-        '" frameborder="0" allowfullscreen="true"></iframe><figcaption>' +
-        description +
-        "</figcaption></figure>";
+        '" frameborder="0" allowfullscreen="true"></iframe></figure>';
 
       if (data.SelectedType == "video_link") {
         videoLink = mediaOption.Video;
@@ -178,11 +176,7 @@ $R.add("plugin", "medialibrary", {
           videoIdentification +
           '" tabindex="0"><source src="' +
           mediaOption.URL +
-          '"></video></div><figcaption id="' +
-          videoIdentification +
-          '">' +
-          description +
-          "</figcaption></figure>";
+          '"></video></div></figure>';
       }
 
       if (!htmlCode) {
