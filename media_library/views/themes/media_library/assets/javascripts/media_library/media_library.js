@@ -75,6 +75,7 @@
     init: function() {
       this.bind();
       this.initMedia();
+      $.fn.qorSliderAfterShow.renderMediaVideo();
     },
 
     bind: function() {
@@ -334,7 +335,7 @@
   };
 
   $(function() {
-    var selector = ".qor-table--medialibrary";
+    var selector = ".qor-theme-media_library";
 
     $(document)
       .on(EVENT_DISABLE, function(e) {
