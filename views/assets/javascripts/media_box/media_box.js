@@ -530,7 +530,7 @@
             }
 
             if (isNewData) {
-                data.mediaLibraryUrl = this.bottomsheetsData.mediaboxUrl + '/' + data.primaryKey;
+                data.mediaLibraryUrl = this.bottomsheetsData.mediaboxUrl.split('?')[0] + '/' + data.primaryKey;
                 this.addItem(data, isNewData);
                 this.updateDatas(data);
                 return;
