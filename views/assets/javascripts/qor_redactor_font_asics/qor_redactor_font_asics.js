@@ -2,7 +2,7 @@ $R.add("plugin", "font", {
   translations: {
     en: {
       font: "Font",
-      "font-clear": "Clear Font",
+      "font-clear": "Graphik (default)",
       "font-asics": "ASICS"
     }
   },
