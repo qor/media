@@ -152,17 +152,17 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 					}
 				} else {
 					if img, _, err := image.Decode(file); err == nil {
-						// save original image
-						if !HaveDefinedSizes(media.GetSizes()) {
-							if cropOption := media.GetCropOption("original"); cropOption != nil {
-								img = imaging.Crop(img, *cropOption)
-							}
+						// Save cropped default image
+						if cropOption := media.GetCropOption("original"); cropOption != nil {
+							var buffer bytes.Buffer
+							imaging.Encode(&buffer, imaging.Crop(img, *cropOption), *format)
+							media.Store(media.URL(), option, &buffer)
+						} else {
+							// Save default image
+							var buffer bytes.Buffer
+							imaging.Encode(&buffer, img, *format)
+							media.Store(media.URL(), option, &buffer)
 						}
-
-						// Save default image
-						var buffer bytes.Buffer
-						imaging.Encode(&buffer, img, *format)
-						media.Store(media.URL(), option, &buffer)
 
 						// save sizes image
 						for key, size := range media.GetSizes() {
@@ -190,22 +190,6 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 	}
 
 	return err
-}
-
-func HaveDefinedSizes(sizes map[string]*Size) bool {
-	if len(sizes) == 0 {
-		return false
-	}
-	qorSize := 0
-	for s, _ := range sizes {
-		if s == "original" || s == "@qor_preview" {
-			qorSize = qorSize + 1
-		}
-	}
-	if len(sizes) == qorSize {
-		return false
-	}
-	return true
 }
 
 func init() {
