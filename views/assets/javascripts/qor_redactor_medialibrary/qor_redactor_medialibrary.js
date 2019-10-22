@@ -105,7 +105,6 @@ $R.add("plugin", "medialibrary", {
       const $editor = $(thisApp.app.editor.$editor.nodes[0]);
       const $rootElement = $(thisApp.app.rootElement);
 
-
       thisApp.opts.mediaContainerClass =
         typeof thisApp.opts.mediaContainerClass === "undefined"
           ? "qor-video-container"
@@ -130,11 +129,10 @@ $R.add("plugin", "medialibrary", {
         mediaOption = data.MediaOption,
         description = mediaOption.Description;
 
-      iframeStart =
-        `<figure class="${mediaContainerClass}"><iframe title="${description}" data-media-id="${data.ID || data.primaryKey}" width="100%" height="380px" src="`;
+      iframeStart = `<figure class="${mediaContainerClass} video-scale"><iframe title="${description}" data-media-id="${data.ID ||
+        data.primaryKey}" width="100%" height="380px" src="`;
 
-      iframeEnd =
-        '" frameborder="0" allowfullscreen="true"></iframe></figure>';
+      iframeEnd = '" frameborder="0" allowfullscreen="true"></iframe></figure>';
 
       if (data.SelectedType == "video_link") {
         videoLink = mediaOption.Video;
@@ -145,28 +143,31 @@ $R.add("plugin", "medialibrary", {
             reUrlYoutube,
             iframeStart + "//www.youtube.com/embed/$1" + iframeEnd
           );
-        }else if (videoLink.match(reUrlVimeo)) {
+        } else if (videoLink.match(reUrlVimeo)) {
           videoType = "vimeo";
           htmlCode = videoLink.replace(
             reUrlVimeo,
             iframeStart + "//player.vimeo.com/video/$2" + iframeEnd
           );
-        }else if (videoLink.match(reUrlYouku) && reUrlYoukuID.test(videoLink)) {
+        } else if (
+          videoLink.match(reUrlYouku) &&
+          reUrlYoukuID.test(videoLink)
+        ) {
           videoType = "youku";
           youkuID = videoLink.match(reUrlYoukuID)[2];
-          htmlCode =
-            `<iframe width=100% height=400 data-media-id="${data.ID || data.primaryKey}" src="http://player.youku.com/embed/${youkuID}" frameborder=0 allowfullscreen="true"></iframe>`;
+          htmlCode = `<div class="video-scale"><iframe width=100% height=400 data-media-id="${data.ID ||
+            data.primaryKey}" src="http://player.youku.com/embed/${youkuID}" frameborder=0 allowfullscreen="true"></iframe></div>`;
         } else {
           videoType = "others";
-          htmlCode =
-            `<div class="video-scale"><iframe data-media-id="${data.ID || data.primaryKey}" width=100% height=400 src="${videoLink}" frameborder=0 allowfullscreen="true"></iframe></div>`;
+          htmlCode = `<div class="video-scale"><iframe data-media-id="${data.ID ||
+            data.primaryKey}" width=100% height=400 src="${videoLink}" frameborder=0 allowfullscreen="true"></iframe></div>`;
         }
       } else if (mediaOption.URL.match(reVideo)) {
         videoType = "uploadedVideo";
         htmlCode =
           '<figure class="' +
           mediaContainerClass +
-          '"><div role="application"><video width="100%" title="' +
+          '"><div class="video-scale" role="application"><video width="100%" title="' +
           description +
           '" aria-label="' +
           description +
@@ -210,9 +211,7 @@ $R.add("plugin", "medialibrary", {
         mediaOption = data.MediaOption,
         callbackData = {};
 
-
       var imageFile = data.File && JSON.parse(data.File);
-
 
       src = mediaOption.URL.replace(/image\..+\./, "image.");
 
