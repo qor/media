@@ -106,8 +106,6 @@ $R.add("plugin", "medialibrary", {
       const $rootElement = $(thisApp.app.rootElement);
 
 
-      console.log(data)
-
       thisApp.opts.mediaContainerClass =
         typeof thisApp.opts.mediaContainerClass === "undefined"
           ? "qor-video-container"
@@ -161,7 +159,7 @@ $R.add("plugin", "medialibrary", {
         } else {
           videoType = "others";
           htmlCode =
-            `<iframe data-media-id="${data.ID || data.primaryKey}" width=100% height=400 src="${videoLink}" frameborder=0 allowfullscreen="true"></iframe>`;
+            `<div class="video-scale"><iframe data-media-id="${data.ID || data.primaryKey}" width=100% height=400 src="${videoLink}" frameborder=0 allowfullscreen="true"></iframe></div>`;
         }
       } else if (mediaOption.URL.match(reVideo)) {
         videoType = "uploadedVideo";
