@@ -54,7 +54,7 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 		} else {
 			return err
 		}
-		if err = generateWebp(media, option, bimgOption, buffer.Bytes(), "original"); err != nil {
+		if err = generateWebp(media, option, bimgOption, img, "original"); err != nil {
 			return err
 		}
 	}
@@ -74,7 +74,7 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 			if err = media.Store(media.URL(), option, bytes.NewReader(buf)); err != nil {
 				return err
 			}
-			if err = generateWebp(media, option, bimgOption, buf); err != nil {
+			if err = generateWebp(media, option, bimgOption, img); err != nil {
 				return err
 			}
 		} else {
@@ -106,7 +106,7 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 			if err = media.Store(media.URL(key), option, bytes.NewReader(buf)); err != nil {
 				return err
 			}
-			if err = generateWebp(media, option, bimg.Options{}, buf, key); err != nil {
+			if err = generateWebp(media, option, bimg.Options{}, img, key); err != nil {
 				return err
 			}
 		} else {
@@ -116,11 +116,10 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 	return
 }
 
-func generateWebp(media media.Media, option *media.Option, bimgOption bimg.Options, buffer []byte, size ...string) (err error) {
+func generateWebp(media media.Media, option *media.Option, bimgOption bimg.Options, img *bimg.Image, size ...string) (err error) {
 	if !EnableGenerateWebp {
 		return
 	}
-	img := copyImage(buffer)
 	bimgOption.Type = bimg.WEBP
 	bimgOption.Quality = getWebpQualityByImageType(media.URL())
 	if buf, err := img.Process(bimgOption); err == nil {
@@ -190,5 +189,7 @@ func UseVips(cfg Config) {
 	if cfg.PNGCompression > 0 && cfg.PNGCompression <= 9 {
 		PNGCompression = cfg.PNGCompression
 	}
+	bimg.VipsCacheSetMax(0)
+	bimg.VipsCacheSetMaxMem(0)
 	media.RegisterMediaHandler("image_handler", bimgImageHandler{})
 }
