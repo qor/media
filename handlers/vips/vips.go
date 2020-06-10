@@ -65,10 +65,9 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 		bimgOption := bimg.Options{Quality: quality, Palette: true, Compression: PNGCompression}
 		// Crop original image if specified
 		if cropOption := media.GetCropOption("original"); cropOption != nil {
-			bimgOption.Top = cropOption.Min.Y
-			bimgOption.Left = cropOption.Min.X
-			bimgOption.AreaWidth = cropOption.Max.X - cropOption.Min.X
-			bimgOption.AreaHeight = cropOption.Max.Y - cropOption.Min.Y
+			if _, err :=   img.Extract(cropOption.Min.Y, cropOption.Min.X, cropOption.Max.X-cropOption.Min.X, cropOption.Max.Y-cropOption.Min.Y); err != nil {
+				return err
+			}
 		}
 
 		if buf, err := img.Process(bimgOption); err == nil {
