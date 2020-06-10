@@ -14,7 +14,8 @@ import (
 
 var (
 	EnableGenerateWebp = false
-	WebpQuality        = 85
+	PNGtoWebpQuality   = 85
+	JPEGtoWebpQuality  = 80
 	JPEGQuality        = 80
 	PNGQuality         = 90
 	PNGCompression     = 9
@@ -22,7 +23,8 @@ var (
 
 type Config struct {
 	EnableGenerateWebp bool
-	WebpQuality        int
+	PNGtoWebpQuality   int
+	JPEGtoWebpQuality  int
 	JPEGQuality        int
 	PNGQuality         int
 	PNGCompression     int
@@ -121,7 +123,7 @@ func generateWebp(media media.Media, option *media.Option, bimgOption bimg.Optio
 	}
 	img := copyImage(buffer)
 	bimgOption.Type = bimg.WEBP
-	bimgOption.Quality = WebpQuality
+	bimgOption.Quality = getWebpQualityByImageType(media.URL())
 	if buf, err := img.Process(bimgOption); err == nil {
 		url := media.URL(size...)
 		ext := path.Ext(url)
@@ -156,18 +158,35 @@ func getQualityByImageType(url string) int {
 	return 0
 }
 
+func getWebpQualityByImageType(url string) int {
+	imgType, err := media.GetImageFormat(url)
+	if err != nil {
+		return 0
+	}
+	switch *imgType {
+	case imaging.JPEG:
+		return JPEGtoWebpQuality
+	case imaging.PNG:
+		return PNGtoWebpQuality
+	}
+	return 0
+}
+
 func UseVips(cfg Config) {
 	if cfg.EnableGenerateWebp {
 		EnableGenerateWebp = true
 	}
-	if cfg.WebpQuality > 0 && cfg.WebpQuality <= 100 {
-		WebpQuality = cfg.WebpQuality
+	if cfg.JPEGtoWebpQuality > 0 && cfg.JPEGtoWebpQuality <= 100 {
+		JPEGtoWebpQuality = cfg.JPEGtoWebpQuality
+	}
+	if cfg.PNGtoWebpQuality > 0 && cfg.PNGtoWebpQuality <= 100 {
+		PNGtoWebpQuality = cfg.PNGtoWebpQuality
 	}
 	if cfg.JPEGQuality > 0 && cfg.JPEGQuality <= 100 {
 		JPEGQuality = cfg.JPEGQuality
 	}
 	if cfg.PNGQuality > 0 && cfg.PNGQuality <= 100 {
-		WebpQuality = cfg.WebpQuality
+		PNGQuality = cfg.PNGQuality
 	}
 	if cfg.PNGCompression > 0 && cfg.PNGCompression <= 9 {
 		PNGCompression = cfg.PNGCompression
