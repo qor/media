@@ -103,7 +103,7 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 		if err = media.Store(media.URL("original"), option, &fileBuffer); err == nil {
 			file.Seek(0, 0)
 
-			if format, err := getImageFormat(media.URL()); err == nil {
+			if format, err := GetImageFormat(media.URL()); err == nil {
 				if *format == imaging.GIF {
 					var buffer bytes.Buffer
 					if g, err := gif.DecodeAll(file); err == nil {

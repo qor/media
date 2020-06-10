@@ -9,7 +9,7 @@ import (
 	"github.com/qor/qor/utils"
 )
 
-func getImageFormat(url string) (*imaging.Format, error) {
+func GetImageFormat(url string) (*imaging.Format, error) {
 	formats := map[string]imaging.Format{
 		".jpg":  imaging.JPEG,
 		".jpeg": imaging.JPEG,
@@ -29,7 +29,7 @@ func getImageFormat(url string) (*imaging.Format, error) {
 
 // IsImageFormat check filename is image or not
 func IsImageFormat(name string) bool {
-	_, err := getImageFormat(name)
+	_, err := GetImageFormat(name)
 	return err == nil
 }
 
