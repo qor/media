@@ -482,12 +482,12 @@
                 keys = Object.keys(cropOptions),
                 url = data.MediaOption.OriginalURL;
 
-            if (!/original/.test(url)) {
+            if (!/\.original\./.test(url)) {
                 return;
             }
 
             for (let i = keys.length - 1; i >= 0; i--) {
-                cropOptions[keys[i]]['URL'] = url.replace(/original/, keys[i]);
+                cropOptions[keys[i]]['URL'] = url.replace(/\.original\./, `.${keys[i]}.`);
             }
 
             $template.find('img[data-size-name]').each(function() {
