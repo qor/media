@@ -37,6 +37,8 @@ RUN apk --update upgrade && \
  
 # Usage
 
+Setup media library and add below code
+
 ```
 import "github.com/qor/media/handlers/vips"
 
