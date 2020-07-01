@@ -3,6 +3,8 @@
 ### dev env
 ```brew install vips```
 
+export CGO_CFLAGS_ALLOW="-Xpreprocessor"
+
 
 ### build Dockerfile
 ```
