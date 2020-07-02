@@ -46,15 +46,11 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 
 	// Save Original Image
 	{
-		img := copyImage(buffer.Bytes())
-		bimgOption := bimg.Options{Quality: quality, Palette: true, Compression: PNGCompression}
-		// Process & Save original image
-		if buf, err := img.Process(bimgOption); err == nil {
-			media.Store(media.URL("original"), option, bytes.NewReader(buf))
-		} else {
+		if err = media.Store(media.URL("original"), option, file); err != nil {
 			return err
 		}
-		if err = generateWebp(media, option, bimgOption, img, "original"); err != nil {
+		img := copyImage(buffer.Bytes())
+		if err = generateWebp(media, option, bimg.Options{}, img, "original"); err != nil {
 			return err
 		}
 	}
@@ -65,19 +61,29 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 		bimgOption := bimg.Options{Quality: quality, Palette: true, Compression: PNGCompression}
 		// Crop original image if specified
 		if cropOption := media.GetCropOption("original"); cropOption != nil {
-			if _, err :=   img.Extract(cropOption.Min.Y, cropOption.Min.X, cropOption.Max.X-cropOption.Min.X, cropOption.Max.Y-cropOption.Min.Y); err != nil {
+			options := bimg.Options{
+				Quality:    100, // Don't compress twice
+				Top:        cropOption.Min.Y,
+				Left:       cropOption.Min.X,
+				AreaWidth:  cropOption.Max.X - cropOption.Min.X,
+				AreaHeight: cropOption.Max.Y - cropOption.Min.Y,
+			}
+			if options.Top == 0 && options.Left == 0 {
+				options.Top = -1
+			}
+			if _, err := img.Process(options); err != nil {
 				return err
 			}
 		}
-
+		copy := copyImage(img.Image())
 		if buf, err := img.Process(bimgOption); err == nil {
 			if err = media.Store(media.URL(), option, bytes.NewReader(buf)); err != nil {
 				return err
 			}
-			if err = generateWebp(media, option, bimgOption, img); err != nil {
-				return err
-			}
 		} else {
+			return err
+		}
+		if err = generateWebp(media, option, bimgOption, copy); err != nil {
 			return err
 		}
 	}
@@ -89,10 +95,21 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 		}
 		img := copyImage(buffer.Bytes())
 		if cropOption := media.GetCropOption(key); cropOption != nil {
-			if _, err := img.Extract(cropOption.Min.Y, cropOption.Min.X, cropOption.Max.X-cropOption.Min.X, cropOption.Max.Y-cropOption.Min.Y); err != nil {
+			options := bimg.Options{
+				Quality:    100, // Don't compress twice
+				Top:        cropOption.Min.Y,
+				Left:       cropOption.Min.X,
+				AreaWidth:  cropOption.Max.X - cropOption.Min.X,
+				AreaHeight: cropOption.Max.Y - cropOption.Min.Y,
+			}
+			if options.Top == 0 && options.Left == 0 {
+				options.Top = -1
+			}
+			if _, err := img.Process(options); err != nil {
 				return err
 			}
 		}
+		copy := copyImage(img.Image())
 		bimgOption := bimg.Options{
 			Width:       size.Width,
 			Height:      size.Height,
@@ -106,10 +123,10 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 			if err = media.Store(media.URL(key), option, bytes.NewReader(buf)); err != nil {
 				return err
 			}
-			if err = generateWebp(media, option, bimg.Options{}, img, key); err != nil {
-				return err
-			}
 		} else {
+			return err
+		}
+		if err = generateWebp(media, option, bimgOption, copy, key); err != nil {
 			return err
 		}
 	}
