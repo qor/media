@@ -132,6 +132,50 @@ product.Image.URL("small")
 product.Image.URL("big@ld")
 ```
 
+### How to setup a Media Library and use media box
+
+You can also setup a media library, not use oss.OSS in model directly, then you can choose file from media library.
+
+setup a media library
+```
+import(
+"github.com/qor/admin"
+"github.com/qor/media/oss"
+"github.com/oss/s3"
+
+)
+
+adm = admin.New(&admin.AdminConfig{SiteName: "XXX", DB: db})
+oss.Storage = s3.New(s3.Config{AccessID: "access_id", AccessKey: "access_key", Region: "region", Bucket: "bucket", Endpoint: "cdn.getqor.com", ACL: aws.BucketCannedACLPublicRead})
+adm.AddResource(&MediaLibrary{}, &admin.Config{Name: "Media Library")
+media.RegisterCallbacks(db)
+```
+
+use media box in model
+```
+import(
+"github.com/qor/media/media_library"
+"github.com/qor/media
+}
+
+type Product struct {
+	gorm.Model
+
+	Image          media_library.MediaBox
+}
+
+   res :=adm.AddResource(&Product{}, &admin.Config{Name: "Product")
+   res.Meta(&admin.Meta{Name: "Image", Config: &media_library.MediaBoxConfig{
+		Max:                1,
+		Sizes:              map[string]*media.Size{
+	        "m": {Width: 500,Height:500},
+        },
+		AllowType:          media_library.ALLOW_TYPE_IMAGE,
+	}})
+
+```
+
+
 ### Set file storage path in the file system
 
 The default size and path for `Image`. The default size is `4294967295` and default path is `{repo_path}/public/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}`.
