@@ -142,12 +142,13 @@ import(
 "github.com/qor/admin"
 "github.com/qor/media/oss"
 "github.com/oss/s3"
-
+"github.com/qor/media/media_library"
 )
 
+db.AutoMigrate(&media_library.MediaLibrary{})
 adm = admin.New(&admin.AdminConfig{SiteName: "XXX", DB: db})
 oss.Storage = s3.New(s3.Config{AccessID: "access_id", AccessKey: "access_key", Region: "region", Bucket: "bucket", Endpoint: "cdn.getqor.com", ACL: aws.BucketCannedACLPublicRead})
-adm.AddResource(&MediaLibrary{}, &admin.Config{Name: "Media Library")
+adm.AddResource(&media_library.MediaLibrary{}, &admin.Config{Name: "Media Library")
 media.RegisterCallbacks(db)
 ```
 
