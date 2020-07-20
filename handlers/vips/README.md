@@ -10,7 +10,7 @@ export CGO_CFLAGS_ALLOW="-Xpreprocessor"
 ```
 FROM alpine:3.12
 
-RUN apk add --update go=1.13.11-r0 gcc=9.3.0-r2 g++=9.3.0-r2 git=2.26.2-r0
+RUN apk add --update go gcc g++ git
 
 RUN apk add --update build-base vips-dev
 ```
