@@ -54,6 +54,10 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 			return err
 		}
 	}
+	// TODO support crop gif
+	if isGif(media.URL()) {
+		return
+	}
 
 	// Handle default image
 	{
@@ -185,6 +189,11 @@ func getWebpQualityByImageType(url string) int {
 		return PNGtoWebpQuality
 	}
 	return 0
+}
+
+func isGif(url string) bool {
+	imgType, err := media.GetImageFormat(url)
+	return err == nil && *imgType == imaging.GIF
 }
 
 func UseVips(cfg Config) {
