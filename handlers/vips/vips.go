@@ -16,6 +16,7 @@ var (
 	EnableGenerateWebp = false
 	PNGtoWebpQuality   = 85
 	JPEGtoWebpQuality  = 80
+	GIFtoWebpQuality   = 85
 	JPEGQuality        = 80
 	PNGQuality         = 90
 	PNGCompression     = 9
@@ -54,8 +55,28 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 			return err
 		}
 	}
+
 	// TODO support crop gif
 	if isGif(media.URL()) {
+		if err = media.Store(media.URL(), option, file); err != nil {
+			return err
+		}
+		img := copyImage(buffer.Bytes())
+		bimgOption := bimg.Options{Palette: true, Compression: PNGCompression}
+		if err = generateWebp(media, option, bimgOption, img); err != nil {
+			return err
+		}
+		for key, _ := range media.GetSizes() {
+			if key == "original" {
+				continue
+			}
+			if err = media.Store(media.URL(key), option, file); err != nil {
+				return err
+			}
+			if err = generateWebp(media, option, bimgOption, img, key); err != nil {
+				return err
+			}
+		}
 		return
 	}
 
@@ -187,6 +208,8 @@ func getWebpQualityByImageType(url string) int {
 		return JPEGtoWebpQuality
 	case imaging.PNG:
 		return PNGtoWebpQuality
+	case imaging.GIF:
+		return GIFtoWebpQuality
 	}
 	return 0
 }
