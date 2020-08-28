@@ -70,6 +70,7 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 			if key == "original" {
 				continue
 			}
+			img := copyImage(buffer.Bytes())
 			if err = media.Store(media.URL(key), option, file); err != nil {
 				return err
 			}
