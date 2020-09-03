@@ -3,7 +3,6 @@ package vips
 import (
 	"bytes"
 	"io"
-
 	"path"
 	"strings"
 
@@ -37,19 +36,33 @@ func (bimgImageHandler) CouldHandle(media media.Media) bool {
 	return media.IsImage()
 }
 
+// Crop & Resize
 func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, option *media.Option) (err error) {
-	// Crop & Resize
-	var buffer bytes.Buffer
-	if _, err := io.Copy(&buffer, file); err != nil {
+	buffer := new(bytes.Buffer)
+	if _, err := io.Copy(buffer, file); err != nil {
 		return err
 	}
-	quality := getQualityByImageType(media.URL())
+
+	// Auto Rotate by EXIF
+	img := copyImage(buffer.Bytes())
+	metaData, _ := img.Metadata()
+	if metaData.EXIF.Orientation > 1 {
+		rotatedBuf, err := img.AutoRotate()
+		if err != nil {
+			return err
+		}
+		buffer.Reset()
+		if _, err := io.Copy(buffer, bytes.NewBuffer(rotatedBuf)); err != nil {
+			return err
+		}
+	}
 
 	// Save Original Image
 	{
-		if err = media.Store(media.URL("original"), option, file); err != nil {
+		if err = media.Store(media.URL("original"), option, bytes.NewReader(buffer.Bytes())); err != nil {
 			return err
 		}
+
 		img := copyImage(buffer.Bytes())
 		if err = generateWebp(media, option, bimg.Options{}, img, "original"); err != nil {
 			return err
@@ -80,6 +93,8 @@ func (bimgImageHandler) Handle(media media.Media, file media.FileInterface, opti
 		}
 		return
 	}
+
+	quality := getQualityByImageType(media.URL())
 
 	// Handle default image
 	{
