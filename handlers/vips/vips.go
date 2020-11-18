@@ -13,7 +13,7 @@ import (
 
 var (
 	EnableGenerateWebp = false
-	PNGtoWebpQuality   = 85
+	PNGtoWebpQuality   = 90
 	JPEGtoWebpQuality  = 80
 	GIFtoWebpQuality   = 85
 	JPEGQuality        = 80
