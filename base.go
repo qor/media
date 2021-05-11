@@ -69,6 +69,7 @@ func (b *Base) Scan(data interface{}) (err error) {
 		if len(values) > 0 {
 			if file := values[0]; file.Size > 0 {
 				b.FileHeader, b.FileName = file, file.Filename
+				b.Delete = false
 			}
 		}
 	case []byte:
