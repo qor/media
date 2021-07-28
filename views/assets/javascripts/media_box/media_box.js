@@ -89,6 +89,8 @@
             this.updateMediaLibraryData($target.closest(CLASS_LISTS));
             this.$element.find(CLASS_LISTS_DATA).data('isDeleted', true);
 
+            $("body").trigger('itemRemoved.medialibrary', this);
+
             return false;
         },
 
@@ -466,6 +468,8 @@
             }
 
             this.$bottomsheets.find('.qor-media-loading').remove();
+            $("body").trigger('itemAdded.medialibrary', this, [data]);
+
 
             if (isNewData || maxItem == 1) {
                 setTimeout(function() {
