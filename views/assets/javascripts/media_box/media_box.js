@@ -467,6 +467,7 @@
                 });
             }
 
+            this.$bottomsheets.find('.qor-media-loading').remove();
             $("body").trigger('itemAdded.medialibrary', this, [data]);
 
 
