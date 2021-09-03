@@ -468,7 +468,7 @@
             }
 
             this.$bottomsheets.find('.qor-media-loading').remove();
-            $("body").trigger('itemAdded.medialibrary', this, [data]);
+            $("body").trigger('itemAdded.medialibrary', [this, data]);
 
 
             if (isNewData || maxItem == 1) {
