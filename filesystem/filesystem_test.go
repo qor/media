@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/TykTechnologies/media"
+	"github.com/TykTechnologies/media/filesystem"
 	"github.com/jinzhu/gorm"
-	"github.com/qor/media"
-	"github.com/qor/media/filesystem"
 	"github.com/qor/qor/test/utils"
 )
 

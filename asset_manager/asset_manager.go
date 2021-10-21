@@ -9,8 +9,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	// "github.com/qor/admin"
+	"github.com/TykTechnologies/media/oss"
 	admin "github.com/TykTechnologies/raava-admin"
-	"github.com/qor/media/oss"
 	"github.com/qor/qor/resource"
 )
 

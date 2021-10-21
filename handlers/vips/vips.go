@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/TykTechnologies/media"
 	"github.com/disintegration/imaging"
-	"github.com/qor/media"
 	"github.com/theplant/bimg"
 )
 

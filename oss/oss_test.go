@@ -14,10 +14,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/TykTechnologies/media"
+	"github.com/TykTechnologies/media/oss"
 	"github.com/jinzhu/configor"
 	"github.com/jinzhu/gorm"
-	"github.com/qor/media"
-	"github.com/qor/media/oss"
 	"github.com/qor/oss/s3"
 	"github.com/qor/qor/test/utils"
 )

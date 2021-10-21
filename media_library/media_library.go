@@ -12,16 +12,16 @@ import (
 
 	"github.com/jinzhu/gorm"
 	// "github.com/qor/admin"
+	"github.com/TykTechnologies/media"
+	"github.com/TykTechnologies/media/oss"
 	admin "github.com/TykTechnologies/raava-admin"
-	"github.com/qor/media"
-	"github.com/qor/media/oss"
 	"github.com/qor/qor"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
 )
 
 func init() {
-	admin.RegisterViewPath("github.com/qor/media/media_library/views")
+	admin.RegisterViewPath("github.com/TykTechnologies/media/media_library/views")
 }
 
 type MediaLibraryInterface interface {

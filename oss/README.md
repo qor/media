@@ -6,7 +6,7 @@ Use [OSS](https://github.com/qor/oss) as backend to store medias
 
 ```go
 import (
-	"github.com/qor/media/oss"
+	"github.com/TykTechnologies/media/oss"
 	"github.com/qor/oss/filesystem"
 	"github.com/qor/oss/s3"
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
