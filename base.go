@@ -254,9 +254,9 @@ func init() {
 
 // ConfigureQorMetaBeforeInitialize configure this field for Qor Admin
 func (Base) ConfigureQorMetaBeforeInitialize(meta resource.Metaor) {
-	fmt.Printf("media.ConfigureQorMetaBeforeInitialize")
+	// fmt.Printf("media.ConfigureQorMetaBeforeInitialize")
 	if meta, ok := meta.(*admin.Meta); ok {
-		fmt.Printf("media.ConfigureQorMetaBeforeInitialize | %v\n\n", meta)
+		// fmt.Printf("media.ConfigureQorMetaBeforeInitialize | %v\n\n", meta)
 		if meta.Type == "" {
 			meta.Type = "file"
 		}
