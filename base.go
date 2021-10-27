@@ -249,7 +249,7 @@ func (b Base) IsSVG() bool {
 }
 
 func init() {
-	admin.RegisterViewPath("github.com/qor/media/views")
+	admin.RegisterViewPath("github.com/TykTechnologies/media/views")
 }
 
 // ConfigureQorMetaBeforeInitialize configure this field for Qor Admin
