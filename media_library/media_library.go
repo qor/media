@@ -14,7 +14,7 @@ import (
 	// "github.com/qor/admin"
 	"github.com/TykTechnologies/media"
 	"github.com/TykTechnologies/media/oss"
-	admin "github.com/TykTechnologies/raava-admin"
+	admin "github.com/TykTechnologies/portal-admin"
 	"github.com/qor/qor"
 	"github.com/qor/qor/resource"
 	"github.com/qor/qor/utils"
