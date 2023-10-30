@@ -180,12 +180,12 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 						// Save cropped default image
 						if cropOption := media.GetCropOption("original"); cropOption != nil {
 							var buffer bytes.Buffer
-							imaging.Encode(&buffer, imaging.Crop(img, *cropOption), *format)
+							imaging.Encode(&buffer, imaging.Crop(convertedImg, *cropOption), *format)
 							media.Store(media.URL(), option, &buffer)
 						} else {
 							// Save default image
 							var buffer bytes.Buffer
-							imaging.Encode(&buffer, img, *format)
+							imaging.Encode(&buffer, convertedImg, *format)
 							media.Store(media.URL(), option, &buffer)
 						}
 
@@ -195,7 +195,7 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 								continue
 							}
 
-							newImage := img
+							newImage := convertedImg
 							if cropOption := media.GetCropOption(key); cropOption != nil {
 								newImage = imaging.Crop(newImage, *cropOption)
 							}
