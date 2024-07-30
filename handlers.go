@@ -9,8 +9,13 @@ import (
 	_ "image/jpeg"
 	"io/ioutil"
 	"math"
+	"runtime"
 
 	"github.com/disintegration/imaging"
+	"github.com/mandykoh/prism"
+	"github.com/mandykoh/prism/adobergb"
+	"github.com/mandykoh/prism/srgb"
+	"github.com/vimeo/go-iccjpeg/iccjpeg"
 )
 
 var mediaHandlers = make(map[string]MediaHandler)
@@ -152,15 +157,35 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 					}
 				} else {
 					if img, _, err := image.Decode(file); err == nil {
+						file.Seek(0, 0)
+						var profiles []byte
+						//only support jpg image convert
+						if *format == imaging.JPEG {
+							profiles, err = iccjpeg.GetICCBuf(file)
+							if err != nil {
+								panic(err)
+							}
+							file.Seek(0, 0)
+						}
+						var convertedImg *image.NRGBA
+						inputImg := prism.ConvertImageToNRGBA(img, runtime.NumCPU())
+						//Converted image not have profiles
+						if len(profiles) == 0 {
+							//already converted can't convert again
+							convertedImg = inputImg
+						} else {
+							convertedImg = ConvertImg(inputImg)
+						}
+						img = convertedImg
 						// Save cropped default image
 						if cropOption := media.GetCropOption("original"); cropOption != nil {
 							var buffer bytes.Buffer
-							imaging.Encode(&buffer, imaging.Crop(img, *cropOption), *format)
+							imaging.Encode(&buffer, imaging.Crop(convertedImg, *cropOption), *format)
 							media.Store(media.URL(), option, &buffer)
 						} else {
 							// Save default image
 							var buffer bytes.Buffer
-							imaging.Encode(&buffer, img, *format)
+							imaging.Encode(&buffer, convertedImg, *format)
 							media.Store(media.URL(), option, &buffer)
 						}
 
@@ -170,7 +195,7 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 								continue
 							}
 
-							newImage := img
+							newImage := convertedImg
 							if cropOption := media.GetCropOption(key); cropOption != nil {
 								newImage = imaging.Crop(newImage, *cropOption)
 							}
@@ -194,4 +219,16 @@ func (imageHandler) Handle(media Media, file FileInterface, option *Option) (err
 
 func init() {
 	RegisterMediaHandler("image_handler", imageHandler{})
+}
+
+func ConvertImg(inputImg *image.NRGBA) (convertedImg *image.NRGBA) {
+	convertedImg = image.NewNRGBA(inputImg.Rect)
+	for i := inputImg.Rect.Min.Y; i < inputImg.Rect.Max.Y; i++ {
+		for j := inputImg.Rect.Min.X; j < inputImg.Rect.Max.X; j++ {
+			inCol, alpha := adobergb.ColorFromNRGBA(inputImg.NRGBAAt(j, i))
+			outCol := srgb.ColorFromXYZ(inCol.ToXYZ())
+			convertedImg.SetNRGBA(j, i, outCol.ToNRGBA(alpha))
+		}
+	}
+	return convertedImg
 }
