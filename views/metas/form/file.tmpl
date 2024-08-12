@@ -15,11 +15,9 @@
       <span class="qor-file__list">
         <span class="qor-file__list-item">
           <span class="qor-file__filename">{{$value.GetFileName}}</span>
-          {{if ne $value.GetFileName ""}}
-            <span class="qor-cropper__toggle">
-              <i class="tyk-icon tykon tykon-x qor-cropper__toggle--delete"></i>
-            </span>
-          {{end}}
+          <span class="qor-cropper__toggle {{if eq $value.GetFileName ""}}hidden{{end}}">
+            <i class="tyk-icon tykon tykon-x qor-cropper__toggle--delete"></i>
+          </span>
         </span>
       </span>
     </div>
