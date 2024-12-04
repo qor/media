@@ -1,6 +1,6 @@
 {{$value := (raw_value_of .ResourceValue .Meta)}}
 
-<div class="qor-field">
+<div class="qor-field{{if .Meta.OuterClass}} {{.Meta.OuterClass}}{{end}}">
   <label class="qor-field__label" for="{{.InputId}}">
     {{meta_label .Meta}}
   </label>
@@ -22,4 +22,20 @@
       </span>
     </div>
   </div>
+  {{ $desc := meta_description .Meta }}
+  {{ if or $desc (meta_help_link_url .Meta) }}
+  <div class="description-helpurl-wrapper">
+    {{ if $desc }}
+    <span class="qor-form-section-description description">{{$desc}}</span>
+    {{ end }}
+    {{ if (meta_help_link_url .Meta) }}
+    <a class="learn-more qor-form-section-description" href="{{meta_help_link_url .Meta}}"
+      target="_blank">{{meta_help_link_label .Meta}}<i class="text-success tyk-icon tykon tykon-link"
+        aria-hidden="true"></i></a>
+    {{ end }}
+  </div>
+  {{ end }}
+  {{ if EntityHelpText .Meta }}
+    <small class="entity-info">{{ EntityHelpText .Meta }}</small>
+  {{ end }} 
 </div>
