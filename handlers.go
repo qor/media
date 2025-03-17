@@ -10,7 +10,7 @@ import (
 	"io/ioutil"
 	"math"
 
-	"github.com/disintegration/imaging"
+	"github.com/qor5/imaging"
 )
 
 var mediaHandlers = make(map[string]MediaHandler)
