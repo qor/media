@@ -5,6 +5,20 @@
     {{meta_label .Meta}}
   </label>
 
+  {{ $desc := meta_description .Meta }}
+  {{ if or $desc (meta_help_link_url .Meta) }}
+  <div class="description-helpurl-wrapper">
+    {{ if $desc }}
+    <span class="qor-form-section-description description">{{$desc}}</span>
+    {{ end }}
+    {{ if (meta_help_link_url .Meta) }}
+    <a class="learn-more qor-form-section-description" href="{{meta_help_link_url .Meta}}"
+      target="_blank">{{meta_help_link_label .Meta}}<i class="text-success tyk-icon tykon tykon-link"
+        aria-hidden="true"></i></a>
+    {{ end }}
+  </div>
+  {{ end }}
+
   <div class="qor-field__block qor-file {{if $value.IsImage}}qor-file__image{{end}}">
     <div class="qor-fieldset">   
       <textarea class="qor-file__options hidden" data-cropper-title="{{t "qor_media_library.form.crop_image" "Crop image"}}" data-cropper-cancel="{{t "qor_media_library.form.cancel" "Cancel"}}" data-cropper-ok="{{t "qor_media_library.form.ok" "OK"}}" name="{{.InputName}}" aria-hidden="true">{{if $value}}{{marshal $value}}{{end}}</textarea>   
@@ -22,20 +36,14 @@
       </span>
     </div>
   </div>
-  {{ $desc := meta_description .Meta }}
-  {{ if or $desc (meta_help_link_url .Meta) }}
-  <div class="description-helpurl-wrapper">
-    {{ if $desc }}
-    <span class="qor-form-section-description description">{{$desc}}</span>
-    {{ end }}
-    {{ if (meta_help_link_url .Meta) }}
-    <a class="learn-more qor-form-section-description" href="{{meta_help_link_url .Meta}}"
-      target="_blank">{{meta_help_link_label .Meta}}<i class="text-success tyk-icon tykon tykon-link"
-        aria-hidden="true"></i></a>
-    {{ end }}
-  </div>
-  {{ end }}
   {{ if EntityHelpText .Meta }}
     <small class="entity-info">{{ EntityHelpText .Meta }}</small>
-  {{ end }} 
+  {{ end }}
+  {{ $note := meta_note .Meta }}
+  {{ if $note }}
+  <div class="alert alert-info alert-info-meta" role="alert">
+    <i class="tyk-icon tykon tykon-warning"></i>
+    <div class="alert__content">{{$note}}</div>
+  </div>
+  {{ end }}
 </div>
