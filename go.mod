@@ -1,6 +1,6 @@
 module github.com/qor/media
 
-go 1.24
+go 1.25
 
 require (
 	github.com/disintegration/imaging v1.6.3-0.20201218193011-d40f48ce0f09
@@ -8,9 +8,9 @@ require (
 	github.com/jinzhu/configor v1.2.2
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0
-	github.com/qor/admin v1.2.0
-	github.com/qor/oss v0.0.0-20241126061828-4629f3a3524a
-	github.com/qor/qor v1.3.0
+	github.com/qor/admin v1.2.1-0.20251125093313-4a292fdc9c5d
+	github.com/qor/oss v0.0.0-20260205073454-271ad84795a6
+	github.com/qor/qor v1.3.1-0.20260203034140-88b8e649a105
 	github.com/qor/serializable_meta v0.0.0-20180510060738-5fd8542db417
 	github.com/theplant/bimg v1.1.1
 )
@@ -18,7 +18,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.32.4 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.32.7 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.6 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.28.3 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.44 // indirect
@@ -35,7 +35,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.24.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.32.4 // indirect
-	github.com/aws/smithy-go v1.22.0 // indirect
+	github.com/aws/smithy-go v1.22.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
@@ -54,6 +54,6 @@ require (
 	github.com/qor/validations v0.0.0-20171228122639-f364bca61b46 // indirect
 	github.com/theplant/cldr v0.0.0-20190423050709-9f76f7ce4ee8 // indirect
 	golang.org/x/image v0.18.0 // indirect
-	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
