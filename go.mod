@@ -1,6 +1,6 @@
 module github.com/qor/media
 
-go 1.25.0
+go 1.26
 
 require (
 	github.com/disintegration/imaging v1.6.3-0.20201218193011-d40f48ce0f09
